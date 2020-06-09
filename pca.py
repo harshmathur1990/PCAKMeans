@@ -1,6 +1,6 @@
 import sys
 import h5py
-import sunpy.io
+import sunpy.io.fits
 import numpy as np
 from sklearn.decomposition import PCA
 
