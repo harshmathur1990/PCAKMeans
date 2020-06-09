@@ -9,6 +9,10 @@ def do_PCA(filename):
 
     data, header = sunpy.io.read_file(filename)[0]
 
+    sys.stdout.write(
+        '{} opened for reading\n'.format(filename)
+    )
+
     new_arr = np.lib.stride_tricks.as_strided(
         data,
         shape=(100 * 1236 * 1848, 30),
@@ -17,9 +21,21 @@ def do_PCA(filename):
 
     pca = PCA(n_components=30)
 
+    sys.stdout.write(
+        'About to perform PCA fit_transform\n'
+    )
+
     principalComponents = pca.fit_transform(new_arr)
 
+    sys.stdout.write(
+        'Done with perform PCA fit_transform\n'
+    )
+
     f = h5py.File('pca.h5', 'w')
+
+    sys.stdout.write(
+        'Opened pca.h5 for writing\n'
+    )
 
     f['means_'] = pca.means_
 
@@ -42,6 +58,8 @@ def do_PCA(filename):
     f['n_samples_'] = pca.n_samples_
 
     f.close()
+
+    sys.stdout.write('Done\n')
 
 
 if __name__ == '__main__':
