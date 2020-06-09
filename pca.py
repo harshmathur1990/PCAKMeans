@@ -37,8 +37,6 @@ def do_PCA(filename):
         'Opened pca.h5 for writing\n'
     )
 
-    f['means_'] = pca.means_
-
     f['components_'] = pca.components_
 
     f['principalComponents'] = principalComponents
@@ -49,13 +47,15 @@ def do_PCA(filename):
 
     f['singular_values_'] = pca.singular_values_
 
+    f['mean_'] = pca.mean_
+
+    f['var_'] = pca.var_
+
     f['noise_variance_'] = pca.noise_variance_
 
     f['n_components_'] = pca.n_components_
 
-    f['n_features_'] = pca.n_features_
-
-    f['n_samples_'] = pca.n_samples_
+    f['n_samples_seen_'] = pca.n_samples_seen_
 
     f.close()
 
