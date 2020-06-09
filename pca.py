@@ -7,7 +7,7 @@ from sklearn.decomposition import PCA
 
 def do_PCA(filename):
 
-    data, header = sunpy.io.read_file(filename)[0]
+    data, header = sunpy.io.fits.read(filename, memmap=True)[0]
 
     sys.stdout.write(
         '{} opened for reading\n'.format(filename)
