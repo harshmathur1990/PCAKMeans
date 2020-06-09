@@ -2,7 +2,7 @@ import sys
 import h5py
 import sunpy.io.fits
 import numpy as np
-from sklearn.decomposition import PCA
+from sklearn.decomposition import IncrementalPCA
 
 
 def do_PCA(filename):
@@ -19,7 +19,7 @@ def do_PCA(filename):
         strides=(4, 9136512)
     )
 
-    pca = PCA(n_components=30)
+    pca = IncrementalPCA(n_components=30)
 
     sys.stdout.write(
         'About to perform PCA fit_transform\n'
