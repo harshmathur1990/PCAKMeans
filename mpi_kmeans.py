@@ -133,12 +133,18 @@ if __name__ == '__main__':
             running_queue.add(item)
 
         sys.stdout.write('Finished First Phase\n')
-        while len(waiting_queue) != 0 or len(running_queue) != 0:
-            status_dict = comm.recv(
-                source=MPI.ANY_SOURCE,
-                tag=2,
-                status=status
-            )
+
+        while len(running_queue) != 0:
+            try:
+                status_dict = comm.recv(
+                    source=MPI.ANY_SOURCE,
+                    tag=2,
+                    status=status
+                )
+            except Exception:
+                sys.stdout.write('Failed to get\n')
+                sys.exit(1)
+
             sender = status.Get_source()
             jobstatus = status_dict['status']
             item = status_dict['item']
