@@ -1,13 +1,14 @@
-import os
+# import os
 import sys
 import enum
 import traceback
 import numpy as np
-import joblib
+# import joblib
 import h5py
-from dask.distributed import LocalCluster, Client
+# from dask.distributed import LocalCluster, Client
 from mpi4py import MPI
 from sklearn.cluster import KMeans
+from delay_retry import retry
 
 
 kmeans_output_dir = '/home/harsh/kmeans_output'
@@ -34,6 +35,14 @@ def save_model(fout, model):
     fout['n_iter_'] = model.n_iter_
 
 
+@retry
+def get_value(input_file, input_key):
+    f = h5py.File(input_file, 'r')
+    value = f[input_key][()]
+    f.close()
+    return value
+
+
 def do_work(num_clusters):
     sys.stdout.write('Processing for Num Clusters: {}\n'.format(num_clusters))
     # try:
@@ -52,12 +61,12 @@ def do_work(num_clusters):
 
     # client = Client(cluster)
 
-    f = h5py.File(input_file, 'r')
+    value = get_value(input_file, input_key)
 
     try:
         model = KMeans(n_clusters=num_clusters)
         # with joblib.parallel_backend('dask'):
-        model.fit(f[input_key])
+        model.fit(value)
 
         fout = h5py.File(
             '{}/out_{}.h5'.format(kmeans_output_dir, item), 'w'
@@ -71,8 +80,6 @@ def do_work(num_clusters):
         exc = traceback.format_exc()
         sys.stdout.write(exc)
         return Status.Work_failure
-    finally:
-        f.close()
 
 
 if __name__ == '__main__':
