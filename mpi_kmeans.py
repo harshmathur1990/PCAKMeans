@@ -134,7 +134,7 @@ if __name__ == '__main__':
 
         sys.stdout.write('Finished First Phase\n')
 
-        while len(running_queue) != 0:
+        while len(running_queue) != 0 and len(waiting_queue) != 0:
             try:
                 status_dict = comm.recv(
                     source=MPI.ANY_SOURCE,
