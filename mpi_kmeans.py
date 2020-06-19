@@ -35,7 +35,7 @@ def save_model(fout, model):
     fout['n_iter_'] = model.n_iter_
 
 
-@retry
+@retry((Exception,))
 def get_value(input_file, input_key):
     f = h5py.File(input_file, 'r')
     value = f[input_key][()]
