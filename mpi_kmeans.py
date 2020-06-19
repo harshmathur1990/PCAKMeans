@@ -92,6 +92,8 @@ if __name__ == '__main__':
             waiting_queue.add(i)
 
         for worker in range(1, size):
+            if len(waiting_queue) == 0:
+                break
             item = waiting_queue.pop()
             work_type = {
                 'job': 'work',
@@ -115,12 +117,13 @@ if __name__ == '__main__':
             else:
                 failure_queue.add(item)
 
-            new_item = waiting_queue.pop()
-            work_type = {
-                'job': 'work',
-                'item': new_item
-            }
-            comm.send(work_type, dest=sender, tag=1)
+            if len(waiting_queue) != 0:
+                new_item = waiting_queue.pop()
+                work_type = {
+                    'job': 'work',
+                    'item': new_item
+                }
+                comm.send(work_type, dest=sender, tag=1)
 
         for worker in range(1, size):
             work_type = {
