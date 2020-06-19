@@ -61,9 +61,8 @@ def do_work(num_clusters):
 
     # client = Client(cluster)
 
-    value = get_value(input_file, input_key)
-
     try:
+        value = get_value(input_file, input_key)
         model = KMeans(n_clusters=num_clusters)
         # with joblib.parallel_backend('dask'):
         model.fit(value)
@@ -95,8 +94,24 @@ if __name__ == '__main__':
         running_queue = set()
         finished_queue = set()
         failure_queue = set()
+
         for i in range(2, 100):
             waiting_queue.add(i)
+
+        try:
+            f = h5py.File('{}/status_job.h5'.format(kmeans_output_dir), 'r')
+
+            if 'finished' in list(f.keys()):
+                finished = f['finished'][()]
+            else:
+                finished = list()
+
+            for index in finished:
+                waiting_queue.discard(index)
+
+            f.close()
+        except Exception:
+            pass
 
         for worker in range(1, size):
             if len(waiting_queue) == 0:
@@ -131,6 +146,22 @@ if __name__ == '__main__':
                     'item': new_item
                 }
                 comm.send(work_type, dest=sender, tag=1)
+
+        try:
+            f = h5py.File('{}/status_job.h5'.format(kmeans_output_dir), 'a')
+
+            if 'finished' in list(f.keys()):
+                finished = f['finished'][()]
+                del f['finished']
+            else:
+                finished = list()
+
+            f['finished'] = finished + list(finished_queue)
+
+            f.close()
+
+        except Exception:
+            pass
 
         for worker in range(1, size):
             work_type = {
