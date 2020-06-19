@@ -64,6 +64,7 @@ def do_work(num_clusters):
         )
         save_model(fout, model)
         fout.close()
+        sys.stdout.write('Success for Num Clusters: {}\n'.format(num_clusters))
         return Status.Work_done
     except Exception:
         sys.stdout.write('Failed for {}\n'.format(item))
