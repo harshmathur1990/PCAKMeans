@@ -63,14 +63,22 @@ def do_work(num_clusters):
 
     try:
         value = get_value(input_file, input_key)
+        sys.stdout.write('Process: {} Read from File\n'.format(num_clusters))
         model = KMeans(n_clusters=num_clusters)
         # with joblib.parallel_backend('dask'):
+        sys.stdout.write('Process: {} Before KMeans\n'.format(num_clusters))
         model.fit(value)
+
+        sys.stdout.write('Process: {} Fitted KMeans\n'.format(num_clusters))
 
         fout = h5py.File(
             '{}/out_{}.h5'.format(kmeans_output_dir, item), 'w'
         )
+        sys.stdout.write(
+            'Process: {} Open file for writing\n'.format(num_clusters)
+        )
         save_model(fout, model)
+        sys.stdout.write('Process: {} Wrote to file\n'.format(num_clusters))
         fout.close()
         sys.stdout.write('Success for Num Clusters: {}\n'.format(num_clusters))
         return Status.Work_done
@@ -124,6 +132,7 @@ if __name__ == '__main__':
             comm.send(work_type, dest=worker, tag=1)
             running_queue.add(item)
 
+        sys.stdout.write('Finished First Phase\n')
         while len(waiting_queue) != 0 or len(running_queue) != 0:
             status_dict = comm.recv(
                 source=MPI.ANY_SOURCE,
@@ -133,6 +142,11 @@ if __name__ == '__main__':
             sender = status.Get_source()
             jobstatus = status_dict['status']
             item = status_dict['item']
+            sys.stdout.write(
+                'Sender: {} item: {} Status: {}\n'.format(
+                    sender, item, jobstatus.value
+                )
+            )
             running_queue.discard(item)
             if jobstatus == Status.Work_done:
                 finished_queue.add(item)
