@@ -63,6 +63,7 @@ def do_work(num_clusters):
 
     try:
         value = get_value(input_file, input_key)
+        value = value.astype(np.float64)
         sys.stdout.write('Process: {} Read from File\n'.format(num_clusters))
         model = KMeans(n_clusters=num_clusters)
         # with joblib.parallel_backend('dask'):
@@ -90,7 +91,6 @@ def do_work(num_clusters):
 
 
 if __name__ == '__main__':
-    np.float64 = np.float32
 
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
