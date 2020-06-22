@@ -93,7 +93,11 @@ def get_value(input_file):
     return selected_data, mean_repeat[0], std_repeat[0]
 
 
-def do_work(num_clusters):
+def do_work(work_type):
+    num_clusters = work_type['item']
+    data = work_type['data']
+    mean = work_type['mean']
+    std = work_type['std']
     sys.stdout.write('Processing for Num Clusters: {}\n'.format(num_clusters))
     # try:
     #     n_workers = os.environ['NWORKER']
@@ -112,7 +116,6 @@ def do_work(num_clusters):
     # client = Client(cluster)
 
     try:
-        data, mean, std = get_value(input_file)
 
         sys.stdout.write('Process: {} Read from File\n'.format(num_clusters))
         model = KMeans(n_clusters=num_clusters)
@@ -174,13 +177,18 @@ if __name__ == '__main__':
         for index in finished:
             waiting_queue.discard(index)
 
+        data, mean, std = get_value(input_file)
+
         for worker in range(1, size):
             if len(waiting_queue) == 0:
                 break
             item = waiting_queue.pop()
             work_type = {
                 'job': 'work',
-                'item': item
+                'item': item,
+                'data': data,
+                'mean': mean,
+                'std': std
             }
             comm.send(work_type, dest=worker, tag=1)
             running_queue.add(item)
@@ -219,7 +227,10 @@ if __name__ == '__main__':
                 new_item = waiting_queue.pop()
                 work_type = {
                     'job': 'work',
-                    'item': new_item
+                    'item': new_item,
+                    'data': data,
+                    'mean': mean,
+                    'std': std
                 }
                 comm.send(work_type, dest=sender, tag=1)
 
@@ -240,6 +251,6 @@ if __name__ == '__main__':
 
             item = work_type['item']
 
-            status = do_work(item)
+            status = do_work(work_type)
 
             comm.send({'status': status, 'item': item}, dest=0, tag=2)
