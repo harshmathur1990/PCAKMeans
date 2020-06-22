@@ -216,7 +216,8 @@ if __name__ == '__main__':
             running_queue.discard(item)
             if jobstatus == Status.Work_done:
                 finished_queue.add(item)
-                del f['finished']
+                if 'finished' in list(f.keys()):
+                    del f['finished']
                 finished.append(item)
                 f['finished'] = finished
             else:
