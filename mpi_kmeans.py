@@ -17,7 +17,7 @@ from delay_retry import retry
 kmeans_output_dir = '/data/harsh1/kmeans_output'
 input_file = '/data/harsh1/selected_samples.h5'
 input_key = 'selected_data'
-
+data_arr = None
 
 # kmeans_output_dir = '/Users/harshmathur/CourseworkRepo/tst'
 # input_file = '/Users/harshmathur/CourseworkRepo/tst/sample_input.h5'
@@ -121,12 +121,14 @@ def do_work(num_clusters):
     # client = Client(cluster)
 
     try:
-        data = get_data(input_file, input_key)
+        global data_arr
+        if data_arr is None:
+            data_arr = get_data(input_file, input_key)
         sys.stdout.write('Process: {} Read from File\n'.format(num_clusters))
         model = KMeans(n_clusters=num_clusters)
         # with joblib.parallel_backend('dask'):
         sys.stdout.write('Process: {} Before KMeans\n'.format(num_clusters))
-        model.fit(data)
+        model.fit(data_arr)
 
         sys.stdout.write('Process: {} Fitted KMeans\n'.format(num_clusters))
 
