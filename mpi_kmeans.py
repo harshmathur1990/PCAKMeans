@@ -37,9 +37,26 @@ def save_model(fout, model):
 
 @retry((Exception,))
 def get_value(input_file, input_key):
-    f = h5py.File(input_file, 'r')
-    value = f[input_key][()]
-    f.close()
+    # f = h5py.File(input_file, 'r', driver='mpio', comm=MPI.COMM_WORLD)
+    indices = [0, 11, 25, 36, 60, 78, 87]
+    total_indices = list()
+
+    for i in indices:
+        total_indices += list(
+            np.arange(i * 2284128, (i + 1) * 2284128)
+        )
+
+    total_indices = np.array(total_indices)
+
+    zscore = np.memmap(
+        input_file,
+        shape=(100 * 1236 * 1848, 30),
+        dtype=np.float64,
+        mode='r'
+    )
+
+    value = zscore[total_indices]
+
     return value
 
 
@@ -62,8 +79,8 @@ def do_work(num_clusters):
     # client = Client(cluster)
 
     try:
-        value = get_value(input_file, input_key)
-        value = value.astype(np.float64)
+        value = get_value(input_file)
+
         sys.stdout.write('Process: {} Read from File\n'.format(num_clusters))
         model = KMeans(n_clusters=num_clusters)
         # with joblib.parallel_backend('dask'):
