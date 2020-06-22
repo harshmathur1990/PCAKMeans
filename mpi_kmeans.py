@@ -4,6 +4,8 @@ import enum
 import traceback
 import numpy as np
 # import joblib
+import os
+import os.path
 import sunpy.io
 import h5py
 # from dask.distributed import LocalCluster, Client
@@ -156,7 +158,13 @@ if __name__ == '__main__':
         for i in range(2, 100):
             waiting_queue.add(i)
 
-        f = h5py.File('{}/status_job.h5'.format(kmeans_output_dir), 'a')
+        filepath = '{}/status_job.h5'.format(kmeans_output_dir)
+        if os.path.exists(filepath):
+            mode = 'r+'
+        else:
+            mode = 'w'
+
+        f = h5py.File(filepath, mode)
 
         if 'finished' in list(f.keys()):
             finished = f['finished'][()]
