@@ -4,6 +4,7 @@ import enum
 import traceback
 import numpy as np
 # import joblib
+import sunpy.io
 import h5py
 # from dask.distributed import LocalCluster, Client
 from mpi4py import MPI
@@ -11,9 +12,9 @@ from sklearn.cluster import KMeans
 from delay_retry import retry
 
 
-kmeans_output_dir = '/home/harsh/kmeans_output'
-input_file = '/home/harsh/selected_samples.h5'
-input_key = 'selected_data'
+kmeans_output_dir = '/data/harsh1/kmeans_output'
+input_file = '/data/harsh1/colabd/nb_3950_2019-' + \
+    '06-06T10:26:20_scans=0-99_corrected_im.fits'
 
 
 # kmeans_output_dir = '/Users/harshmathur/CourseworkRepo/tst'
@@ -48,16 +49,46 @@ def get_value(input_file):
 
     total_indices = np.array(total_indices)
 
-    zscore = np.memmap(
-        input_file,
-        shape=(100 * 1236 * 1848, 30),
-        dtype=np.float64,
-        mode='r'
+    data, header = sunpy.io.read_file(input_file)[0]
+
+    new_arr = np.lib.stride_tricks.as_strided(
+        data, shape=(100 * 1236 * 1848, 30),
+        strides=(4, 4 * 1848 * 1236)
     )
 
-    value = zscore[total_indices]
+    selected_data = new_arr[total_indices]
 
-    return value
+    selected_data = selected_data.astype(np.float64)
+
+    mean = np.mean(selected_data, 0)
+
+    std = np.std(selected_data, 0)
+
+    mean = mean[np.newaxis, :]
+
+    std = std[np.newaxis, :]
+
+    mean_repeat = np.repeat(
+        mean,
+        axis=0,
+        repeats=selected_data.shape[0]
+    )
+
+    std_repeat = np.repeat(
+        std,
+        axis=0,
+        repeats=selected_data.shape[0]
+    )
+
+    selected_data = np.divide(
+        np.subtract(
+            selected_data,
+            mean_repeat
+        ),
+        std_repeat
+    )
+
+    return selected_data, mean_repeat[0], std_repeat[0]
 
 
 def do_work(num_clusters):
@@ -79,13 +110,13 @@ def do_work(num_clusters):
     # client = Client(cluster)
 
     try:
-        value = get_value(input_file)
+        data, mean, std = get_value(input_file)
 
         sys.stdout.write('Process: {} Read from File\n'.format(num_clusters))
         model = KMeans(n_clusters=num_clusters)
         # with joblib.parallel_backend('dask'):
         sys.stdout.write('Process: {} Before KMeans\n'.format(num_clusters))
-        model.fit(value)
+        model.fit(data)
 
         sys.stdout.write('Process: {} Fitted KMeans\n'.format(num_clusters))
 
@@ -96,6 +127,8 @@ def do_work(num_clusters):
             'Process: {} Open file for writing\n'.format(num_clusters)
         )
         save_model(fout, model)
+        fout['mean'] = mean
+        fout['std'] = std
         sys.stdout.write('Process: {} Wrote to file\n'.format(num_clusters))
         fout.close()
         sys.stdout.write('Success for Num Clusters: {}\n'.format(num_clusters))
@@ -123,20 +156,15 @@ if __name__ == '__main__':
         for i in range(2, 100):
             waiting_queue.add(i)
 
-        try:
-            f = h5py.File('{}/status_job.h5'.format(kmeans_output_dir), 'r')
+        f = h5py.File('{}/status_job.h5'.format(kmeans_output_dir), 'a')
 
-            if 'finished' in list(f.keys()):
-                finished = f['finished'][()]
-            else:
-                finished = list()
+        if 'finished' in list(f.keys()):
+            finished = f['finished'][()]
+        else:
+            finished = list()
 
-            for index in finished:
-                waiting_queue.discard(index)
-
-            f.close()
-        except Exception:
-            pass
+        for index in finished:
+            waiting_queue.discard(index)
 
         for worker in range(1, size):
             if len(waiting_queue) == 0:
@@ -173,6 +201,9 @@ if __name__ == '__main__':
             running_queue.discard(item)
             if jobstatus == Status.Work_done:
                 finished_queue.add(item)
+                del f['finished']
+                finished.append(item)
+                f['finished'] = finished
             else:
                 failure_queue.add(item)
 
@@ -184,21 +215,7 @@ if __name__ == '__main__':
                 }
                 comm.send(work_type, dest=sender, tag=1)
 
-        try:
-            f = h5py.File('{}/status_job.h5'.format(kmeans_output_dir), 'a')
-
-            if 'finished' in list(f.keys()):
-                finished = f['finished'][()]
-                del f['finished']
-            else:
-                finished = list()
-
-            f['finished'] = finished + list(finished_queue)
-
-            f.close()
-
-        except Exception:
-            pass
+        f.close()
 
         for worker in range(1, size):
             work_type = {
