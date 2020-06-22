@@ -36,7 +36,7 @@ def save_model(fout, model):
 
 
 @retry((Exception,))
-def get_value(input_file, input_key):
+def get_value(input_file):
     # f = h5py.File(input_file, 'r', driver='mpio', comm=MPI.COMM_WORLD)
     indices = [0, 11, 25, 36, 60, 78, 87]
     total_indices = list()
