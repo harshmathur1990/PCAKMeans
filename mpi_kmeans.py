@@ -15,8 +15,8 @@ from delay_retry import retry
 
 
 kmeans_output_dir = '/data/harsh1/kmeans_output'
-input_file = '/data/harsh1/colabd/nb_3950_2019-' + \
-    '06-06T10:26:20_scans=0-99_corrected_im.fits'
+input_file = '/data/harsh1/selected_samples.h5'
+input_key = 'selected_data'
 
 
 # kmeans_output_dir = '/Users/harshmathur/CourseworkRepo/tst'
@@ -93,11 +93,16 @@ def get_value(input_file):
     return selected_data, mean_repeat[0], std_repeat[0]
 
 
-def do_work(work_type):
-    num_clusters = work_type['item']
-    data = work_type['data']
-    mean = work_type['mean']
-    std = work_type['std']
+@retry((Exception,))
+def get_data(input_file, input_key):
+    f = h5py.File(input_file, 'r')
+    data = f[input_key][()]
+    f.close()
+    return data
+
+
+def do_work(num_clusters):
+
     sys.stdout.write('Processing for Num Clusters: {}\n'.format(num_clusters))
     # try:
     #     n_workers = os.environ['NWORKER']
@@ -116,7 +121,7 @@ def do_work(work_type):
     # client = Client(cluster)
 
     try:
-
+        data = get_data(input_file, input_key)
         sys.stdout.write('Process: {} Read from File\n'.format(num_clusters))
         model = KMeans(n_clusters=num_clusters)
         # with joblib.parallel_backend('dask'):
@@ -132,8 +137,7 @@ def do_work(work_type):
             'Process: {} Open file for writing\n'.format(num_clusters)
         )
         save_model(fout, model)
-        fout['mean'] = mean
-        fout['std'] = std
+
         sys.stdout.write('Process: {} Wrote to file\n'.format(num_clusters))
         fout.close()
         sys.stdout.write('Success for Num Clusters: {}\n'.format(num_clusters))
@@ -177,18 +181,13 @@ if __name__ == '__main__':
         for index in finished:
             waiting_queue.discard(index)
 
-        data, mean, std = get_value(input_file)
-
         for worker in range(1, size):
             if len(waiting_queue) == 0:
                 break
             item = waiting_queue.pop()
             work_type = {
                 'job': 'work',
-                'item': item,
-                'data': data,
-                'mean': mean,
-                'std': std
+                'item': item
             }
             comm.send(work_type, dest=worker, tag=1)
             running_queue.add(item)
@@ -227,10 +226,7 @@ if __name__ == '__main__':
                 new_item = waiting_queue.pop()
                 work_type = {
                     'job': 'work',
-                    'item': new_item,
-                    'data': data,
-                    'mean': mean,
-                    'std': std
+                    'item': new_item
                 }
                 comm.send(work_type, dest=sender, tag=1)
 
@@ -251,6 +247,6 @@ if __name__ == '__main__':
 
             item = work_type['item']
 
-            status = do_work(work_type)
+            status = do_work(item)
 
             comm.send({'status': status, 'item': item}, dest=0, tag=2)
