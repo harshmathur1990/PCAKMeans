@@ -3,10 +3,9 @@ import enum
 import traceback
 import h5py
 import joblib
-# from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans
 from delay_retry import retry
 from dask.distributed import Client, LocalCluster
-from dask_ml.cluster import KMeans
 
 
 kmeans_output_dir = '/home/harsh/kmeans_alternate'
@@ -46,7 +45,7 @@ def do_work(num_clusters):
         if data_arr is None:
             data_arr = get_data(input_file, input_key)
         sys.stdout.write('Process: {} Read from File\n'.format(num_clusters))
-        model = KMeans(n_clusters=num_clusters, init='k-means++', n_jobs=32)
+        model = KMeans(n_clusters=num_clusters, n_jobs=32)
         with joblib.parallel_backend('dask'):
             sys.stdout.write(
                 'Process: {} Before KMeans\n'.format(num_clusters)
