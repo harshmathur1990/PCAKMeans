@@ -133,7 +133,7 @@ def do_work(num_clusters):
         sys.stdout.write('Process: {} Fitted KMeans\n'.format(num_clusters))
 
         fout = h5py.File(
-            '{}/out_{}.h5'.format(kmeans_output_dir, item), 'w'
+            '{}/out_{}.h5'.format(kmeans_output_dir, num_clusters), 'w'
         )
         sys.stdout.write(
             'Process: {} Open file for writing\n'.format(num_clusters)
@@ -145,7 +145,7 @@ def do_work(num_clusters):
         sys.stdout.write('Success for Num Clusters: {}\n'.format(num_clusters))
         return Status.Work_done
     except Exception:
-        sys.stdout.write('Failed for {}\n'.format(item))
+        sys.stdout.write('Failed for {}\n'.format(num_clusters))
         exc = traceback.format_exc()
         sys.stdout.write(exc)
         return Status.Work_failure

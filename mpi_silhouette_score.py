@@ -104,21 +104,6 @@ def get_data(input_file, input_key):
 def do_work(num_clusters):
 
     sys.stdout.write('Processing for Num Clusters: {}\n'.format(num_clusters))
-    # try:
-    #     n_workers = os.environ['NWORKER']
-    # except KeyError:
-    #     n_workers = None
-
-    # try:
-    #     threads_per_worker = os.environ['NTHREADS']
-    # except KeyError:
-    #     threads_per_worker = None
-
-    # cluster = LocalCluster(
-    #     # n_workers=n_workers, threads_per_worker=threads_per_worker
-    # )
-
-    # client = Client(cluster)
 
     try:
         global data_arr
@@ -127,10 +112,10 @@ def do_work(num_clusters):
         sys.stdout.write('Process: {} Read from File\n'.format(num_clusters))
 
         fout = h5py.File(
-            '{}/out_{}.h5'.format(kmeans_output_dir, item), 'r+'
+            '{}/out_{}.h5'.format(kmeans_output_dir, num_clusters), 'r+'
         )
 
-        score = silhouette_score(data_arr, fout['labels_'][()])
+        score = silhouette_score(data_arr, fout['labels_'][()], n_jobs=2)
 
         fout['silhouette_score'] = score
 
@@ -139,7 +124,7 @@ def do_work(num_clusters):
         sys.stdout.write('Success for Num Clusters: {}\n'.format(num_clusters))
         return Status.Work_done
     except Exception:
-        sys.stdout.write('Failed for {}\n'.format(item))
+        sys.stdout.write('Failed for {}\n'.format(num_clusters))
         exc = traceback.format_exc()
         sys.stdout.write(exc)
         return Status.Work_failure
