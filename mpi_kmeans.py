@@ -125,7 +125,7 @@ def do_work(num_clusters):
         if data_arr is None:
             data_arr = get_data(input_file, input_key)
         sys.stdout.write('Process: {} Read from File\n'.format(num_clusters))
-        model = KMeans(n_clusters=num_clusters)
+        model = KMeans(n_clusters=num_clusters, n_jobs=2)
         # with joblib.parallel_backend('dask'):
         sys.stdout.write('Process: {} Before KMeans\n'.format(num_clusters))
         model.fit(data_arr)
