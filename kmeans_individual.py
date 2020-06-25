@@ -2,10 +2,8 @@ import sys
 import enum
 import traceback
 import h5py
-import joblib
 from sklearn.cluster import KMeans
 from delay_retry import retry
-from dask.distributed import Client, LocalCluster
 
 
 kmeans_output_dir = '/home/harsh/kmeans_alternate'
@@ -46,11 +44,9 @@ def do_work(num_clusters):
             data_arr = get_data(input_file, input_key)
         sys.stdout.write('Process: {} Read from File\n'.format(num_clusters))
         model = KMeans(n_clusters=num_clusters, n_jobs=32)
-        with joblib.parallel_backend('dask'):
-            sys.stdout.write(
-                'Process: {} Before KMeans\n'.format(num_clusters)
-            )
-            model.fit(data_arr[:, :29])
+        # with joblib.parallel_backend('dask'):
+        sys.stdout.write('Process: {} Before KMeans\n'.format(num_clusters))
+        model.fit(data_arr)
 
         sys.stdout.write('Process: {} Fitted KMeans\n'.format(num_clusters))
 
@@ -75,6 +71,4 @@ def do_work(num_clusters):
 
 if __name__ == '__main__':
 
-    cluster = LocalCluster(n_workers=1, threads_per_worker=32)
-    client = Client(cluster)
     do_work(44)
