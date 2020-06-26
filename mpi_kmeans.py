@@ -232,6 +232,7 @@ if __name__ == '__main__':
                     'item': new_item
                 }
                 comm.send(work_type, dest=sender, tag=1)
+                running_queue.add(new_item)
 
         f.close()
 
