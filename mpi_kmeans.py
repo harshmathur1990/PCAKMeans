@@ -176,7 +176,7 @@ if __name__ == '__main__':
         f = h5py.File(filepath, mode)
 
         if 'finished' in list(f.keys()):
-            finished = f['finished'][()]
+            finished = list(f['finished'][()])
         else:
             finished = list()
 
