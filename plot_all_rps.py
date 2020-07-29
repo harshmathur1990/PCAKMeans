@@ -88,7 +88,7 @@ for i in range(45):
         color=brown
     )
 
-    axs[0][1].set_ylim(0, 11000)
+    axs[0][1].set_ylim(4000, 11000)
 
     # plot FALC Vlos profile
     axs[0][2].plot(
@@ -102,6 +102,12 @@ for i in range(45):
         atmos[0]['ltau500'][0][0][i],
         atmos[0]['vlos'][0][0][i] / 1e4,
         color=green
+    )
+
+    axs[0][2].plot(
+        atmos[0]['ltau500'][0][0][3],
+        atmos[0]['vlos'][0][0][3] / 1e4,
+        color=brown
     )
 
     axs[0][2].set_ylim(-20, 100)
@@ -118,6 +124,12 @@ for i in range(45):
         atmos[0]['ltau500'][0][0][i],
         atmos[0]['vturb'][0][0][i] / 1e4,
         color=green
+    )
+
+    axs[0][3].plot(
+        atmos[0]['ltau500'][0][0][3],
+        atmos[0]['vturb'][0][0][3] / 1e4,
+        color=brown
     )
 
     axs[0][3].set_ylim(0, 80)
@@ -167,7 +179,7 @@ for i in range(45):
         color=brown
     )
 
-    axs[1][1].set_ylim(0, 11000)
+    axs[1][1].set_ylim(4000, 11000)
     # plot FALC Vlos profile
     axs[1][2].plot(
         falc['ltau500'][0][0][0],
@@ -180,6 +192,12 @@ for i in range(45):
         atmos[1]['ltau500'][0][0][i],
         atmos[1]['vlos'][0][0][i] / 1e4,
         color=green
+    )
+
+    axs[1][2].plot(
+        atmos[1]['ltau500'][0][0][3],
+        atmos[1]['vlos'][0][0][3] / 1e4,
+        color=brown
     )
 
     axs[1][2].set_ylim(-20, 100)
@@ -196,6 +214,12 @@ for i in range(45):
         atmos[1]['ltau500'][0][0][i],
         atmos[1]['vturb'][0][0][i] / 1e4,
         color=green
+    )
+
+    axs[1][3].plot(
+        atmos[1]['ltau500'][0][0][3],
+        atmos[1]['vturb'][0][0][3] / 1e4,
+        color=brown
     )
 
     axs[1][3].set_ylim(0, 80)
@@ -246,7 +270,7 @@ for i in range(45):
         color=brown
     )
 
-    axs[2][1].set_ylim(0, 11000)
+    axs[2][1].set_ylim(4000, 11000)
 
     # plot FALC Vlos profile
     axs[2][2].plot(
@@ -260,6 +284,12 @@ for i in range(45):
         atmos[2]['ltau500'][0][0][i],
         atmos[2]['vlos'][0][0][i] / 1e4,
         color=green
+    )
+
+    axs[2][2].plot(
+        atmos[2]['ltau500'][0][0][3],
+        atmos[2]['vlos'][0][0][3] / 1e4,
+        color=brown
     )
 
     axs[2][2].set_ylim(-20, 100)
@@ -276,6 +306,12 @@ for i in range(45):
         atmos[2]['ltau500'][0][0][i],
         atmos[2]['vturb'][0][0][i] / 1e4,
         color=green
+    )
+
+    axs[2][3].plot(
+        atmos[2]['ltau500'][0][0][3],
+        atmos[2]['vturb'][0][0][3] / 1e4,
+        color=brown
     )
 
     axs[2][3].set_ylim(0, 80)
