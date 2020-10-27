@@ -8,17 +8,17 @@ base_input_path = Path(
     '/home/harsh/OsloAnalysis/'
 )
 
-rp = base_input_path / 'rp_20'
-second_path = rp / 'plots_v41'
+rp = base_input_path / 'rp_35'
+second_path = rp / 'plots_v6'
 profile_files = [
-    second_path / 'rp_20_shock_response_t_5_vl_5_vt_4_profs.nc',
+    second_path / 'rp_35_cycle_1_t_4_vl_4_vt_4_profs.nc',
 ]
 
 atmos_files = [
-    second_path / 'rp_20_shock_response_t_5_vl_5_vt_4_atmos.nc',
+    second_path / 'rp_35_falc_cycle_1_t_4_vl_4_vt_4_atmos.nc',
 ]
 observed_file = Path(
-    rp / 'observed_20.nc'
+    rp / 'observed_35.nc'
 )
 # observed_file = Path(
 #     '/Users/harshmathur/CourseworkRepo/2008 Sp Data/stic_data_straylight_new_calculations/NICOLE_tries/buerro_approach/corrected_data_buererro_for_stic.nc'
