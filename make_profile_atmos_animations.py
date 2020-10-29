@@ -3,8 +3,10 @@ from pathlib import Path
 import sunpy.io
 import h5py
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 
 spectra_file_path = Path('/home/harsh/Harsh9599771751/colabd/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits')
@@ -181,7 +183,14 @@ def plot_fov_parameter_variation(
 
     f.close()
 
-    fig, axs = plt.subplots(2, 2)
+    fig, axs = plt.subplots(2, 2, figsize=[18, 12], dpi=900, gridspec_kw={'wspace': 0.001, 'hspace': 0.025})
+
+    vlos_levels = np.array(
+        list(np.linspace(vlos.min(), 0, 20)) +
+        list(np.linspace(0, vlos.max(), 20))[1:]
+    )
+    vlos_cmap = plt.cm.get_cmap('coolwarm', vlos_levels.shape[0])
+    vlos_norm = matplotlib.colors.BoundaryNorm(vlos_levels, vlos_cmap.N)
 
     im0 = axs[0][0].imshow(
         imagelist[0],
@@ -200,8 +209,9 @@ def plot_fov_parameter_variation(
     im2 = axs[1][0].imshow(
         vlos_list[0],
         origin='lower',
-        cmap='coolwarm',
-        interpolation='none'
+        cmap=vlos_cmap,
+        interpolation='none',
+        norm=vlos_norm
     )
 
     im3 = axs[1][1].imshow(
@@ -211,11 +221,75 @@ def plot_fov_parameter_variation(
         interpolation='none'
     )
 
-    fig.colorbar(im0, ax=axs[0][0])
-    fig.colorbar(im1, ax=axs[0][1])
-    fig.colorbar(im2, ax=axs[1][0])
-    fig.colorbar(im3, ax=axs[1][1])
-    fig.tight_layout()
+    axs[0][0].set_xticklabels([])
+    axs[0][0].set_yticklabels([])
+    axs[0][1].set_xticklabels([])
+    axs[0][1].set_yticklabels([])
+    axs[1][0].set_xticklabels([])
+    axs[1][0].set_yticklabels([])
+    axs[1][1].set_xticklabels([])
+    axs[1][1].set_yticklabels([])
+
+    axins0 = inset_axes(
+        axs[0][0],
+        width="5%",
+        height="50%",
+        loc='lower left',
+        bbox_to_anchor=(-0.15, 0., 1, 1),
+        bbox_transform=axs[0][0].transAxes,
+        borderpad=0,
+    )
+
+    axins1 = inset_axes(
+        axs[0][1],
+        width="5%",
+        height="50%",
+        loc='lower right',
+        bbox_to_anchor=(0.1, 0., 1, 1),
+        bbox_transform=axs[0][1].transAxes,
+        borderpad=0,
+    )
+
+    axins2 = inset_axes(
+        axs[1][0],
+        width="5%",
+        height="50%",
+        loc='lower left',
+        bbox_to_anchor=(-0.15, 0., 1, 1),
+        bbox_transform=axs[1][0].transAxes,
+        borderpad=0,
+    )
+
+    axins3 = inset_axes(
+        axs[1][1],
+        width="5%",
+        height="50%",
+        loc='lower right',
+        bbox_to_anchor=(0.1, 0., 1, 1),
+        bbox_transform=axs[1][1].transAxes,
+        borderpad=0,
+    )
+
+    cbar0 = fig.colorbar(im0, cax=axins0)
+    cbar1 = fig.colorbar(im1, cax=axins1)
+    cbar2 = fig.colorbar(
+        im2,
+        cax=axins2,
+        spacing='uniform',
+        extend='both',
+        extendfrac='auto',
+        extendrect='True',
+        boundaries=vlos_levels
+    )
+    cbar3 = fig.colorbar(im3, cax=axins3)
+
+    cbar0.ax.tick_params(labelsize=10)
+    cbar1.ax.tick_params(labelsize=10)
+    cbar2.ax.tick_params(labelsize=10)
+    cbar3.ax.tick_params(labelsize=10)
+
+    # fig.tight_layout()
+
     def updatefig(j):
         # set the data in the axesimage object
         im0.set_array(imagelist[j])
