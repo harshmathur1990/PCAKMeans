@@ -84,7 +84,7 @@ def get_image_map(label_map, value_map):
 
 
 def get_calib_velocity():
-    
+
     vlos = np.zeros(45)
 
     for i in range(45):
@@ -145,7 +145,9 @@ def plot_fov_parameter_variation(
 
     sys.stdout.write('Made Image\n')
 
-    calib_velocity = get_calib_velocity()
+    # calib_velocity = get_calib_velocity()
+
+    calib_velocity = 357188.5568518038
 
     sys.stdout.write('Calib Velocity: {}\n'.format(calib_velocity))
 
