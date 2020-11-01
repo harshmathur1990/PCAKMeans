@@ -8,10 +8,12 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
-
-spectra_file_path = Path('/home/harsh/Harsh9599771751/colabd/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits')
-label_file_path = Path('/home/harsh/Harsh9599771751/Oslo Work/out_45.h5')
-rp_path = Path('/home/harsh/OsloAnalysis/accepted_rp_inversions')
+spectra_file_path = Path('/data/harsh1/colabd/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits')
+# spectra_file_path = Path('/home/harsh/Harsh9599771751/colabd/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits')
+label_file_path = Path('/data/harsh1/out_45.h5')
+# label_file_path = Path('/home/harsh/Harsh9599771751/Oslo Work/out_45.h5')
+rp_path = Path('/data/harsh1/accepted_rp_inversions')
+# rp_path = Path('/home/harsh/OsloAnalysis/accepted_rp_inversions')
 
 photosphere_indices = np.array([29])
 
@@ -183,7 +185,7 @@ def plot_fov_parameter_variation(
 
     f.close()
 
-    fig, axs = plt.subplots(2, 2, figsize=[18, 12], dpi=900, gridspec_kw={'wspace': 0.001, 'hspace': 0.025})
+    fig, axs = plt.subplots(2, 2, figsize=(18, 12), dpi=100, gridspec_kw={'wspace': 0.001, 'hspace': 0.025})
 
     vlos_levels = np.array(
         list(np.linspace(vlos.min(), 0, 20)) +
@@ -195,14 +197,14 @@ def plot_fov_parameter_variation(
     im0 = axs[0][0].imshow(
         imagelist[0],
         origin='lower',
-        cmap='hot',
+        cmap='gray',
         interpolation='none'
     )
 
     im1 = axs[0][1].imshow(
         temp_list[0],
         origin='lower',
-        cmap='plasma',
+        cmap='hot',
         interpolation='none'
     )
 
@@ -235,7 +237,7 @@ def plot_fov_parameter_variation(
         width="5%",
         height="50%",
         loc='lower left',
-        bbox_to_anchor=(-0.15, 0., 1, 1),
+        bbox_to_anchor=(-0.25, 0., 1, 1),
         bbox_transform=axs[0][0].transAxes,
         borderpad=0,
     )
@@ -245,7 +247,7 @@ def plot_fov_parameter_variation(
         width="5%",
         height="50%",
         loc='lower right',
-        bbox_to_anchor=(0.1, 0., 1, 1),
+        bbox_to_anchor=(0.15, 0., 1, 1),
         bbox_transform=axs[0][1].transAxes,
         borderpad=0,
     )
@@ -255,7 +257,7 @@ def plot_fov_parameter_variation(
         width="5%",
         height="50%",
         loc='lower left',
-        bbox_to_anchor=(-0.15, 0., 1, 1),
+        bbox_to_anchor=(-0.25, 0., 1, 1),
         bbox_transform=axs[1][0].transAxes,
         borderpad=0,
     )
@@ -265,7 +267,7 @@ def plot_fov_parameter_variation(
         width="5%",
         height="50%",
         loc='lower right',
-        bbox_to_anchor=(0.1, 0., 1, 1),
+        bbox_to_anchor=(0.15, 0., 1, 1),
         bbox_transform=axs[1][1].transAxes,
         borderpad=0,
     )
@@ -296,7 +298,7 @@ def plot_fov_parameter_variation(
         im1.set_array(temp_list[j])
         im2.set_array(vlos_list[j])
         im3.set_array(vturb_list[j])
-        plt.suptitle('Frame {}'.format(j))
+        fig.suptitle('Frame {}'.format(j))
         # return the artists set
         return [im0, im1, im2, im3]
 
