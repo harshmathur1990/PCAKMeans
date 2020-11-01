@@ -141,9 +141,7 @@ def plot_fov_parameter_variation(
 
     sys.stdout.write('Read Spectra File\n')
 
-    imagelist = [
-        np.mean(data[i, 0, wave_indices], axis=0) for i in range(100)
-    ]
+    image0 = np.mean(data[0, 0, wave_indices], axis=0)
 
     sys.stdout.write('Made Image\n')
 
@@ -165,23 +163,11 @@ def plot_fov_parameter_variation(
 
     labels = f['final_labels']
 
-    temp_list = [
-        get_image_map(labels[i], temp) for i in range(100)
-    ]
+    temp0 = get_image_map(labels[0], temp)
 
-    sys.stdout.write('Made Temperature Images\n')
+    vlos0 = get_image_map(labels[0], vlos)
 
-    vlos_list = [
-        get_image_map(labels[i], vlos) for i in range(100)
-    ]
-
-    sys.stdout.write('Made Vlos Images\n')
-
-    vturb_list = [
-        get_image_map(labels[i], vturb) for i in range(100)
-    ]
-
-    sys.stdout.write('Made Vturb Images\n')
+    vturb0 = get_image_map(labels[0], vturb)
 
     f.close()
 
@@ -195,21 +181,21 @@ def plot_fov_parameter_variation(
     vlos_norm = matplotlib.colors.BoundaryNorm(vlos_levels, vlos_cmap.N)
 
     im0 = axs[0][0].imshow(
-        imagelist[0],
+        image0,
         origin='lower',
         cmap='gray',
         interpolation='none'
     )
 
     im1 = axs[0][1].imshow(
-        temp_list[0],
+        temp0,
         origin='lower',
         cmap='hot',
         interpolation='none'
     )
 
     im2 = axs[1][0].imshow(
-        vlos_list[0],
+        vlos0,
         origin='lower',
         cmap=vlos_cmap,
         interpolation='none',
@@ -217,7 +203,7 @@ def plot_fov_parameter_variation(
     )
 
     im3 = axs[1][1].imshow(
-        vturb_list[0],
+        vturb0,
         origin='lower',
         cmap='copper',
         interpolation='none'
@@ -294,10 +280,22 @@ def plot_fov_parameter_variation(
 
     def updatefig(j):
         # set the data in the axesimage object
-        im0.set_array(imagelist[j])
-        im1.set_array(temp_list[j])
-        im2.set_array(vlos_list[j])
-        im3.set_array(vturb_list[j])
+        im0.set_array(
+            np.mean(
+                data[j, 0, wave_indices],
+                axis=0
+            )
+        )
+        im1.set_array(
+            get_image_map(labels[j], temp)
+        )
+        im2.set_array(
+            get_image_map(labels[j], vlos)
+        )
+        im3.set_array(
+            get_image_map(labels[j], vturb)
+        )
+
         fig.suptitle('Frame {}'.format(j))
         # return the artists set
         return [im0, im1, im2, im3]
