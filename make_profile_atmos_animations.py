@@ -169,8 +169,6 @@ def plot_fov_parameter_variation(
 
     vturb0 = get_image_map(labels[0], vturb)
 
-    f.close()
-
     fig, axs = plt.subplots(2, 2, figsize=(18, 12), dpi=100, gridspec_kw={'wspace': 0.001, 'hspace': 0.025})
 
     vlos_levels = np.array(
@@ -319,6 +317,8 @@ def plot_fov_parameter_variation(
     )
 
     ani.save(animation_path, writer=writer)
+
+    f.close()
 
     plt.cla()
 
