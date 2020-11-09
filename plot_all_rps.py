@@ -5,20 +5,20 @@ import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 
 base_input_path = Path(
-    '/home/harsh/OsloAnalysis/'
+    '/Volumes/Harsh 9599771751/Oslo Work/mean_profiles'
 )
 
-rp = base_input_path / 'rp_35'
-second_path = rp / 'plots_v6'
+rp = base_input_path / 'all_rps'
+second_path = rp / 'plots_v1'
 profile_files = [
-    second_path / 'rp_35_cycle_1_t_4_vl_4_vt_4_profs.nc',
+    second_path / 'rp_all_cycle_1_t_5_vl_1_vt_4_profs.nc',
 ]
 
 atmos_files = [
-    second_path / 'rp_35_falc_cycle_1_t_4_vl_4_vt_4_atmos.nc',
+    second_path / 'rp_all_falc_cycle_1_t_5_vl_1_vt_4_atmos.nc',
 ]
 observed_file = Path(
-    rp / 'observed_35.nc'
+    rp / 'merged_rps.nc'
 )
 # observed_file = Path(
 #     '/Users/harshmathur/CourseworkRepo/2008 Sp Data/stic_data_straylight_new_calculations/NICOLE_tries/buerro_approach/corrected_data_buererro_for_stic.nc'
@@ -27,20 +27,20 @@ falc_file = Path(
     base_input_path / 'falc_nicole_for_stic.nc'
 )
 
-median_profile_file = Path(
-    base_input_path / 'observed_3.nc'
-)
+# median_profile_file = Path(
+#     base_input_path / 'observed_3.nc'
+# )
 
-median_atmos_file = Path(
-    base_input_path / 'falc_vlos_guess_cycle_1_t_5_vl_2_vt_2_atmos.nc'
-)
+# median_atmos_file = Path(
+#     base_input_path / 'falc_vlos_guess_cycle_1_t_5_vl_2_vt_2_atmos.nc'
+# )
 
 profiles = [h5py.File(filename, 'r') for filename in profile_files]
 atmos = [h5py.File(filename, 'r') for filename in atmos_files]
 observed = h5py.File(observed_file, 'r')
 falc = h5py.File(falc_file, 'r')
-median_profile = h5py.File(median_profile_file, 'r')
-median_atmos = h5py.File(median_atmos_file, 'r')
+# median_profile = h5py.File(median_profile_file, 'r')
+# median_atmos = h5py.File(median_atmos_file, 'r')
 indices = np.where(observed['profiles'][0, 0, 0, :-1, 0] != 0)[0]
 # write_path = Path(
 #     base_input_path / 'plots_v5'
@@ -57,7 +57,7 @@ fontP = FontProperties()
 fontP.set_size('xx-small')
 
 # folder_list = [0, 4, 16, 23, 26, 33, 37, 41]
-for i in range(1):
+for i in range(45):
 
     plt.close('all')
     plt.clf()
@@ -82,14 +82,14 @@ for i in range(1):
         observed['wav'][indices],
         observed['profiles'][0, 0, i, :, 0][indices],
         color=red,
-        s=size/4
+        s=size / 4
         # linewidth=0.5
         # label='Shock'
     )
 
     # plotting the inverted profile
     axs[0][0].plot(
-        median_profile['wav'][:-1],
+        observed['wav'][:-1],
         profiles[0]['profiles'][0, 0, i, :-1, 0],
         color=green,
         linewidth=0.5,
@@ -97,17 +97,17 @@ for i in range(1):
     )
 
     axs[0][0].scatter(
-        median_profile['wav'][:-1],
+        observed['wav'][:-1],
         profiles[0]['profiles'][0, 0, i, :-1, 0],
         color=green,
         # linewidth=0.5,
-        s=size/4
+        s=size / 4
         # label='Fit'
     )
 
     axs[0][0].plot(
-        median_profile['wav'][indices],
-        median_profile['profiles'][0, 0, 0, :, 0][indices],
+        observed['wav'][indices],
+        observed['profiles'][0, 0, 3, :, 0][indices],
         color=brown,
         linewidth=0.5,
         label='QS Median'
@@ -116,8 +116,8 @@ for i in range(1):
     axs[0][0].set_ylim(0, 0.3)
     # plot FALC temperature profile
     axs[0][1].plot(
-        median_atmos['ltau500'][0][0][3],
-        median_atmos['temp'][0][0][3],
+        atmos[0]['ltau500'][0][0][3],
+        atmos[0]['temp'][0][0][3],
         color=brown,
         linewidth=0.5
     )
@@ -141,8 +141,8 @@ for i in range(1):
 
     # plot FALC Vlos profile
     axs[1][0].plot(
-        median_atmos['ltau500'][0][0][3],
-        median_atmos['vlos'][0][0][3] / 1e5,
+        atmos[0]['ltau500'][0][0][3],
+        atmos[0]['vlos'][0][0][3] / 1e5,
         color=brown,
         linewidth=0.5
     )
@@ -166,8 +166,8 @@ for i in range(1):
 
     # plot FALC Vturb profile
     axs[1][1].plot(
-        median_atmos['ltau500'][0][0][3],
-        median_atmos['vturb'][0][0][3] / 1e5,
+        atmos[0]['ltau500'][0][0][3],
+        atmos[0]['vturb'][0][0][3] / 1e5,
         color=brown,
         linewidth=0.5
     )

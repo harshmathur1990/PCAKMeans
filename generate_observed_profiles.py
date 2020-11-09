@@ -15,7 +15,7 @@ for k in range(45):
     a, b, c = np.where(labels == k)
 
     representative_profiles.append(
-        np.median(seldata[a, :, b, c], axis=0)
+        np.mean(seldata[a, :, b, c], axis=0)
     )
 
 wck, ick = findgrid(wave[0:29], (wave[2] - wave[1]), extra=8)
@@ -43,25 +43,25 @@ sp_all = ca_k
 
 sp_all.write('merged_rps.nc'.format(i))
 
-lab = "region = {0:10.5f}, {1:8.5f}, {2:3d}, {3:e}, {4}"
+# lab = "region = {0:10.5f}, {1:8.5f}, {2:3d}, {3:e}, {4}"
 
-print(
-    lab.format(
-        ca_k.wav[0],
-        ca_k.wav[1] - ca_k.wav[0],
-        ca_k.wav.size - 1, cont[0],
-        'fpi, 3934.nc'
-    )
-)
-print(
-    lab.format(
-        ca_k.wav[-1],
-        ca_k.wav[1] - ca_k.wav[0],
-        1,
-        cont[0],
-        'none, none'
-    )
-)
+# print(
+#     lab.format(
+#         ca_k.wav[0],
+#         ca_k.wav[1] - ca_k.wav[0],
+#         ca_k.wav.size - 1, cont[0],
+#         'fpi, 3934.nc'
+#     )
+# )
+# print(
+#     lab.format(
+#         ca_k.wav[-1],
+#         ca_k.wav[1] - ca_k.wav[0],
+#         1,
+#         cont[0],
+#         'none, none'
+#     )
+# )
 
     # dw = ca_k.wav[1] - ca_k.wav[0]
     # ntw = 25
