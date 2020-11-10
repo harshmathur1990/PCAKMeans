@@ -2,18 +2,19 @@ import sys
 from astropy.io import fits
 import numpy as np
 import h5py
-from prepare_data import *
 import matplotlib.pyplot as plt
 
 
-f = h5py.File('/Volumes/Harsh 9599771751/Oslo Work/out_45.h5', 'r')
-data, header = fits.open(
-    '/Volumes/Harsh 9599771751/colabd/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits'
+f = h5py.File('/data/harsh/out_45.h5', 'r')
+primary_hdu = fits.open(
+    '/data/harsh/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits',
+    memmap=False
 )[0]
-fo = h5py.File('/Volumes/Harsh 9599771751/Oslo Work/merged_rps.nc', 'r')
+data, header = primary_hdu.data, primary_hdu.header
+fo = h5py.File('/home/harsh/stic/shocks_rps/merged_rps_mean.nc', 'r')
 labels = f['final_labels'][()]
 wave = fo['wav'][4:33]
-cont_value = getCont(4000)
+cont_value = 2.4434714e-05
 in_bins = np.linspace(0, 0.3, 1000)
 
 def plot_profiles():
@@ -74,3 +75,7 @@ def plot_profiles():
             k += 1
 
     plt.savefig('/data/harsh/RPs.png', format='png', dpi=100)
+
+if __name__ == '__main__':
+    plot_profiles()
+
