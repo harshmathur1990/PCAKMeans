@@ -11,11 +11,16 @@ primary_hdu = fits.open(
     memmap=False
 )[0]
 data, header = primary_hdu.data, primary_hdu.header
+data[np.where(data < 0)] = 0
 fo = h5py.File('/home/harsh/stic/shocks_rps/merged_rps_mean.nc', 'r')
 labels = f['final_labels'][()]
 wave = fo['wav'][4:33]
 cont_value = 2.4434714e-05
 in_bins = np.linspace(0, 0.3, 1000)
+red = '#f6416c'
+brown = '#ffde7d'
+green = '#00b8a9'
+
 
 def plot_profiles():
 
@@ -40,13 +45,13 @@ def plot_profiles():
 
             center = np.mean(data[a, 0, :-1, b, c], axis=0) / cont_value
 
-            ax[i][j].plot(center[:29], color='red')
+            ax[i][j].plot(wave, center, color=red)
 
-            ax[i][j].plot(mean_profile, color='black')
+            ax[i][j].plot(wave, mean_profile, color=brown)
 
             H, xedge, yedge = np.histogram2d(
                 np.tile(wave, a.shape[0]),
-                data[a, 0, :-1, b, c].flatten(),
+                data[a, 0, :-1, b, c].flatten() / cont_value,
                 bins=(wave, in_bins)
             )
 
@@ -76,6 +81,6 @@ def plot_profiles():
 
     plt.savefig('/data/harsh/RPs.png', format='png', dpi=100)
 
+
 if __name__ == '__main__':
     plot_profiles()
-
