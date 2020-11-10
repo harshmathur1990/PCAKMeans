@@ -7,11 +7,11 @@ import matplotlib.pyplot as plt
 
 f = h5py.File('/Volumes/Harsh 9599771751/Oslo Work/out_45.h5', 'r')
 primary_hdu = fits.open(
-    '/Volumes/Harsh 9599771751/colabd/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits',
-    memmap=False
+    '/Volumes/Harsh 9599771751/colabd/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits'  #,
+    # memmap=False
 )[0]
 data, header = primary_hdu.data, primary_hdu.header
-data[np.where(data < 0)] = 0
+# data[np.where(data < 0)] = 0
 fo = h5py.File('/Volumes/Harsh 9599771751/Oslo Work/merged_rps.nc', 'r')
 labels = f['final_labels'][()]
 wave = fo['wav'][4:33]
@@ -43,7 +43,10 @@ def plot_profiles():
 
             a, b, c = np.where(labels == k)
 
-            center = np.mean(data[a, 0, :-1, b, c], axis=0) / cont_value
+            if k == 3:
+                center = mean_profile
+            else:
+                center = np.mean(data[a, 0, :-1, b, c], axis=0) / cont_value
 
             ax[i][j].plot(wave, center, color=red)
 
