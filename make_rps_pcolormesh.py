@@ -5,14 +5,14 @@ import h5py
 import matplotlib.pyplot as plt
 
 
-f = h5py.File('/Volumes/Harsh 9599771751/Oslo Work/out_45.h5', 'r')
+f = h5py.File('/data/harsh/out_45.h5', 'r')
 primary_hdu = fits.open(
-    '/Volumes/Harsh 9599771751/colabd/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits'  #,
-    # memmap=False
+    '/data/harsh/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits',
+    memmap=False
 )[0]
 data, header = primary_hdu.data, primary_hdu.header
-# data[np.where(data < 0)] = 0
-fo = h5py.File('/Volumes/Harsh 9599771751/Oslo Work/merged_rps.nc', 'r')
+data[np.where(data < 0)] = 0
+fo = h5py.File('/home/harsh/stic/shocks_rps/merged_rps_mean.nc', 'r')
 labels = f['final_labels'][()]
 wave = fo['wav'][4:33]
 cont_value = 2.4434714e-05
