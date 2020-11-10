@@ -14,9 +14,9 @@ data, header = primary_hdu.data, primary_hdu.header
 data[np.where(data < 0)] = 0
 fo = h5py.File('/home/harsh/stic/shocks_rps/merged_rps_mean.nc', 'r')
 labels = f['final_labels'][()]
-wave = np.array(list(fo['wav'][4:33]) + [fo['wav'][-1]])
+wave = np.arange(30)
 cont_value = 2.4434714e-05
-in_bins = np.linspace(0, 0.3, 1000)
+in_bins = np.linspace(0, 2, 10000)
 red = '#f6416c'
 brown = '#ffde7d'
 green = '#00b8a9'
@@ -64,7 +64,7 @@ def plot_profiles():
 
             ax[i][j].pcolormesh(X, Y, H.T, cmap='gray')
 
-            ax[i][j].set_ylim(0, 0.3)
+            ax[i][j].set_ylim(0, 2)
 
             ax[i][j].tick_params(
                 axis='y',          # changes apply to the x-axis
