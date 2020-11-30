@@ -5,7 +5,7 @@ import h5py
 import matplotlib.pyplot as plt
 
 
-f = h5py.File('/data/harsh/out_45.h5', 'r')
+f = h5py.File('/data/harsh/out_100_0.7_0.3.h5', 'r')
 primary_hdu = fits.open(
     '/data/harsh/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits',
     memmap=False
@@ -14,9 +14,9 @@ data, header = primary_hdu.data, primary_hdu.header
 data[np.where(data < 0)] = 0
 fo = h5py.File('/home/harsh/stic/shocks_rps/merged_rps_mean.nc', 'r')
 labels = f['final_labels'][()]
-wave = np.arange(30)
+wave = fo['wav'][4:33]
 cont_value = 2.4434714e-05
-in_bins = np.linspace(0, 2, 10000)
+in_bins = np.linspace(0, 0.4, 1000)
 red = '#f6416c'
 brown = '#ffde7d'
 green = '#00b8a9'
@@ -30,33 +30,28 @@ def plot_profiles():
 
     plt.cla()
 
-    fig, ax = plt.subplots(5, 9, figsize=(18, 12), sharey='col')
+    fig, ax = plt.subplots(10, 10, figsize=(27, 18), sharey='col')
 
     k = 0
 
-    indices = np.array(list(np.arange(4, 33, dtype=np.int64)) + [36])
+    mean_profile = f['rps'][4, :-1] / cont_value
 
-    mean_profile = fo['profiles'][0, 0, 3, indices, 0]
-
-    for i in range(5):
-        for j in range(9):
+    for i in range(10):
+        for j in range(10):
 
             sys.stdout.write('i: {}, j: {}\n'.format(i, j))
 
             a, b, c = np.where(labels == k)
 
-            if k == 3:
-                center = mean_profile
-            else:
-                center = np.mean(data[a, 0, :, b, c], axis=0) / cont_value
+            center = f['rps'][k, :-1] / cont_value
 
-            ax[i][j].plot(wave, center, color=red)
+            ax[i][j].plot(wave, center, color=red, linewidth=0.5)
 
-            ax[i][j].plot(wave, mean_profile, color=brown)
+            ax[i][j].plot(wave, mean_profile, color=brown, linewidth=0.5)
 
             H, xedge, yedge = np.histogram2d(
                 np.tile(wave, a.shape[0]),
-                data[a, 0, :, b, c].flatten() / cont_value,
+                data[a, 0, :-1, b, c].flatten() / cont_value,
                 bins=(wave, in_bins)
             )
 
@@ -64,7 +59,7 @@ def plot_profiles():
 
             ax[i][j].pcolormesh(X, Y, H.T, cmap='gray')
 
-            ax[i][j].set_ylim(0, 2)
+            ax[i][j].set_ylim(0, 0.4)
 
             ax[i][j].tick_params(
                 axis='y',          # changes apply to the x-axis
@@ -84,7 +79,7 @@ def plot_profiles():
 
             k += 1
 
-    plt.savefig('/data/harsh/FullRPs.png', format='png', dpi=100)
+    plt.savefig('/data/harsh/RPs100_0.7_0.3.png', format='png', dpi=700)
 
 
 if __name__ == '__main__':
