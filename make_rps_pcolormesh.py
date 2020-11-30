@@ -5,7 +5,7 @@ import h5py
 import matplotlib.pyplot as plt
 
 
-f = h5py.File('/data/harsh/out_100_0.7_0.3.h5', 'r')
+f = h5py.File('/data/harsh/out_100_0.5_0.5.h5', 'r')
 primary_hdu = fits.open(
     '/data/harsh/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits',
     memmap=False
@@ -34,7 +34,7 @@ def plot_profiles():
 
     k = 0
 
-    mean_profile = f['rps'][4, :-1] / cont_value
+    # mean_profile = f['rps'][4, :-1] / cont_value
 
     for i in range(10):
         for j in range(10):
@@ -45,9 +45,11 @@ def plot_profiles():
 
             center = f['rps'][k, :-1] / cont_value
 
+            medprof = np.median(data[a, 0, :-1, b, c] / cont_value, axis=0)
+
             ax[i][j].plot(wave, center, color=red, linewidth=0.5)
 
-            ax[i][j].plot(wave, mean_profile, color=brown, linewidth=0.5)
+            ax[i][j].plot(wave, medprof, color=brown, linewidth=0.5)
 
             H, xedge, yedge = np.histogram2d(
                 np.tile(wave, a.shape[0]),
@@ -79,7 +81,7 @@ def plot_profiles():
 
             k += 1
 
-    plt.savefig('/data/harsh/RPs100_0.7_0.3.png', format='png', dpi=700)
+    plt.savefig('/data/harsh/RPs100_0.5_0.5.png', format='png', dpi=700)
 
 
 if __name__ == '__main__':
