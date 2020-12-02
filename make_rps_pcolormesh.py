@@ -17,9 +17,10 @@ labels = f['final_labels'][()]
 wave = fo['wav'][4:33]
 cont_value = 2.4434714e-05
 in_bins = np.linspace(0, 0.4, 1000)
-red = '#f6416c'
-brown = '#ffde7d'
-green = '#00b8a9'
+red = '#ec5858'
+brown = '#fd8c04'
+yellow = '#edf285'
+blue = '#93abd3'
 
 
 def get_farthest(a, b, c, center):
@@ -37,6 +38,24 @@ def get_farthest(a, b, c, center):
         )
     )
     index = np.argsort(difference)[-1]
+    return all_profiles[index]
+
+
+def get_closest(a, b, c, center):
+    global data
+    all_profiles = data[a, 0, :-1, b, c] / cont_value
+    difference = np.sqrt(
+        np.sum(
+            np.square(
+                np.subtract(
+                    all_profiles,
+                    center
+                )
+            ),
+            axis=1
+        )
+    )
+    index = np.argsort(difference)[0]
     return all_profiles[index]
 
 
@@ -67,11 +86,15 @@ def plot_profiles():
 
             farthest_profile = get_farthest(a, b, c, center)
 
+            closest_profile = get_closest(a, b, c, center)
+
             ax[i][j].plot(wave, center, color=red, linewidth=0.5)
 
             ax[i][j].plot(wave, medprof, color=brown, linewidth=0.5)
 
-            ax[i][j].plot(wave, farthest_profile, color=green, linewidth=0.5)
+            ax[i][j].plot(wave, farthest_profile, color=yellow, linewidth=0.5)
+
+            ax[i][j].plot(wave, closest_profile, color=blue, linewidth=0.5)
 
             H, xedge, yedge = np.histogram2d(
                 np.tile(wave, a.shape[0]),
