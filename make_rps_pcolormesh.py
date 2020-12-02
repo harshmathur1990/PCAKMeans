@@ -22,6 +22,24 @@ brown = '#ffde7d'
 green = '#00b8a9'
 
 
+def get_farthest(a, b, c, center):
+    global data
+    all_profiles = data[a, 0, :-1, b, c] / cont_value
+    difference = np.sqrt(
+        np.sum(
+            np.square(
+                np.subtract(
+                    all_profiles,
+                    center
+                )
+            ),
+            axis=1
+        )
+    )
+    index = np.argsort(difference)[-1]
+    return all_profiles[index]
+
+
 def plot_profiles():
 
     plt.close('all')
@@ -47,9 +65,13 @@ def plot_profiles():
 
             medprof = np.median(data[a, 0, :-1, b, c] / cont_value, axis=0)
 
+            farthest_profile = get_farthest(a, b, c, center)
+
             ax[i][j].plot(wave, center, color=red, linewidth=0.5)
 
             ax[i][j].plot(wave, medprof, color=brown, linewidth=0.5)
+
+            ax[i][j].plot(wave, farthest_profile, color=green, linewidth=0.5)
 
             H, xedge, yedge = np.histogram2d(
                 np.tile(wave, a.shape[0]),
@@ -59,7 +81,7 @@ def plot_profiles():
 
             X, Y = np.meshgrid(xedge, yedge)
 
-            ax[i][j].pcolormesh(X, Y, H.T, cmap='gray')
+            ax[i][j].pcolormesh(X, Y, H.T, cmap='Greys')
 
             ax[i][j].set_ylim(0, 0.4)
 
