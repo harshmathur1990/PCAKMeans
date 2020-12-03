@@ -8,12 +8,15 @@ import matplotlib.pyplot as plt
 f = h5py.File('/data/harsh/out_100_0.5_0.5.h5', 'r')
 primary_hdu = fits.open(
     '/data/harsh/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits',
-    memmap=False
+    memmap=True
 )[0]
 data, header = primary_hdu.data, primary_hdu.header
+selected_frames = np.array([0, 11, 25, 36, 60, 78, 87])
+data = data[selected_frames]
 data[np.where(data < 0)] = 0
 fo = h5py.File('/home/harsh/stic/shocks_rps/merged_rps_mean.nc', 'r')
-labels = f['final_labels'][()]
+# labels = f['final_labels'][()]
+labels = f['labels_'][()].reshape(7, 1236, 1848)
 wave = fo['wav'][4:33]
 cont_value = 2.4434714e-05
 in_bins = np.linspace(0, 0.4, 1000)
