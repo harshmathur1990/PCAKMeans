@@ -154,7 +154,7 @@ def plot_profiles():
                 labelbottom=False  # labels along the bottom edge are off
             )
 
-            ax[i][j].set_text('n = {} %'.format(a * 100 / 15988896))
+            ax[i][j].text(0.9, 0.9, 'n = {} %'.format(a * 100 / 15988896))
             k += 1
 
     plt.savefig(
