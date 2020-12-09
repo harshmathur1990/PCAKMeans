@@ -5,7 +5,10 @@ import h5py
 import matplotlib.pyplot as plt
 
 
-f = h5py.File('/data/harsh/out_100_0.5_0.5.h5', 'r')
+f = h5py.File(
+    '/data/harsh/out_100_0.5_0.5_n_iter_10000_tol_1en6_sample_weights.h5',
+    'r'
+)
 primary_hdu = fits.open(
     '/data/harsh/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits',
     memmap=True
@@ -91,13 +94,37 @@ def plot_profiles():
 
             closest_profile = get_closest(a, b, c, center)
 
-            ax[i][j].plot(wave, center, color=red, linewidth=0.5)
+            ax[i][j].plot(
+                wave,
+                center,
+                color='black',
+                linewidth=0.5,
+                linestyle='solid'
+            )
 
-            ax[i][j].plot(wave, medprof, color=brown, linewidth=0.5)
+            ax[i][j].plot(
+                wave,
+                medprof,
+                color='black',
+                linewidth=0.5,
+                linestyle='dashdot'
+            )
 
-            ax[i][j].plot(wave, farthest_profile, color=yellow, linewidth=0.5)
+            ax[i][j].plot(
+                wave,
+                farthest_profile,
+                color='black',
+                linewidth=0.5,
+                linestyle='dotted'
+            )
 
-            ax[i][j].plot(wave, closest_profile, color=blue, linewidth=0.5)
+            ax[i][j].plot(
+                wave,
+                closest_profile,
+                color='black',
+                linewidth=0.5,
+                linestyle='dashed'
+            )
 
             H, xedge, yedge = np.histogram2d(
                 np.tile(wave, a.shape[0]),
@@ -127,9 +154,14 @@ def plot_profiles():
                 labelbottom=False  # labels along the bottom edge are off
             )
 
+            ax[i][j].set_text('n = {} %'.format(a * 100 / 15988896))
             k += 1
 
-    plt.savefig('/data/harsh/RPs100_0.5_0.5.png', format='png', dpi=700)
+    plt.savefig(
+        '/data/harsh/RPs100_0.5_0.5_n_iter_10000_tol_1en6_sample_weights.png',
+        format='png',
+        dpi=700
+    )
 
 
 if __name__ == '__main__':
