@@ -155,9 +155,11 @@ def plot_profiles():
             )
 
             ax[i][j].text(
+                0.6,
                 0.8,
-                0.7,
-                'n = {} %'.format(a * 100 / 15988896),
+                'n = {} %'.format(
+                    np.round(a * 100 / 15988896, 4)
+                ),
                 transform=ax[i][j].transAxes
             )
 
