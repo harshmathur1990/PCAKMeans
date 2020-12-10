@@ -155,8 +155,8 @@ def plot_profiles():
             )
 
             ax[i][j].text(
-                0.6,
-                0.8,
+                0.5,
+                0.5,
                 'n = {} %\n'.format(
                     np.round(a.size * 100 / 15988896, 4)
                 ),
