@@ -154,14 +154,12 @@ def plot_profiles():
                 labelbottom=False  # labels along the bottom edge are off
             )
 
-            test = 'n = {} %'.format(
-                np.round(a * 100 / 15988896, 4)
-            )
-
             ax[i][j].text(
                 0.6,
                 0.8,
-                'test',
+                'n = {} %\n'.format(
+                    np.round(a.size * 100 / 15988896, 4)
+                ),
                 transform=ax[i][j].transAxes
             )
 
