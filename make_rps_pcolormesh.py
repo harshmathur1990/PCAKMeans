@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 f = h5py.File(
-    '/data/harsh/out_100_0.5_0.5_n_iter_10000_tol_1en6_sample_weights.h5',
+    '/data/harsh/out_100_n_iter_10000_tol_1en5_sample_weights.h5',
     'r'
 )
 primary_hdu = fits.open(
@@ -22,7 +22,7 @@ fo = h5py.File('/home/harsh/stic/shocks_rps/merged_rps_mean.nc', 'r')
 labels = f['labels_'][()].reshape(7, 1236, 1848)
 wave = fo['wav'][4:33]
 cont_value = 2.4434714e-05
-in_bins = np.linspace(0, 0.4, 1000)
+in_bins = np.linspace(0, 0.6, 1000)
 red = '#ec5858'
 brown = '#fd8c04'
 yellow = '#edf285'
@@ -88,11 +88,11 @@ def plot_profiles():
 
             center = f['rps'][k, :-1] / cont_value
 
-            medprof = np.median(data[a, 0, :-1, b, c] / cont_value, axis=0)
+            # medprof = np.median(data[a, 0, :-1, b, c] / cont_value, axis=0)
 
             farthest_profile = get_farthest(a, b, c, center)
 
-            closest_profile = get_closest(a, b, c, center)
+            # closest_profile = get_closest(a, b, c, center)
 
             ax[i][j].plot(
                 wave,
@@ -102,13 +102,13 @@ def plot_profiles():
                 linestyle='solid'
             )
 
-            ax[i][j].plot(
-                wave,
-                medprof,
-                color='black',
-                linewidth=0.5,
-                linestyle='dashdot'
-            )
+            # ax[i][j].plot(
+            #     wave,
+            #     medprof,
+            #     color='black',
+            #     linewidth=0.5,
+            #     linestyle='dashdot'
+            # )
 
             ax[i][j].plot(
                 wave,
@@ -118,13 +118,13 @@ def plot_profiles():
                 linestyle='dotted'
             )
 
-            ax[i][j].plot(
-                wave,
-                closest_profile,
-                color='black',
-                linewidth=0.5,
-                linestyle='dashed'
-            )
+            # ax[i][j].plot(
+            #     wave,
+            #     closest_profile,
+            #     color='black',
+            #     linewidth=0.5,
+            #     linestyle='dashed'
+            # )
 
             H, xedge, yedge = np.histogram2d(
                 np.tile(wave, a.shape[0]),
@@ -136,7 +136,7 @@ def plot_profiles():
 
             ax[i][j].pcolormesh(X, Y, H.T, cmap='Greys')
 
-            ax[i][j].set_ylim(0, 0.4)
+            ax[i][j].set_ylim(0, 0.6)
 
             ax[i][j].tick_params(
                 axis='y',          # changes apply to the x-axis
@@ -154,11 +154,17 @@ def plot_profiles():
                 labelbottom=False  # labels along the bottom edge are off
             )
 
-            ax[i][j].text(0.9, 0.9, 'n = {} %'.format(a * 100 / 15988896))
+            ax[i][j].text(
+                0.8,
+                0.7,
+                'n = {} %'.format(a * 100 / 15988896),
+                transform=ax[i][j].transAxes
+            )
+
             k += 1
 
     plt.savefig(
-        '/data/harsh/RPs100_0.5_0.5_n_iter_10000_tol_1en6_sample_weights.png',
+        '/data/harsh/RPs100_n_iter_10000_tol_1en6_sample_weights.png',
         format='png',
         dpi=700
     )
