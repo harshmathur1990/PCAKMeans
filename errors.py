@@ -1,4 +1,4 @@
-# import sys
+import sys
 from astropy.io import fits
 import numpy as np
 import h5py
@@ -30,7 +30,11 @@ green = '#00b8a9'
 
 def plot_profiles():
 
+    sys.stdout.write('Started Procedure\n')
+
     for file in file_list:
+
+        sys.stdout.write('Processing {}\n'.format(file))
 
         f = h5py.File(file, 'r')
 
@@ -54,6 +58,8 @@ def plot_profiles():
             error[k] = difference
 
         np.savetxt(file + '_error.txt', error)
+
+        sys.stdout.write('Saved {}\n'.format(file + '_error.txt'))
 
         plt.close('all')
 
@@ -82,6 +88,8 @@ def plot_profiles():
         )
 
         plt.savefig(file + '_error.png', format='png', dpi=300)
+
+        sys.stdout.write('Saved {}\n'.format(file + '_error.png'))
 
         plt.close('all')
 
