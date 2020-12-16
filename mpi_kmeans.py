@@ -25,10 +25,8 @@ framerows = np.transpose(
 )
 mn = np.mean(framerows, axis=0)
 sd = np.std(framerows, axis=0)
-normframerows = (framerows - mn) / sd
 weights = np.ones(30) * 0.025
 weights[10:20] = 0.05
-normframerows *= weights
 
 
 class Status(enum.Enum):
@@ -45,6 +43,9 @@ def do_work(num_clusters):
     try:
         sys.stdout.write('Process: {} Read from File\n'.format(num_clusters))
 
+        framerows = (framerows - mn) / sd
+        framerows *= weights
+
         model = KMeans(
             n_clusters=num_clusters,
             max_iter=10000,
@@ -53,7 +54,7 @@ def do_work(num_clusters):
 
         sys.stdout.write('Process: {} Before KMeans\n'.format(num_clusters))
 
-        model.fit(normframerows)
+        model.fit(framerows)
 
         sys.stdout.write('Process: {} Fitted KMeans\n'.format(num_clusters))
 
@@ -69,6 +70,9 @@ def do_work(num_clusters):
         fout['n_iter_'] = model.n_iter_
 
         rps = np.zeros_like(model.cluster_centers_)
+
+        framerows /= weights
+        framerows = (framerows * sd) - mn
 
         for i in range(num_clusters):
             a = np.where(model.labels_ == i)
