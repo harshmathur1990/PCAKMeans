@@ -37,10 +37,15 @@ class Status(enum.Enum):
 
 
 def do_work(num_clusters):
+    global framerows
+    global mn
+    global sd
+    global weights
 
     sys.stdout.write('Processing for Num Clusters: {}\n'.format(num_clusters))
 
     try:
+
         sys.stdout.write('Process: {} Read from File\n'.format(num_clusters))
 
         framerows = (framerows - mn) / sd
