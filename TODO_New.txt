@@ -1,0 +1,7 @@
+TODO:
+
+1. Maps of temp, vlos and vturb at different tau
+2. Profiles of RPs and fits
+3. FOV of shocks (50 x 50), evolution with time of vlos, vturb and temp (using RPs), 2-3 eamples.
+4. Evolution of t, vl, vt on a shock pixel, overplot.
+5. Invert the seleted FOV using RPs.
