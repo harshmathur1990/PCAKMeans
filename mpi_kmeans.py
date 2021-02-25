@@ -1,9 +1,7 @@
-# import os
 import sys
 import enum
 import traceback
 import numpy as np
-# import joblib
 import os
 import os.path
 import sunpy.io
@@ -14,14 +12,21 @@ from sklearn.cluster import KMeans
 from delay_retry import retry
 
 
-kmeans_output_dir = '/data/harsh1/kmeans_output'
-input_file = '/data/harsh1/selected_samples.h5'
-input_key = 'selected_data'
-data_arr = None
-
-# kmeans_output_dir = '/Users/harshmathur/CourseworkRepo/tst'
-# input_file = '/Users/harshmathur/CourseworkRepo/tst/sample_input.h5'
-# input_key = 'selected_data'
+kmeans_output_dir = '/data/harsh/kmeans_output'
+input_file = '/data/harsh/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits'
+selected_frames = np.array([0, 11, 25, 36, 60, 78, 87])
+data, header = sunpy.io.fits.read(input_file, memmap=True)[0]
+framerows = np.transpose(
+    data[selected_frames][:, 0],
+    axes=(0, 2, 3, 1)
+).reshape(
+    7 * 1236 * 1848,
+    30
+)
+mn = np.mean(framerows, axis=0)
+sd = np.std(framerows, axis=0)
+weights = np.ones(30) * 0.025
+weights[10:20] = 0.05
 
 
 class Status(enum.Enum):
@@ -31,104 +36,30 @@ class Status(enum.Enum):
     Work_failure = 3
 
 
-def save_model(fout, model):
-    fout['cluster_centers_'] = model.cluster_centers_
-    fout['labels_'] = model.labels_
-    fout['inertia_'] = model.inertia_
-    fout['n_iter_'] = model.n_iter_
-
-
-@retry((Exception,))
-def get_value(input_file):
-    # f = h5py.File(input_file, 'r', driver='mpio', comm=MPI.COMM_WORLD)
-    indices = [0, 11, 25, 36, 60, 78, 87]
-    total_indices = list()
-
-    for i in indices:
-        total_indices += list(
-            np.arange(i * 2284128, (i + 1) * 2284128)
-        )
-
-    total_indices = np.array(total_indices)
-
-    data, header = sunpy.io.read_file(input_file)[0]
-
-    new_arr = np.lib.stride_tricks.as_strided(
-        data, shape=(100 * 1236 * 1848, 30),
-        strides=(4, 4 * 1848 * 1236)
-    )
-
-    selected_data = new_arr[total_indices]
-
-    selected_data = selected_data.astype(np.float64)
-
-    mean = np.mean(selected_data, 0)
-
-    std = np.std(selected_data, 0)
-
-    mean = mean[np.newaxis, :]
-
-    std = std[np.newaxis, :]
-
-    mean_repeat = np.repeat(
-        mean,
-        axis=0,
-        repeats=selected_data.shape[0]
-    )
-
-    std_repeat = np.repeat(
-        std,
-        axis=0,
-        repeats=selected_data.shape[0]
-    )
-
-    selected_data = np.divide(
-        np.subtract(
-            selected_data,
-            mean_repeat
-        ),
-        std_repeat
-    )
-
-    return selected_data, mean_repeat[0], std_repeat[0]
-
-
-@retry((Exception,))
-def get_data(input_file, input_key):
-    f = h5py.File(input_file, 'r')
-    data = f[input_key][()]
-    f.close()
-    return data
-
-
 def do_work(num_clusters):
+    global framerows
+    global mn
+    global sd
+    global weights
 
     sys.stdout.write('Processing for Num Clusters: {}\n'.format(num_clusters))
-    # try:
-    #     n_workers = os.environ['NWORKER']
-    # except KeyError:
-    #     n_workers = None
-
-    # try:
-    #     threads_per_worker = os.environ['NTHREADS']
-    # except KeyError:
-    #     threads_per_worker = None
-
-    # cluster = LocalCluster(
-    #     # n_workers=n_workers, threads_per_worker=threads_per_worker
-    # )
-
-    # client = Client(cluster)
 
     try:
-        global data_arr
-        if data_arr is None:
-            data_arr = get_data(input_file, input_key)
+
         sys.stdout.write('Process: {} Read from File\n'.format(num_clusters))
-        model = KMeans(n_clusters=num_clusters, n_jobs=2)
-        # with joblib.parallel_backend('dask'):
+
+        framerows = (framerows - mn) / sd
+        framerows *= weights
+
+        model = KMeans(
+            n_clusters=num_clusters,
+            max_iter=10000,
+            tol=1e-6
+        )
+
         sys.stdout.write('Process: {} Before KMeans\n'.format(num_clusters))
-        model.fit(data_arr)
+
+        model.fit(framerows)
 
         sys.stdout.write('Process: {} Fitted KMeans\n'.format(num_clusters))
 
@@ -138,7 +69,21 @@ def do_work(num_clusters):
         sys.stdout.write(
             'Process: {} Open file for writing\n'.format(num_clusters)
         )
-        save_model(fout, model)
+        fout['cluster_centers_'] = model.cluster_centers_
+        fout['labels_'] = model.labels_
+        fout['inertia_'] = model.inertia_
+        fout['n_iter_'] = model.n_iter_
+
+        rps = np.zeros_like(model.cluster_centers_)
+
+        framerows /= weights
+        framerows = (framerows * sd) - mn
+
+        for i in range(num_clusters):
+            a = np.where(model.labels_ == i)
+            rps[i] = np.mean(framerows[a], axis=0)
+
+        fout['rps'] = rps
 
         sys.stdout.write('Process: {} Wrote to file\n'.format(num_clusters))
         fout.close()
@@ -164,7 +109,7 @@ if __name__ == '__main__':
         finished_queue = set()
         failure_queue = set()
 
-        for i in range(2, 100):
+        for i in range(2, 200, 5):
             waiting_queue.add(i)
 
         filepath = '{}/status_job.h5'.format(kmeans_output_dir)
