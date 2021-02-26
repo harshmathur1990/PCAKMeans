@@ -8,9 +8,13 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
+
+# base_path = Path('/home/harsh/OsloAnalysis/new_kmeans')
+
+base_path = Path('/home/harsh/animation_data')
 spectra_file_path = Path('/data/harsh1/colabd/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits')
-# spectra_file_path = Path('/home/harsh/Harsh9599771751/colabd/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits')
-label_file_path = Path('/home/harsh/animation_data/out_100_0.5_0.5_n_iter_10000_tol_1en5.h5')
+# spectra_file_path = Path('/home/harsh/OsloAnalysis/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits')
+label_file_path = base_path / 'out_100_0.5_0.5_n_iter_10000_tol_1en5.h5'
 # label_file_path = Path('/home/harsh/Harsh9599771751/Oslo Work/out_45.h5')
 # rp_path = Path('/data/harsh1/accepted_rp_inversions')
 # rp_path = Path('/home/harsh/OsloAnalysis/accepted_rp_inversions')
@@ -41,23 +45,26 @@ other_emission_profiles = [2, 5, 7, 9, 12, 27, 29, 30, 38, 39, 45, 46, 50, 54, 5
 
 
 def get_filepath_and_content_list(rp):
+
+    global base_path
+
     if rp in quiet_profiles:
-        filename, content_list = Path('/home/harsh/animation_data/quiet_profiles/plots_v1/rp_0_3_8_11_14_15_16_20_21_24_28_31_34_40_42_43_44_47_48_51_57_58_60_61_62_63_66_69_70_71_73_74_75_76_82_84_86_89_90_99_cycle_1_t_5_vl_1_vt_4_atmos.nc'), [0, 3, 8, 11, 14, 15, 16, 20, 21, 24, 28, 31, 34, 40, 42, 43, 44, 47, 48, 51, 57, 58, 60, 61, 62, 63, 66, 69, 70, 71, 73, 74, 75, 76, 82, 84, 86, 89, 90, 99]
+        filename, content_list = base_path / 'quiet_profiles/plots_v1/rp_0_3_8_11_14_15_16_20_21_24_28_31_34_40_42_43_44_47_48_51_57_58_60_61_62_63_66_69_70_71_73_74_75_76_82_84_86_89_90_99_cycle_1_t_5_vl_1_vt_4_atmos.nc', [0, 3, 8, 11, 14, 15, 16, 20, 21, 24, 28, 31, 34, 40, 42, 43, 44, 47, 48, 51, 57, 58, 60, 61, 62, 63, 66, 69, 70, 71, 73, 74, 75, 76, 82, 84, 86, 89, 90, 99]
 
     elif rp in shock_spicule_profiles:
-        filename, content_list = Path('/home/harsh/animation_data/shock_and_spicule_profiles/plots_v1/rp_1_4_6_10_15_18_19_20_22_23_24_26_36_37_40_43_49_52_53_55_56_62_66_70_72_73_74_75_77_78_79_84_85_86_92_94_99_cycle_1_t_4_vl_5_vt_4_atmos.nc'), [1, 4, 6, 10, 15, 18, 19, 20, 22, 23, 24, 26, 36, 37, 40, 43, 49, 52, 53, 55, 56, 62, 66, 70, 72, 73, 74, 75, 77, 78, 79, 84, 85, 86, 92, 94, 99]
+        filename, content_list = base_path / 'shock_and_spicule_profiles/plots_v1/rp_1_4_6_10_15_18_19_20_22_23_24_26_36_37_40_43_49_52_53_55_56_62_66_70_72_73_74_75_77_78_79_84_85_86_92_94_99_cycle_1_t_4_vl_5_vt_4_atmos.nc', [1, 4, 6, 10, 15, 18, 19, 20, 22, 23, 24, 26, 36, 37, 40, 43, 49, 52, 53, 55, 56, 62, 66, 70, 72, 73, 74, 75, 77, 78, 79, 84, 85, 86, 92, 94, 99]
 
     elif rp in retry_shock_spicule:
-        filename, content_list = Path('/home/harsh/animation_data/retry_shock_spicule/plots_v1/rp_6_49_18_36_78_cycle_1_t_4_vl_5_vt_4_atmos.nc'), [6, 49, 18, 36, 78]
+        filename, content_list = base_path / 'retry_shock_spicule/plots_v1/rp_6_49_18_36_78_cycle_1_t_4_vl_5_vt_4_atmos.nc', [6, 49, 18, 36, 78]
 
     elif rp in shock_78:
-        filename, content_list = Path('/home/harsh/animation_data/rp_78/plots_v3/rp_78_cycle_1_t_4_vl_7_vt_4_atmos.nc'), [78]
+        filename, content_list = base_path / 'rp_78/plots_v3/rp_78_cycle_1_t_4_vl_7_vt_4_atmos.nc', [78]
 
     elif rp in reverse_shock_profiles:
-        filename, content_list = Path('/home/harsh/animation_data/reverse_shock_profiles/plots_v1/rp_3_13_16_17_25_32_33_35_41_58_61_64_68_82_95_97_cycle_1_t_5_vl_5_vt_4_atmos.nc'), [3, 13, 16, 17, 25, 32, 33, 35, 41, 58, 61, 64, 68, 82, 95, 97]
+        filename, content_list = base_path / 'reverse_shock_profiles/plots_v1/rp_3_13_16_17_25_32_33_35_41_58_61_64_68_82_95_97_cycle_1_t_5_vl_5_vt_4_atmos.nc', [3, 13, 16, 17, 25, 32, 33, 35, 41, 58, 61, 64, 68, 82, 95, 97]
 
     elif rp in other_emission_profiles:
-        filename, content_list = Path('/home/harsh/animation_data/other_emission_profiles/plots_v1/rp_2_5_7_9_12_27_29_30_38_39_45_46_50_54_57_59_65_67_71_76_80_81_83_87_88_91_93_96_98_cycle_1_t_5_vl_5_vt_4_atmos.nc'), [2, 5, 7, 9, 12, 27, 29, 30, 38, 39, 45, 46, 50, 54, 57, 59, 65, 67, 71, 76, 80, 81, 83, 87, 88, 91, 93, 96, 98]
+        filename, content_list = base_path / 'other_emission_profiles/plots_v1/rp_2_5_7_9_12_27_29_30_38_39_45_46_50_54_57_59_65_67_71_76_80_81_83_87_88_91_93_96_98_cycle_1_t_5_vl_5_vt_4_atmos.nc', [2, 5, 7, 9, 12, 27, 29, 30, 38, 39, 45, 46, 50, 54, 57, 59, 65, 67, 71, 76, 80, 81, 83, 87, 88, 91, 93, 96, 98]
 
     return filename, content_list
 
@@ -143,7 +150,7 @@ def get_calib_velocity():
 
         index = content_list.index(i)
 
-        print (i, filename, content_list)
+        # print (i, filename, content_list)
 
         if f['ltau500'].shape[1] == len(content_list):
             normal = True
@@ -227,7 +234,7 @@ def plot_fov_parameter_variation(
 
     f = h5py.File(label_file_path, 'r')
 
-    labels = f['final_labels'][()].astype(np.int64)
+    labels = f['new_final_labels'][()].astype(np.int64)
 
     temp0 = get_image_map(labels[0], temp)
 
@@ -237,12 +244,12 @@ def plot_fov_parameter_variation(
 
     fig, axs = plt.subplots(2, 2, figsize=(18, 12), dpi=100, gridspec_kw={'wspace': 0.001, 'hspace': 0.025})
 
-    # vlos_levels = np.array(
-    #     list(np.linspace(vlos.min(), 0, 20)) +
-    #     list(np.linspace(0, vlos.max(), 20))[1:]
-    # )
-    # vlos_cmap = plt.cm.get_cmap('coolwarm', vlos_levels.shape[0])
-    # vlos_norm = matplotlib.colors.BoundaryNorm(vlos_levels, vlos_cmap.N)
+    vlos_levels = np.array(
+        list(np.linspace(vlos.min(), 0, 20)) +
+        list(np.linspace(0, vlos.max(), 20))[1:]
+    )
+    vlos_cmap = plt.cm.get_cmap('coolwarm', vlos_levels.shape[0])
+    vlos_norm = matplotlib.colors.BoundaryNorm(vlos_levels, vlos_cmap.N)
 
     im0 = axs[0][0].imshow(
         image0,
@@ -261,11 +268,9 @@ def plot_fov_parameter_variation(
     im2 = axs[1][0].imshow(
         vlos0,
         origin='lower',
-        cmap='bwr',
+        cmap=vlos_cmap,
         interpolation='none',
-        vmin=-5,
-        vmax=-5,
-        aspect='equal'
+        norm=vlos_norm
     )
 
     im3 = axs[1][1].imshow(
@@ -332,7 +337,8 @@ def plot_fov_parameter_variation(
         spacing='uniform',
         extend='both',
         extendfrac='auto',
-        extendrect='True'
+        extendrect='True',
+        boundaries=vlos_levels
     )
     cbar3 = fig.colorbar(im3, cax=axins3)
 
