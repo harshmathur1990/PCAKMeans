@@ -10,9 +10,9 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 spectra_file_path = Path('/data/harsh1/colabd/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits')
 # spectra_file_path = Path('/home/harsh/Harsh9599771751/colabd/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits')
-label_file_path = Path('/data/harsh1/out_45.h5')
+label_file_path = Path('/home/harsh/animation_data/out_100_0.5_0.5_n_iter_10000_tol_1en5.h5')
 # label_file_path = Path('/home/harsh/Harsh9599771751/Oslo Work/out_45.h5')
-rp_path = Path('/data/harsh1/accepted_rp_inversions')
+# rp_path = Path('/data/harsh1/accepted_rp_inversions')
 # rp_path = Path('/home/harsh/OsloAnalysis/accepted_rp_inversions')
 
 photosphere_indices = np.array([29])
@@ -27,35 +27,84 @@ mid_chromosphere_tau = np.array([-4, -3])
 
 upper_chromosphere_tau = np.array([-6, -5])
 
+quiet_profiles = [0, 11, 14, 15, 20, 21, 24, 28, 31, 34, 40, 42, 43, 47, 48, 51, 60, 62, 69, 70, 73, 74, 75, 86, 89, 90, 8, 44, 63, 84]
+
+shock_spicule_profiles = [4, 10, 19, 26, 37, 52, 79, 85, 94, 1, 22, 23, 53, 55, 56, 66, 72, 77, 92, 99]
+
+retry_shock_spicule = [6, 49, 18, 36]
+
+shock_78 = [78]
+
+reverse_shock_profiles = [3, 13, 16, 17, 25, 32, 33, 35, 41, 58, 61, 64, 68, 82, 95, 97]
+
+other_emission_profiles = [2, 5, 7, 9, 12, 27, 29, 30, 38, 39, 45, 46, 50, 54, 57, 59, 65, 67, 71, 76, 80, 81, 83, 87, 88, 91, 93, 96, 98]
+
+
+def get_filepath_and_content_list(rp):
+    if rp in quiet_profiles:
+        filename, content_list = Path('/home/harsh/animation_data/quiet_profiles/plots_v1/rp_0_3_8_11_14_15_16_20_21_24_28_31_34_40_42_43_44_47_48_51_57_58_60_61_62_63_66_69_70_71_73_74_75_76_82_84_86_89_90_99_cycle_1_t_5_vl_1_vt_4_atmos.nc'), [0, 3, 8, 11, 14, 15, 16, 20, 21, 24, 28, 31, 34, 40, 42, 43, 44, 47, 48, 51, 57, 58, 60, 61, 62, 63, 66, 69, 70, 71, 73, 74, 75, 76, 82, 84, 86, 89, 90, 99]
+
+    elif rp in shock_spicule_profiles:
+        filename, content_list = Path('/home/harsh/animation_data/shock_and_spicule_profiles/plots_v1/rp_1_4_6_10_15_18_19_20_22_23_24_26_36_37_40_43_49_52_53_55_56_62_66_70_72_73_74_75_77_78_79_84_85_86_92_94_99_cycle_1_t_4_vl_5_vt_4_atmos.nc'), [1, 4, 6, 10, 15, 18, 19, 20, 22, 23, 24, 26, 36, 37, 40, 43, 49, 52, 53, 55, 56, 62, 66, 70, 72, 73, 74, 75, 77, 78, 79, 84, 85, 86, 92, 94, 99]
+
+    elif rp in retry_shock_spicule:
+        filename, content_list = Path('/home/harsh/animation_data/retry_shock_spicule/plots_v1/rp_6_49_18_36_78_cycle_1_t_4_vl_5_vt_4_atmos.nc'), [6, 49, 18, 36, 78]
+
+    elif rp in shock_78:
+        filename, content_list = Path('/home/harsh/animation_data/rp_78/plots_v3/rp_78_cycle_1_t_4_vl_7_vt_4_atmos.nc'), [78]
+
+    elif rp in reverse_shock_profiles:
+        filename, content_list = Path('/home/harsh/animation_data/reverse_shock_profiles/plots_v1/rp_3_13_16_17_25_32_33_35_41_58_61_64_68_82_95_97_cycle_1_t_5_vl_5_vt_4_atmos.nc'), [3, 13, 16, 17, 25, 32, 33, 35, 41, 58, 61, 64, 68, 82, 95, 97]
+
+    elif rp in other_emission_profiles:
+        filename, content_list = Path('/home/harsh/animation_data/other_emission_profiles/plots_v1/rp_2_5_7_9_12_27_29_30_38_39_45_46_50_54_57_59_65_67_71_76_80_81_83_87_88_91_93_96_98_cycle_1_t_5_vl_5_vt_4_atmos.nc'), [2, 5, 7, 9, 12, 27, 29, 30, 38, 39, 45, 46, 50, 54, 57, 59, 65, 67, 71, 76, 80, 81, 83, 87, 88, 91, 93, 96, 98]
+
+    return filename, content_list
+
 
 def get_atmos_values_for_lables(tau_indices):
 
-    temp = np.zeros(45)
+    temp = np.zeros(100)
 
-    vlos = np.zeros(45)
+    vlos = np.zeros(100)
 
-    vturb = np.zeros(45)
+    vturb = np.zeros(100)
 
-    for i in range(45):
-        rp_dir_path = rp_path / 'rp_{}'.format(i)
+    for i in range(100):
+        filename, content_list = get_filepath_and_content_list(i)
 
-        all_files = rp_dir_path.glob('**/*')
-        atmos_file = [
-            x for x in all_files if x.is_file() and x.name.endswith('.nc')
-        ]
-        atmos_file = atmos_file[0]
-        f = h5py.File(atmos_file, 'r')
+        f = h5py.File(filename, 'r')
 
-        atmos_indices = np.where(
-            (f['ltau500'][0, 0, 0] >= tau_indices[0]) &
-            (f['ltau500'][0, 0, 0] <= tau_indices[1])
-        )[0]
+        index = content_list.index(i)
 
-        temp[i] = np.mean(f['temp'][0, 0, 0, atmos_indices])
+        if len(content_list) == f['ltau500'].shape[1]:
+            normal = True
+        else:
+            normal = False
 
-        vlos[i] = np.mean(f['vlos'][0, 0, 0, atmos_indices])
+        if normal:
+            atmos_indices = np.where(
+                (f['ltau500'][0, index, 0] >= tau_indices[0]) &
+                (f['ltau500'][0, index, 0] <= tau_indices[1])
+            )[0]
 
-        vturb[i] = np.mean(f['vturb'][0, 0, 0, atmos_indices])
+            temp[i] = np.mean(f['temp'][0, index, 0, atmos_indices])
+
+            vlos[i] = np.mean(f['vlos'][0, index, 0, atmos_indices])
+
+            vturb[i] = np.mean(f['vturb'][0, index, 0, atmos_indices])
+
+        else:
+            atmos_indices = np.where(
+                (f['ltau500'][0, 0, index] >= tau_indices[0]) &
+                (f['ltau500'][0, 0, index] <= tau_indices[1])
+            )[0]
+
+            temp[i] = np.mean(f['temp'][0, 0, index, atmos_indices])
+
+            vlos[i] = np.mean(f['vlos'][0, 0, index, atmos_indices])
+
+            vturb[i] = np.mean(f['vturb'][0, 0, index, atmos_indices])
 
         f.close()
 
@@ -85,33 +134,44 @@ def get_image_map(label_map, value_map):
 
 def get_calib_velocity():
 
-    vlos = np.zeros(45)
+    vlos = np.zeros(100)
 
-    for i in range(45):
-        rp_dir_path = rp_path / 'rp_{}'.format(i)
+    for i in range(100):
+        filename, content_list = get_filepath_and_content_list(i)
 
-        all_files = rp_dir_path.glob('**/*')
-        atmos_file = [
-            x for x in all_files if x.is_file() and
-            x.name.endswith('.nc')
-        ][0]
+        f = h5py.File(filename, 'r')
 
-        f = h5py.File(atmos_file, 'r')
+        index = content_list.index(i)
 
-        atmos_indices = np.where(
-            (f['ltau500'][0, 0, 0] >= photosphere_tau[0]) &
-            (f['ltau500'][0, 0, 0] <= photosphere_tau[1])
-        )[0]
+        print (i, filename, content_list)
 
-        vlos[i] = np.mean(f['vlos'][0, 0, 0, atmos_indices])
+        if f['ltau500'].shape[1] == len(content_list):
+            normal = True
+        else:
+            normal = False
 
+        if normal:
+            atmos_indices = np.where(
+                (f['ltau500'][0, index, 0] >= photosphere_tau[0]) &
+                (f['ltau500'][0, index, 0] <= photosphere_tau[1])
+            )[0]
+
+            vlos[i] = np.mean(f['vlos'][0, index, 0, atmos_indices])
+
+        else:
+            atmos_indices = np.where(
+                (f['ltau500'][0, 0, index] >= photosphere_tau[0]) &
+                (f['ltau500'][0, 0, index] <= photosphere_tau[1])
+            )[0]
+
+            vlos[i] = np.mean(f['vlos'][0, 0, index, atmos_indices])
         f.close()
 
     f = h5py.File(label_file_path, 'r')
 
-    weights = np.ones(45)
+    weights = np.ones(100)
 
-    for i in range(45):
+    for i in range(100):
         a, b, c = np.where(f['final_labels'][()] == i)
         weights[i] = a.shape[0]
 
@@ -126,6 +186,8 @@ def plot_fov_parameter_variation(
     tau_indices,
     fps=1
 ):
+
+    global calib_velocity
 
     sys.stdout.write('Animation Path: {}\n'.format(animation_path))
     sys.stdout.write('wave_indices: {}\n'.format(wave_indices))
@@ -145,9 +207,11 @@ def plot_fov_parameter_variation(
 
     sys.stdout.write('Made Image\n')
 
-    # calib_velocity = get_calib_velocity()
+    if calib_velocity is None:
+        calib_velocity = get_calib_velocity()
 
-    calib_velocity = 357188.5568518038
+    print (calib_velocity)
+    # calib_velocity = 357188.5568518038
 
     sys.stdout.write('Calib Velocity: {}\n'.format(calib_velocity))
 
@@ -163,7 +227,7 @@ def plot_fov_parameter_variation(
 
     f = h5py.File(label_file_path, 'r')
 
-    labels = f['final_labels']
+    labels = f['final_labels'][()].astype(np.int64)
 
     temp0 = get_image_map(labels[0], temp)
 
@@ -173,12 +237,12 @@ def plot_fov_parameter_variation(
 
     fig, axs = plt.subplots(2, 2, figsize=(18, 12), dpi=100, gridspec_kw={'wspace': 0.001, 'hspace': 0.025})
 
-    vlos_levels = np.array(
-        list(np.linspace(vlos.min(), 0, 20)) +
-        list(np.linspace(0, vlos.max(), 20))[1:]
-    )
-    vlos_cmap = plt.cm.get_cmap('coolwarm', vlos_levels.shape[0])
-    vlos_norm = matplotlib.colors.BoundaryNorm(vlos_levels, vlos_cmap.N)
+    # vlos_levels = np.array(
+    #     list(np.linspace(vlos.min(), 0, 20)) +
+    #     list(np.linspace(0, vlos.max(), 20))[1:]
+    # )
+    # vlos_cmap = plt.cm.get_cmap('coolwarm', vlos_levels.shape[0])
+    # vlos_norm = matplotlib.colors.BoundaryNorm(vlos_levels, vlos_cmap.N)
 
     im0 = axs[0][0].imshow(
         image0,
@@ -197,9 +261,11 @@ def plot_fov_parameter_variation(
     im2 = axs[1][0].imshow(
         vlos0,
         origin='lower',
-        cmap=vlos_cmap,
+        cmap='bwr',
         interpolation='none',
-        norm=vlos_norm
+        vmin=-5,
+        vmax=-5,
+        aspect='equal'
     )
 
     im3 = axs[1][1].imshow(
@@ -266,8 +332,7 @@ def plot_fov_parameter_variation(
         spacing='uniform',
         extend='both',
         extendfrac='auto',
-        extendrect='True',
-        boundaries=vlos_levels
+        extendrect='True'
     )
     cbar3 = fig.colorbar(im3, cax=axins3)
 
@@ -330,6 +395,8 @@ def plot_fov_parameter_variation(
 
 
 if __name__ == '__main__':
+
+    calib_velocity = None
 
     plot_fov_parameter_variation(
         animation_path='photosphere_map.mp4',
