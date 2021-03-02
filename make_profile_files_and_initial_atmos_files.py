@@ -169,12 +169,14 @@ def get_atmos_values_for_lables():
 
     return temp, vlos, vturb
 
+
 def prepare_get_parameter(param):
 
     def get_parameter(rp):
         return param[rp]
 
     return get_parameter
+
 
 def get_filepath_and_content_list(rp):
     if rp in quiet_profiles:
