@@ -1,5 +1,7 @@
 from prepare_data import *
 from pathlib import Path
+import sunpy.io
+import h5py
 
 
 base_path = Path('/home/harsh/OsloAnalysis')
@@ -203,17 +205,41 @@ wck, ick = findgrid(wave[:-1], (wave[1] - wave[0]), extra=8)
 
 f = h5py.File(label_file, 'r')
 
-# for frame in np.arange(*frames):
+a_final, b_final, c_final = list(), list(), list()
 
-ca_k = sp.profile(nx=50, ny=50, ns=4, nt=21, nw=wck.size+1)
+for profile in quiet_profiles:
+    a, b, c = np.where(f['new_final_labels'][0:21, x[0]:x[1], y[0]:y[1]] == profile)
+    a_final += list(a)
+    b_final += list(b)
+    c_final += list(c)
+
+a_final = np.array(a_final)
+
+b_final = np.array(b_final)
+
+c_final = np.array(c_final)
+
+pixel_indices = np.zeros((3, a_final.size), dtype=np.int64)
+
+pixel_indices[0] = a_final
+pixel_indices[1] = b_final
+pixel_indices[2] = c_final
+
+fo = h5py.File('pixel_indices.h5', 'w')
+
+fo['pixel_indices'] = pixel_indices
+
+fo.close()
+
+ca_k = sp.profile(nx=a_final.size, ny=1, ns=4, nt=1, nw=wck.size+1)
 
 ca_k.wav[0:-1] = wck[:]
 
 ca_k.wav[-1] = wave[-1]
 
-ca_k.dat[:, :, :, ick, 0] = np.transpose(data[frames[0]:frames[1], 0, :-1, x[0]:x[1], y[0]:y[1]], axes=(0, 2, 3, 1)) / cont[0]
+ca_k.dat[0, 0, :, ick, 0] = data[frames[0]:frames[1], 0, :-1, x[0]:x[1], y[0]:y[1]][a_final, :, b_final, c_final].T / cont[0]
 
-ca_k.dat[:, :, :, -1, 0] = data[frames[0]:frames[1], 0, -1, x[0]:x[1], y[0]:y[1]] / cont[0]
+ca_k.dat[0, 0, :, -1, 0] = data[frames[0]:frames[1], 0, :, x[0]:x[1], y[0]:y[1]][a_final, -1, b_final, c_final].T / cont[0]
 
 ca_k.weights[:,:] = 1.e16
 
@@ -221,13 +247,13 @@ ca_k.weights[ick,0] = 0.002
 
 ca_k.weights[-1,0] = 0.004
 
-write_filename = write_path / 'frame_{}_{}_x_{}_{}_y_{}_{}.nc'.format(frames[0], frames[1], x[0], x[1], y[0], y[1])
+write_filename = write_path / 'quiet_frame_{}_{}_x_{}_{}_y_{}_{}.nc'.format(frames[0], frames[1], x[0], x[1], y[0], y[1])
 
 ca_k.write(str(write_filename))
 
-labels = f['new_final_labels'][frames[0]:frames[1], x[0]:x[1], y[0]:y[1]].astype(np.int64)
+labels = f['new_final_labels'][()][a_final, b_final, c_final].astype(np.int64)
 
-m = sp.model(nx=50, ny=50, nt=21, ndep=150)
+m = sp.model(nx=a_final.size, ny=1, nt=1, ndep=150)
 
 temp, vlos, vturb = get_atmos_values_for_lables()
 
@@ -241,12 +267,12 @@ m.ltau[:, :, :] = ltau
 
 m.pgas[:, :, :] = pgas
 
-m.temp[:, :, :, :] = get_temp(labels.reshape(labels.shape[0] * labels.shape[1]* labels.shape[2], )).reshape(21, 50, 50, 150)
+m.temp[0, 0] = get_temp(labels)
 
-m.vlos[:, :, :, :] = get_vlos(labels.reshape(labels.shape[0] * labels.shape[1]* labels.shape[2], )).reshape(21, 50, 50, 150)
+m.vlos[0, 0] = get_vlos(labels)
 
-m.vturb[:, :, :, :] = get_vturb(labels.reshape(labels.shape[0] * labels.shape[1]* labels.shape[2], )).reshape(21, 50, 50, 150)
+m.vturb[0, 0] = get_vturb(labels)
 
-write_filename = write_path / 'initial_atmos_frame_{}_{}_x_{}_{}_y_{}_{}.nc'.format(frames[0], frames[1], x[0], x[1], y[0], y[1])
+write_filename = write_path / 'quiet_initial_atmos_frame_{}_{}_x_{}_{}_y_{}_{}.nc'.format(frames[0], frames[1], x[0], x[1], y[0], y[1])
 
 m.write(str(write_filename))
