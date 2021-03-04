@@ -13,6 +13,10 @@ spectra_file_path = Path('/home/harsh/OsloAnalysis/nb_3950_2019-06-06T10:26:20_s
 
 output_atmos_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/plots_v1/frame_0_21_x_662_712_y_708_758_cycle_1_t_4_vl_7_vt_4_atmos.nc')
 
+output_atmos_quiet_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/plots_quiet_v1/quiet_frame_0_21_x_662_712_y_708_758_cycle_1_t_5_vl_1_vt_4_atmos.nc')
+
+pixel_file = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/pixel_indices.h5')
+
 photosphere_indices = np.array([29])
 
 mid_chromosphere_indices = np.array([4, 5, 6, 23, 24, 25])
@@ -29,6 +33,11 @@ x = [662, 712]
 
 y = [708, 758]
 
+quiet_profiles = [0, 11, 14, 15, 20, 21, 24, 28, 31, 34, 40, 42, 43, 47, 48, 51, 60, 62, 69, 70, 73, 74, 75, 86, 89, 90, 8, 44, 63, 84]
+
+total = 0
+
+previous_j = -1
 
 def plot_fov_parameter_variation(
     animation_path,
@@ -38,6 +47,8 @@ def plot_fov_parameter_variation(
 ):
 
     global calib_velocity
+    global total
+    global previous_j
 
     sys.stdout.write('Animation Path: {}\n'.format(animation_path))
     sys.stdout.write('wave_indices: {}\n'.format(wave_indices))
@@ -52,6 +63,12 @@ def plot_fov_parameter_variation(
     data, header = sunpy.io.fits.read(spectra_file_path)[0]
 
     sys.stdout.write('Read Spectra File\n')
+
+    f3 = h5py.File(pixel_file, 'r')
+
+    indi = np.where(f3['pixel_indices'][0] == 0)[0]
+
+    a_final, b_final = f3['pixel_indices'][1:, indi]
 
     image0 = np.mean(data[0, 0, wave_indices, x[0]:x[1], y[0]:y[1]], axis=0)
 
@@ -68,6 +85,8 @@ def plot_fov_parameter_variation(
 
     f = h5py.File(output_atmos_filepath, 'r')
 
+    f1 = h5py.File(output_atmos_quiet_filepath, 'r')
+
     atmos_indices = np.where(
         (f['ltau500'][0, 0, 0] >= tau_indices[0]) &
         (f['ltau500'][0, 0, 0] <= tau_indices[1])
@@ -75,9 +94,15 @@ def plot_fov_parameter_variation(
 
     temp0 = np.mean(f['temp'][0, :, :, atmos_indices], axis=2)
 
+    temp0[a_final, b_final] = np.mean(f1['temp'][()][0, 0, indi][:, atmos_indices], axis=1)
+
     vlos0 = np.mean(f['vlos'][0, :, :, atmos_indices] - calib_velocity, axis=2) / 1e5
 
+    vlos0[a_final, b_final] = np.mean(f1['vlos'][()][0, 0, indi][:, atmos_indices] - calib_velocity, axis=1) / 1e5
+
     vturb0 = np.mean(f['vturb'][0, :, :, atmos_indices], axis=2) / 1e5
+
+    vturb0[a_final, b_final] = np.mean(f1['vturb'][()][0, 0, indi][:, atmos_indices], axis=1) / 1e5
 
     fig, axs = plt.subplots(2, 2, figsize=(18, 12), dpi=100, gridspec_kw={'wspace': 0.001, 'hspace': 0.025})
 
@@ -186,8 +211,34 @@ def plot_fov_parameter_variation(
 
     # fig.tight_layout()
 
+    total = 0
+
+
     def updatefig(j):
+
         # set the data in the axesimage object
+
+        global total
+        global previous_j
+
+        f3 = h5py.File(pixel_file, 'r')
+
+        indi = np.where(f3['pixel_indices'][0] == j)[0]
+
+        a_final, b_final = f3['pixel_indices'][1:, indi]
+
+        tempj = np.mean(f['temp'][j, :, :, atmos_indices], axis=2)
+
+        tempj[a_final, b_final] = np.mean(f1['temp'][()][0, 0, indi][:, atmos_indices], axis=1)
+
+        vlosj = np.mean(f['vlos'][j, :, :, atmos_indices] - calib_velocity, axis=2) / 1e5
+
+        vlosj[a_final, b_final] = np.mean(f1['vlos'][()][0, 0, indi][:, atmos_indices] - calib_velocity, axis=1) / 1e5
+
+        vturbj = np.mean(f['vturb'][j, :, :, atmos_indices], axis=2) / 1e5
+
+        vturbj[a_final, b_final] = np.mean(f1['vturb'][()][0, 0, indi][:, atmos_indices], axis=1) / 1e5
+        
         im0.set_array(
             np.mean(
                 data[j, 0, wave_indices, x[0]:x[1], y[0]:y[1]],
@@ -195,16 +246,20 @@ def plot_fov_parameter_variation(
             )
         )
         im1.set_array(
-            np.mean(f['temp'][j, :, :, atmos_indices], axis=2)
+            tempj
         )
         im2.set_array(
-            np.mean(f['vlos'][j, :, :, atmos_indices] - calib_velocity, axis=2) / 1e5
+            vlosj
         )
         im3.set_array(
-            np.mean(f['vturb'][j, :, :, atmos_indices], axis=2) / 1e5
+            vturbj
         )
 
         fig.suptitle('Frame {}'.format(j))
+
+        if j != previous_j:
+            total += a_final.shape[0]
+            previous_j = j
         # return the artists set
         return [im0, im1, im2, im3]
 
