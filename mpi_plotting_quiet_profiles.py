@@ -8,7 +8,7 @@ import sunpy.io
 import h5py
 import time
 import matplotlib
-matplotlib.use('Qt4Agg')
+matplotlib.use('Qt5Agg')
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 from mpi4py import MPI
