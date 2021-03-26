@@ -205,13 +205,14 @@ wck, ick = findgrid(wave[:-1], (wave[1] - wave[0]), extra=8)
 
 f = h5py.File(label_file, 'r')
 
-a_final, b_final, c_final = list(), list(), list()
+a_final, b_final, c_final, rp_final = list(), list(), list(), list()
 
 for profile in quiet_profiles:
     a, b, c = np.where(f['new_final_labels'][0:21, x[0]:x[1], y[0]:y[1]] == profile)
     a_final += list(a)
     b_final += list(b)
     c_final += list(c)
+    rp_final += list(np.ones(a.shape[0]) * profile)
 
 a_final = np.array(a_final)
 
@@ -219,13 +220,16 @@ b_final = np.array(b_final)
 
 c_final = np.array(c_final)
 
-pixel_indices = np.zeros((3, a_final.size), dtype=np.int64)
+rp_final = np.array(rp_final)
+
+pixel_indices = np.zeros((4, a_final.size), dtype=np.int64)
 
 pixel_indices[0] = a_final
 pixel_indices[1] = b_final
 pixel_indices[2] = c_final
+pixel_indices[3] = rp_final
 
-fo = h5py.File('pixel_indices.h5', 'w')
+fo = h5py.File('pixel_indices_new.h5', 'w')
 
 fo['pixel_indices'] = pixel_indices
 
@@ -251,7 +255,7 @@ write_filename = write_path / 'quiet_frame_{}_{}_x_{}_{}_y_{}_{}.nc'.format(fram
 
 ca_k.write(str(write_filename))
 
-labels = f['new_final_labels'][()][a_final, b_final, c_final].astype(np.int64)
+labels = rp_final.astype(np.int64)
 
 m = sp.model(nx=a_final.size, ny=1, nt=1, ndep=150)
 
@@ -276,3 +280,4 @@ m.vturb[0, 0] = get_vturb(labels)
 write_filename = write_path / 'quiet_initial_atmos_frame_{}_{}_x_{}_{}_y_{}_{}.nc'.format(frames[0], frames[1], x[0], x[1], y[0], y[1])
 
 m.write(str(write_filename))
+

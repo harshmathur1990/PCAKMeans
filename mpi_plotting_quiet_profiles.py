@@ -97,7 +97,7 @@ def do_work(index):
         plt.cla()
         fig, axs = plt.subplots(2, 2)
         obp,  = axs[0][0].plot(
-            observed['wav'][indices],
+            observed['wav'][ind`ices],
             observed['profiles'][0, 0, index, :, 0][indices],
             color=red,
             linewidth=0.5,
@@ -160,8 +160,6 @@ def do_work(index):
             color=green,
             linewidth=0.5
         )
-
-        axs[1][1].set_ylim(-10, 10)
 
         fig.tight_layout()
 
