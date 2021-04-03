@@ -12,24 +12,44 @@ write_path = base_path / 'new_kmeans/inversions'
 
 data, header = sunpy.io.fits.read(base_path / 'nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits', memmap=True)[0]
 
+falc_atmos_file = Path('/home/harsh/OsloAnalysis/new_kmeans/falc_nicole_for_stic.nc')
+
 label_file = base_path / 'new_kmeans/out_100_0.5_0.5_n_iter_10000_tol_1en5.h5'
+
+output_atmos_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/plots_v1/frame_0_21_x_662_712_y_708_758_cycle_1_t_4_vl_7_vt_4_atmos.nc')
+
+output_atmos_quiet_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/plots_quiet_v1/quiet_frame_0_21_x_662_712_y_708_758_cycle_1_t_5_vl_1_vt_4_atmos.nc')
+
+output_atmos_reverse_shock_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/plots_reverse_shock_v1/reverse_shock_frame_0_21_x_662_712_y_708_758_cycle_1_t_5_vl_5_vt_4_atmos.nc')
+
+output_atmos_other_emission_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/plots_other_emission_v1/other_emission_frame_0_21_x_662_712_y_708_758_cycle_1_t_5_vl_5_vt_4_atmos.nc')
+
+output_atmos_failed_inversion_falc_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/plots_v1_failed_inversions_falc/failed_inversions_falc_frame_0_21_x_662_712_y_708_758_cycle_1_t_5_vl_1_vt_4_atmos.nc')
+
+# output_atmos_failed_inversion_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/plots_v1_failed_inversions/failed_inversions_frame_0_21_x_662_712_y_708_758_cycle_1_t_4_vl_7_vt_4_atmos.nc')
+
+# output_atmos_failed_inversion_2_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/plots_v1_failed_inversions_2/failed_inversions_2_frame_0_21_x_662_712_y_708_758_cycle_1_t_6_vl_7_vt_4_atmos.nc')
+
+reverse_shock_pixel_file = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/pixel_indices_reverse_shock.h5')
+
+quiet_pixel_file = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/pixel_indices_new.h5')
+
+other_emission_pixel_file = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/pixel_indices_other_emission.h5')
+
+failed_inversions_pixel_file = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/pixel_indices_failed_inversions.h5')
+
+# failed_inversions_2_pixel_file = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/pixel_indices_failed_inversions_2.h5')
 
 cw = np.asarray([4000.])
 cont = []
 for ii in cw:
     cont.append(getCont(ii))
 
-# frames = [0, 21]
+frames = [0, 21]
 
-frames = [56, 77]
+x = [662, 712]
 
-# x = [662, 712]
-
-# y = [708, 758]
-
-x = [770, 820]
-
-y = [338, 388]
+y = [708, 758]
 
 cw = np.asarray([4000.])
 cont = []
@@ -209,87 +229,110 @@ def get_filepath_and_content_list(rp):
 
 wck, ick = findgrid(wave[:-1], (wave[1] - wave[0]), extra=8)
 
-f = h5py.File(label_file, 'r')
+fquiet = h5py.File(quiet_pixel_file, 'r')
 
-names = ['quiet_profiles', 'shock_spicule_profiles', 'retry_shock_spicule', 'reverse_shock_profiles', 'shock_78', 'other_emission_profiles']
+a1, b1, c1 = fquiet['pixel_indices'][0:3]
 
-for profile_type, name in zip([quiet_profiles, shock_spicule_profiles, retry_shock_spicule, reverse_shock_profiles, shock_78, other_emission_profiles], names):
+freverse = h5py.File(reverse_shock_pixel_file, 'r')
 
-    a_final, b_final, c_final, rp_final = list(), list(), list(), list()
+d1, e1, g1 = freverse['pixel_indices'][0:3]
 
-    for profile in profile_type:
-        a, b, c = np.where(f['new_final_labels'][0:21, x[0]:x[1], y[0]:y[1]] == profile)
-        a_final += list(a)
-        b_final += list(b)
-        c_final += list(c)
-        rp_final += list(np.ones(a.shape[0]) * profile)
+fother = h5py.File(other_emission_pixel_file, 'r')
 
-    a_final = np.array(a_final)
+h1, i1, j1 = fother['pixel_indices'][0:3]
 
-    b_final = np.array(b_final)
+ffailed = h5py.File(failed_inversions_pixel_file, 'r')
 
-    c_final = np.array(c_final)
+k1, l1, m1 = ffailed['pixel_indices'][0:3]
 
-    rp_final = np.array(rp_final)
+# ffailed2 = h5py.File(failed_inversions_2_pixel_file, 'r')
 
-    if a_final.size == 0:
-        continue
-    pixel_indices = np.zeros((4, a_final.size), dtype=np.int64)
+# n1, o1, p1 = ffailed2['pixel_indices'][0:3]
 
-    pixel_indices[0] = a_final
-    pixel_indices[1] = b_final
-    pixel_indices[2] = c_final
-    pixel_indices[3] = rp_final
+fout = h5py.File(output_atmos_filepath, 'r')
 
-    fo = h5py.File('pixel_indices_{}_frame_{}_{}_x_{}_{}_y_{}_{}.h5'.format(name, frames[0], frames[1], x[0], x[1], y[0], y[1]), 'w')
+fout_quiet = h5py.File(output_atmos_quiet_filepath, 'r')
 
-    fo['pixel_indices'] = pixel_indices
+fout_reverse = h5py.File(output_atmos_reverse_shock_filepath, 'r')
 
-    fo.close()
+fout_other = h5py.File(output_atmos_other_emission_filepath, 'r')
 
-    ca_k = sp.profile(nx=a_final.size, ny=1, ns=4, nt=1, nw=wck.size+1)
+fout_failed_falc = h5py.File(output_atmos_failed_inversion_falc_filepath, 'r')
 
-    ca_k.wav[0:-1] = wck[:]
+all_temp = fout['temp'][()]
 
-    ca_k.wav[-1] = wave[-1]
+all_temp[a1, b1, c1] = fout_quiet['temp'][0, 0]
+all_temp[d1, e1, g1] = fout_reverse['temp'][0, 0]
+all_temp[h1, i1, j1] = fout_other['temp'][0, 0]
+all_temp[k1, l1, m1] = fout_failed_falc['temp'][0, 0]
 
-    ca_k.dat[0, 0, :, ick, 0] = data[frames[0]:frames[1], 0, :-1, x[0]:x[1], y[0]:y[1]][a_final, :, b_final, c_final].T / cont[0]
+a_final, b_final, c_final = np.where(
+    all_temp[:, :, :, 0] <= all_temp[:, :, :, 50]
+)
 
-    ca_k.dat[0, 0, :, -1, 0] = data[frames[0]:frames[1], 0, :, x[0]:x[1], y[0]:y[1]][a_final, -1, b_final, c_final].T / cont[0]
+flabels = h5py.File(label_file, 'r')
 
-    ca_k.weights[:,:] = 1.e16
+rp_final = flabels['new_final_labels'][()][a_final, b_final, c_final]
 
-    ca_k.weights[ick,0] = 0.002
+pixel_indices = np.zeros((4, a_final.size), dtype=np.int64)
 
-    ca_k.weights[-1,0] = 0.004
+pixel_indices[0] = a_final
+pixel_indices[1] = b_final
+pixel_indices[2] = c_final
+pixel_indices[3] = rp_final
 
-    write_filename = write_path / '{}_frame_{}_{}_x_{}_{}_y_{}_{}.nc'.format(name, frames[0], frames[1], x[0], x[1], y[0], y[1])
+fo = h5py.File('pixel_indices_failed_inversions_falc_2.h5', 'w')
 
-    ca_k.write(str(write_filename))
+fo['pixel_indices'] = pixel_indices
 
-    labels = rp_final.astype(np.int64)
+fo.close()
 
-    m = sp.model(nx=a_final.size, ny=1, nt=1, ndep=150)
+ca_k = sp.profile(nx=a_final.size, ny=1, ns=4, nt=1, nw=wck.size+1)
 
-    temp, vlos, vturb = get_atmos_values_for_lables()
+ca_k.wav[0:-1] = wck[:]
 
-    get_temp = prepare_get_parameter(temp)
+ca_k.wav[-1] = wave[-1]
 
-    get_vlos = prepare_get_parameter(vlos)
+ca_k.dat[0, 0, :, ick, 0] = data[frames[0]:frames[1], 0, :-1, x[0]:x[1], y[0]:y[1]][a_final, :, b_final, c_final].T / cont[0]
 
-    get_vturb = prepare_get_parameter(vturb)
+ca_k.dat[0, 0, :, -1, 0] = data[frames[0]:frames[1], 0, :, x[0]:x[1], y[0]:y[1]][a_final, -1, b_final, c_final].T / cont[0]
 
-    m.ltau[:, :, :] = ltau
+ca_k.weights[:,:] = 1.e16
 
-    m.pgas[:, :, :] = pgas
+ca_k.weights[ick,0] = 0.002
 
-    m.temp[0, 0] = get_temp(labels)
+ca_k.weights[-1,0] = 0.004
 
-    m.vlos[0, 0] = get_vlos(labels)
+write_filename = write_path / 'failed_inversions_falc_2_frame_{}_{}_x_{}_{}_y_{}_{}.nc'.format(frames[0], frames[1], x[0], x[1], y[0], y[1])
 
-    m.vturb[0, 0] = get_vturb(labels)
+ca_k.write(str(write_filename))
 
-    write_filename = write_path / '{}_initial_atmos_frame_{}_{}_x_{}_{}_y_{}_{}.nc'.format(name, frames[0], frames[1], x[0], x[1], y[0], y[1])
+labels = rp_final.astype(np.int64)
 
-    m.write(str(write_filename))
+m = sp.model(nx=a_final.size, ny=1, nt=1, ndep=150)
 
+# temp, vlos, vturb = get_atmos_values_for_lables()
+
+# get_temp = prepare_get_parameter(temp)
+
+# get_vlos = prepare_get_parameter(vlos)
+
+# get_vturb = prepare_get_parameter(vturb)
+
+falc = h5py.File(falc_atmos_file, 'r')
+
+m.ltau[:, :, :] = ltau
+
+m.pgas[:, :, :] = pgas
+
+# m.temp[0, 0] = get_temp(labels)
+
+m.temp[0, 0] = falc['temp'][0, 0, 0]
+
+# m.vlos[0, 0] = get_vlos(labels)
+
+# m.vturb[0, 0] = get_vturb(labels)
+
+write_filename = write_path / 'failed_inversions_falc_2_initial_atmos_frame_{}_{}_x_{}_{}_y_{}_{}.nc'.format(frames[0], frames[1], x[0], x[1], y[0], y[1])
+
+m.write(str(write_filename))

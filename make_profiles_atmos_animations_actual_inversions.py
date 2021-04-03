@@ -441,6 +441,58 @@ def plot_fov_parameter_variation(
 
     tick_position = [10, 20, 30, 40]
 
+    axs[0][2].plot(np.ones(50) * 10)
+    axs[0][2].plot(np.ones(50) * 20)
+    axs[0][2].plot(np.ones(50) * 30)
+    axs[0][2].plot(np.ones(50) * 40)
+    axs[1][2].plot(np.ones(50) * 10)
+    axs[1][2].plot(np.ones(50) * 20)
+    axs[1][2].plot(np.ones(50) * 30)
+    axs[1][2].plot(np.ones(50) * 40)
+    axs[2][2].plot(np.ones(50) * 10)
+    axs[2][2].plot(np.ones(50) * 20)
+    axs[2][2].plot(np.ones(50) * 30)
+    axs[2][2].plot(np.ones(50) * 40)
+
+    axs[0][3].plot(np.ones(50) * 10)
+    axs[0][3].plot(np.ones(50) * 20)
+    axs[0][3].plot(np.ones(50) * 30)
+    axs[0][3].plot(np.ones(50) * 40)
+    axs[1][3].plot(np.ones(50) * 10)
+    axs[1][3].plot(np.ones(50) * 20)
+    axs[1][3].plot(np.ones(50) * 30)
+    axs[1][3].plot(np.ones(50) * 40)
+    axs[2][3].plot(np.ones(50) * 10)
+    axs[2][3].plot(np.ones(50) * 20)
+    axs[2][3].plot(np.ones(50) * 30)
+    axs[2][3].plot(np.ones(50) * 40)
+
+    axs[0][4].plot(np.ones(50) * 10)
+    axs[0][4].plot(np.ones(50) * 20)
+    axs[0][4].plot(np.ones(50) * 30)
+    axs[0][4].plot(np.ones(50) * 40)
+    axs[1][4].plot(np.ones(50) * 10)
+    axs[1][4].plot(np.ones(50) * 20)
+    axs[1][4].plot(np.ones(50) * 30)
+    axs[1][4].plot(np.ones(50) * 40)
+    axs[2][4].plot(np.ones(50) * 10)
+    axs[2][4].plot(np.ones(50) * 20)
+    axs[2][4].plot(np.ones(50) * 30)
+    axs[2][4].plot(np.ones(50) * 40)
+
+    axs[0][3].plot(np.ones(50) * 10)
+    axs[0][3].plot(np.ones(50) * 20)
+    axs[0][3].plot(np.ones(50) * 30)
+    axs[0][3].plot(np.ones(50) * 40)
+    axs[1][3].plot(np.ones(50) * 10)
+    axs[1][3].plot(np.ones(50) * 20)
+    axs[1][3].plot(np.ones(50) * 30)
+    axs[1][3].plot(np.ones(50) * 40)
+    axs[2][3].plot(np.ones(50) * 10)
+    axs[2][3].plot(np.ones(50) * 20)
+    axs[2][3].plot(np.ones(50) * 30)
+    axs[2][3].plot(np.ones(50) * 40)
+
     axs[0][0].set_xticklabels([])
     axs[1][0].set_xticklabels([])
     axs[2][0].set_xticks(tick_position)
@@ -521,7 +573,7 @@ def plot_fov_parameter_variation(
 
     start_date = parser.parse(time_info[0][0][0, 0, 0, 0, 0])
 
-    text = fig.text(0.5, 0.005, 't=0s'.format(), fontsize=12)
+    text = fig.text(0.5, 0.005, 't=0s', fontsize=12)
 
     def updatefig(j):
 

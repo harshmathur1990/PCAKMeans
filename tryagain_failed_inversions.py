@@ -14,22 +14,18 @@ data, header = sunpy.io.fits.read(base_path / 'nb_3950_2019-06-06T10:26:20_scans
 
 label_file = base_path / 'new_kmeans/out_100_0.5_0.5_n_iter_10000_tol_1en5.h5'
 
+initial_inversion_result_file = write_path / 'plots_v1/frame_0_21_x_662_712_y_708_758_cycle_1_t_4_vl_7_vt_4_atmos.nc'
+
 cw = np.asarray([4000.])
 cont = []
 for ii in cw:
     cont.append(getCont(ii))
 
-# frames = [0, 21]
+frames = [0, 21]
 
-frames = [56, 77]
+x = [662, 712]
 
-# x = [662, 712]
-
-# y = [708, 758]
-
-x = [770, 820]
-
-y = [338, 388]
+y = [708, 758]
 
 cw = np.asarray([4000.])
 cont = []
@@ -209,87 +205,78 @@ def get_filepath_and_content_list(rp):
 
 wck, ick = findgrid(wave[:-1], (wave[1] - wave[0]), extra=8)
 
-f = h5py.File(label_file, 'r')
+flabel = h5py.File(label_file, 'r')
 
-names = ['quiet_profiles', 'shock_spicule_profiles', 'retry_shock_spicule', 'reverse_shock_profiles', 'shock_78', 'other_emission_profiles']
+labels = flabel['new_final_labels'][0:21, 662:712, 708:758]
 
-for profile_type, name in zip([quiet_profiles, shock_spicule_profiles, retry_shock_spicule, reverse_shock_profiles, shock_78, other_emission_profiles], names):
+finversion = h5py.File(initial_inversion_result_file, 'r')
 
-    a_final, b_final, c_final, rp_final = list(), list(), list(), list()
+a, b, c = np.where(finversion['temp'][:, :, :, 0] < finversion['temp'][:, :, :, 50])
 
-    for profile in profile_type:
-        a, b, c = np.where(f['new_final_labels'][0:21, x[0]:x[1], y[0]:y[1]] == profile)
-        a_final += list(a)
-        b_final += list(b)
-        c_final += list(c)
-        rp_final += list(np.ones(a.shape[0]) * profile)
+labels_failed = labels[a, b, c]
 
-    a_final = np.array(a_final)
+indi = np.where((labels_failed == 53) | (labels_failed == 66) | (labels_failed == 99) | (labels_failed == 61) | (labels_failed == 64) | (labels_failed == 82) | (labels_failed == 2) | (labels_failed == 29))
 
-    b_final = np.array(b_final)
+a_final = a[indi]
+b_final = b[indi]
+c_final = c[indi]
+rp_final = labels_failed[indi]
 
-    c_final = np.array(c_final)
+pixel_indices = np.zeros((4, a_final.size), dtype=np.int64)
 
-    rp_final = np.array(rp_final)
+pixel_indices[0] = a_final
+pixel_indices[1] = b_final
+pixel_indices[2] = c_final
+pixel_indices[3] = rp_final
 
-    if a_final.size == 0:
-        continue
-    pixel_indices = np.zeros((4, a_final.size), dtype=np.int64)
+fo = h5py.File('pixel_indices_shock_reverse_other.h5', 'w')
 
-    pixel_indices[0] = a_final
-    pixel_indices[1] = b_final
-    pixel_indices[2] = c_final
-    pixel_indices[3] = rp_final
+fo['pixel_indices'] = pixel_indices
 
-    fo = h5py.File('pixel_indices_{}_frame_{}_{}_x_{}_{}_y_{}_{}.h5'.format(name, frames[0], frames[1], x[0], x[1], y[0], y[1]), 'w')
+fo.close()
 
-    fo['pixel_indices'] = pixel_indices
+ca_k = sp.profile(nx=a_final.size, ny=1, ns=4, nt=1, nw=wck.size+1)
 
-    fo.close()
+ca_k.wav[0:-1] = wck[:]
 
-    ca_k = sp.profile(nx=a_final.size, ny=1, ns=4, nt=1, nw=wck.size+1)
+ca_k.wav[-1] = wave[-1]
 
-    ca_k.wav[0:-1] = wck[:]
+ca_k.dat[0, 0, :, ick, 0] = data[frames[0]:frames[1], 0, :-1, x[0]:x[1], y[0]:y[1]][a_final, :, b_final, c_final].T / cont[0]
 
-    ca_k.wav[-1] = wave[-1]
+ca_k.dat[0, 0, :, -1, 0] = data[frames[0]:frames[1], 0, :, x[0]:x[1], y[0]:y[1]][a_final, -1, b_final, c_final].T / cont[0]
 
-    ca_k.dat[0, 0, :, ick, 0] = data[frames[0]:frames[1], 0, :-1, x[0]:x[1], y[0]:y[1]][a_final, :, b_final, c_final].T / cont[0]
+ca_k.weights[:,:] = 1.e16
 
-    ca_k.dat[0, 0, :, -1, 0] = data[frames[0]:frames[1], 0, :, x[0]:x[1], y[0]:y[1]][a_final, -1, b_final, c_final].T / cont[0]
+ca_k.weights[ick,0] = 0.002
 
-    ca_k.weights[:,:] = 1.e16
+ca_k.weights[-1,0] = 0.004
 
-    ca_k.weights[ick,0] = 0.002
+write_filename = write_path / 'shock_reverse_other_frame_{}_{}_x_{}_{}_y_{}_{}.nc'.format(frames[0], frames[1], x[0], x[1], y[0], y[1])
 
-    ca_k.weights[-1,0] = 0.004
+ca_k.write(str(write_filename))
 
-    write_filename = write_path / '{}_frame_{}_{}_x_{}_{}_y_{}_{}.nc'.format(name, frames[0], frames[1], x[0], x[1], y[0], y[1])
+labels = rp_final.astype(np.int64)
 
-    ca_k.write(str(write_filename))
+m = sp.model(nx=a_final.size, ny=1, nt=1, ndep=150)
 
-    labels = rp_final.astype(np.int64)
+temp, vlos, vturb = get_atmos_values_for_lables()
 
-    m = sp.model(nx=a_final.size, ny=1, nt=1, ndep=150)
+get_temp = prepare_get_parameter(temp)
 
-    temp, vlos, vturb = get_atmos_values_for_lables()
+get_vlos = prepare_get_parameter(vlos)
 
-    get_temp = prepare_get_parameter(temp)
+get_vturb = prepare_get_parameter(vturb)
 
-    get_vlos = prepare_get_parameter(vlos)
+m.ltau[:, :, :] = ltau
 
-    get_vturb = prepare_get_parameter(vturb)
+m.pgas[:, :, :] = pgas
 
-    m.ltau[:, :, :] = ltau
+m.temp[0, 0] = get_temp(labels)
 
-    m.pgas[:, :, :] = pgas
+m.vlos[0, 0] = get_vlos(labels)
 
-    m.temp[0, 0] = get_temp(labels)
+m.vturb[0, 0] = get_vturb(labels)
 
-    m.vlos[0, 0] = get_vlos(labels)
+write_filename = write_path / 'shock_reverse_other_initial_atmos_frame_{}_{}_x_{}_{}_y_{}_{}.nc'.format(frames[0], frames[1], x[0], x[1], y[0], y[1])
 
-    m.vturb[0, 0] = get_vturb(labels)
-
-    write_filename = write_path / '{}_initial_atmos_frame_{}_{}_x_{}_{}_y_{}_{}.nc'.format(name, frames[0], frames[1], x[0], x[1], y[0], y[1])
-
-    m.write(str(write_filename))
-
+m.write(str(write_filename))
