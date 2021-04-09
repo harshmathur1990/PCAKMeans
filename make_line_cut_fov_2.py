@@ -41,7 +41,7 @@ ltau = np.array(
         -1.10699  , -0.99209  , -0.884893 , -0.782787 , -0.683488 ,
         -0.584996 , -0.485559 , -0.383085 , -0.273456 , -0.152177 ,
         -0.0221309,  0.110786 ,  0.244405 ,  0.378378 ,  0.51182  ,
-        0.64474  ,  0.777188 ,  0.909063 ,  1.04044  ,  1.1711, 1.18
+        0.64474  ,  0.777188 ,  0.909063 ,  1.04044  ,  1.1711
     ]
 )
 
@@ -55,7 +55,7 @@ arcsec = np.array(
         624.251 , 624.2887, 624.3264, 624.3641, 624.4018, 624.4395,
         624.4772, 624.5149, 624.5526, 624.5903, 624.628 , 624.6657,
         624.7034, 624.7411, 624.7788, 624.8165, 624.8542, 624.8919,
-        624.9296, 624.9673, 625.005
+        624.9296, 624.9673
     ]
 )
 
@@ -308,14 +308,61 @@ def plot_fov_parameter_variation(
     fig, axs = plt.subplots(2, 3, figsize=(19.2, 10.8), dpi=100)
 
     # import ipdb;ipdb.set_trace()
-    cf00 = axs[0][0].pcolormesh(arcsec, ltau, all_temp[0, 25].T, cmap='hot')
-    cf01 = axs[0][1].pcolormesh(arcsec, ltau, all_vlos[0, 25].T, cmap='bwr', vmin=-6, vmax=6)
-    cf02 = axs[0][2].pcolormesh(arcsec, ltau, all_vturb[0, 25].T, cmap='copper', vmin=0, vmax=5)
+    cf00 = axs[0][0].pcolormesh(
+        arcsec,
+        ltau,
+        all_temp[0, 25].T,
+        shading='nearest',
+        cmap='hot',
+        vmin=4000,
+        vmax=11000
+    )
+    cf01 = axs[0][1].pcolormesh(
+        arcsec,
+        ltau,
+        all_vlos[0, 25].T,
+        shading='nearest',
+        cmap='bwr',
+        vmin=-10,
+        vmax=10
+    )
+    cf02 = axs[0][2].pcolormesh(
+        arcsec,
+        ltau,
+        all_vturb[0, 25].T,
+        shading='nearest',
+        cmap='copper',
+        vmin=0,
+        vmax=5
+    )
 
-    cf10 = axs[1][0].pcolormesh(arcsec, ltau, all_temp[0, :, 25].T, cmap='hot')
-    cf11 = axs[1][1].pcolormesh(arcsec, ltau, all_vlos[0, :, 25].T, cmap='bwr', vmin=-6, vmax=6)
-    cf12 = axs[1][2].pcolormesh(arcsec, ltau, all_vturb[0, :, 25].T, cmap='copper', vmin=0, vmax=5)
-
+    cf10 = axs[1][0].pcolormesh(
+        arcsec,
+        ltau,
+        all_temp[0, :, 25].T,
+        shading='nearest',
+        cmap='hot',
+        vmin=4000,
+        vmax=11000
+    )
+    cf11 = axs[1][1].pcolormesh(
+        arcsec,
+        ltau,
+        all_vlos[0, :, 25].T,
+        shading='nearest',
+        cmap='bwr',
+        vmin=-10,
+        vmax=10
+    )
+    cf12 = axs[1][2].pcolormesh(
+        arcsec,
+        ltau,
+        all_vturb[0, :, 25].T,
+        shading='nearest',
+        cmap='copper',
+        vmin=0,
+        vmax=5
+    )
     axs[0][0].set_aspect(1.0 / axs[0][0].get_data_ratio(), adjustable='box')
     axs[0][1].set_aspect(1.0 / axs[0][1].get_data_ratio(), adjustable='box')
     axs[0][2].set_aspect(1.0 / axs[0][2].get_data_ratio(), adjustable='box')
@@ -330,11 +377,11 @@ def plot_fov_parameter_variation(
     axs[0][1].set_xticklabels([])
     axs[0][2].set_xticklabels([])
     axs[1][0].set_xticks(x_tickposition)
-    axs[1][0].set_xticklabels(x_ticklabels, rotation=45)
+    axs[1][0].set_xticklabels(x_ticklabels, rotation=15)
     axs[1][1].set_xticks(x_tickposition)
-    axs[1][1].set_xticklabels(x_ticklabels, rotation=45)
+    axs[1][1].set_xticklabels(x_ticklabels, rotation=15)
     axs[1][2].set_xticks(x_tickposition)
-    axs[1][2].set_xticklabels(x_ticklabels, rotation=45)
+    axs[1][2].set_xticklabels(x_ticklabels, rotation=15)
 
     axs[0][1].set_yticklabels([])
     axs[0][2].set_yticklabels([])
@@ -364,7 +411,7 @@ def plot_fov_parameter_variation(
 
     start_date = parser.parse(time_info[0][0][0, 0, 0, 0, 0])
 
-    text = fig.text(0.5, 0.005, 't=0s', fontsize=12)
+    text = fig.text(0.5, 0.005, 't=0s', fontsize=10)
 
     def updatefig(j):
         global cf00, cf01, cf02, cf10, cf11, cf12
