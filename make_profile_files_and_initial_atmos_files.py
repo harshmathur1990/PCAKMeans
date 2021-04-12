@@ -8,7 +8,7 @@ base_path = Path('/home/harsh/OsloAnalysis')
 
 new_kmeans = base_path / 'new_kmeans'
 
-write_path = base_path / 'new_kmeans/inversions'
+write_path = base_path / 'new_kmeans/inversions/plots_v1_second_fov'
 
 data, header = sunpy.io.fits.read(base_path / 'nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits', memmap=True)[0]
 
@@ -218,7 +218,7 @@ for profile_type, name in zip([quiet_profiles, shock_spicule_profiles, retry_sho
     a_final, b_final, c_final, rp_final = list(), list(), list(), list()
 
     for profile in profile_type:
-        a, b, c = np.where(f['new_final_labels'][0:21, x[0]:x[1], y[0]:y[1]] == profile)
+        a, b, c = np.where(f['new_final_labels'][frames[0]:frames[1], x[0]:x[1], y[0]:y[1]] == profile)
         a_final += list(a)
         b_final += list(b)
         c_final += list(c)
