@@ -136,7 +136,7 @@ def do_kmeans(filename, method='plusPlusDense'):
 
     rpp = int(data.shape[0] / d4p.num_procs())
 
-    data = data[rpp * d4p.my_procid(): rpp * d4p.my_procid() + rpp, :]
+    data_local = data[rpp * d4p.my_procid(): rpp * d4p.my_procid() + rpp, :]
 
     f.close()
 
@@ -148,11 +148,14 @@ def do_kmeans(filename, method='plusPlusDense'):
 
     algo = d4p.kmeans(nClusters, maxIter, distributed=True)
 
-    result = algo.compute(data, centroids)
+    result = algo.compute(data_local, centroids)
 
     algo = d4p.kmeans(nClusters, 0, assignFlag=True)
 
-    assignments = algo.compute(data, result.centroids).assignments
+    if d4p.my_procid() == 0:
+        assignments = algo.compute(data[()], result.centroids).assignments
+    else:
+        assignments = None
 
     return (assignments, result)
 
