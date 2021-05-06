@@ -138,8 +138,6 @@ def do_kmeans(filename, method='plusPlusDense'):
 
     data_local = data[rpp * d4p.my_procid(): rpp * d4p.my_procid() + rpp, :]
 
-    f.close()
-
     sys.stdout.write(
         'Process: {} Finished Loading data, proceeding for kmeans\n'.format(
             d4p.my_procid()
@@ -156,6 +154,8 @@ def do_kmeans(filename, method='plusPlusDense'):
         assignments = algo.compute(data[()], result.centroids).assignments
     else:
         assignments = None
+
+    f.close()
 
     return (assignments, result)
 
