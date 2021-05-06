@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(1, '/home/harsh/CourseworkRepo/stic/example')
 from prepare_data import *
 from pathlib import Path
 import sunpy.io
@@ -8,7 +10,7 @@ base_path = Path('/home/harsh/OsloAnalysis')
 
 new_kmeans = base_path / 'new_kmeans'
 
-write_path = base_path / 'new_kmeans/inversions/plots_v1_second_fov'
+write_path = base_path / 'new_kmeans/inversions/plots_v1_fifth_fov'
 
 data, header = sunpy.io.fits.read(base_path / 'nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits', memmap=True)[0]
 
@@ -19,17 +21,41 @@ cont = []
 for ii in cw:
     cont.append(getCont(ii))
 
+## fov1
 # frames = [0, 21]
-
-frames = [56, 77]
-
 # x = [662, 712]
-
 # y = [708, 758]
 
+## fov2
+frames = [77, 100]
 x = [770, 820]
-
 y = [338, 388]
+
+## fov3
+# frames = [0, 21]
+# x = [520, 570]
+# y = [715, 765]
+
+## fov4
+# frames = [21, 100]
+# x = [662, 712]
+# y = [708, 758]
+
+## fov5
+# frames = [0, 21]
+# x = [770, 820]
+# y = [338, 388]
+
+## fov6
+# frames = [77, 100]
+# x = [770, 820]
+# y = [338, 388]
+
+## fov7
+# frames = [21, 100]
+# x = [520, 570]
+# y = [715, 765]
+
 
 cw = np.asarray([4000.])
 cont = []
@@ -211,7 +237,7 @@ wck, ick = findgrid(wave[:-1], (wave[1] - wave[0]), extra=8)
 
 f = h5py.File(label_file, 'r')
 
-names = ['quiet_profiles', 'shock_spicule_profiles', 'retry_shock_spicule', 'reverse_shock_profiles', 'shock_78', 'other_emission_profiles']
+names = ['quiet_profiles', 'shock_spicule_profiles', 'retry_shock_spicule_profiles', 'reverse_shock_profiles', 'shock_78_profiles', 'other_emission_profiles']
 
 for profile_type, name in zip([quiet_profiles, shock_spicule_profiles, retry_shock_spicule, reverse_shock_profiles, shock_78, other_emission_profiles], names):
 
