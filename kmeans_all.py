@@ -175,6 +175,12 @@ def do_kmeans(filename, method='plusPlusDense'):
 
     f.close()
 
+    sys.stdout.write(
+        'Process {}: Finished KMeans\n'.format(
+            d4p.my_procid()
+        )
+    )
+
     if d4p.my_procid() == 0:
         selected_frames = np.array([0, 11, 25, 36, 60, 78, 87])
         input_file_3950 = '/data/harsh/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits'
@@ -183,7 +189,7 @@ def do_kmeans(filename, method='plusPlusDense'):
 
         data, header = sunpy.io.fits.read(input_file_3950, memmap=True)[0]
 
-        whole_data = np.zeros((rpp, 30 + 20 + 14))
+        whole_data = np.zeros((7 * 1236 * 1848, 30 + 20 + 14))
 
         whole_data[:, 0:30] = np.transpose(
             data[selected_frames][:, 0],
