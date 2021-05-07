@@ -319,6 +319,9 @@ if __name__ == '__main__':
             )
         )
 
+        for i in range(1, d4p.num_procs()):
+            comm.send({}, dest=i, tag=4)
+
         k = d4p.num_procs() - 2
 
         while (k >= 0):
@@ -355,6 +358,11 @@ if __name__ == '__main__':
         )
 
     else:
+        comm.recv(
+            source=0,
+            tag=4,
+            status=status
+        )
         comm.send({}, dest=0, tag=0)
         f = tb.open_file('/data/harsh/result_kmeans_whole_data.h5', mode='a')
         labels = f.root.columns.assignments
