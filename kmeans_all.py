@@ -247,6 +247,9 @@ def do_kmeans(filename, method='plusPlusDense'):
                 dest=i,
                 tag=3
             )
+        sys.stdout.write(
+            'Process 0: Distributed actual data\n'
+        )
         whole_data = whole_data[rpp * i: rpp * i + rpp, :]
     else:
         data_dict = comm.recv(
@@ -255,6 +258,11 @@ def do_kmeans(filename, method='plusPlusDense'):
             status=status
         )
         whole_data = data_dict['whole_data']
+        sys.stdout.write(
+            'Process {}: Received actual data\n'.format(
+                d4p.my_procid()
+            )
+        )
 
     local_clusters = np.zeros((100, 30 + 20 + 14))
     total_numbers = np.zeros(100)
@@ -271,6 +279,8 @@ if __name__ == '__main__':
 
     comm = MPI.COMM_WORLD
 
+    status = MPI.Status()
+
     filename = '/data/harsh/qhole_data_kmeans.nc'
 
     d4p.daalinit()
@@ -278,8 +288,6 @@ if __name__ == '__main__':
     (total_numbers, local_clusters, assignments, result) = do_kmeans(filename)
 
     if d4p.my_procid() == 0:
-
-        status = MPI.Status()
 
         f = tb.open_file('/data/harsh/result_kmeans_whole_data.h5', mode='w', title='KMeans Data')
 
