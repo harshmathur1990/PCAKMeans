@@ -175,68 +175,86 @@ def do_kmeans(filename, method='plusPlusDense'):
 
     f.close()
 
-    selected_frames = np.array([0, 11, 25, 36, 60, 78, 87])
-    input_file_3950 = '/data/harsh/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits'
-    input_file_8542 = '/data/harsh/nb_8542_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
-    input_file_6173 = '/data/harsh/nb_6173_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
+    if d4p.my_procid() == 0:
+        selected_frames = np.array([0, 11, 25, 36, 60, 78, 87])
+        input_file_3950 = '/data/harsh/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits'
+        input_file_8542 = '/data/harsh/nb_8542_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
+        input_file_6173 = '/data/harsh/nb_6173_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
 
-    data, header = sunpy.io.fits.read(input_file_3950, memmap=True)[0]
+        data, header = sunpy.io.fits.read(input_file_3950, memmap=True)[0]
 
-    whole_data = np.zeros((rpp, 30 + 20 + 14))
+        whole_data = np.zeros((rpp, 30 + 20 + 14))
 
-    whole_data[:, 0:30] = np.transpose(
-        data[selected_frames][:, 0],
-        axes=(0, 2, 3, 1)
-    ).reshape(
-        7 * 1236 * 1848,
-        30
-    )[rpp * d4p.my_procid(): rpp * d4p.my_procid() + rpp, :]
+        whole_data[:, 0:30] = np.transpose(
+            data[selected_frames][:, 0],
+            axes=(0, 2, 3, 1)
+        ).reshape(
+            7 * 1236 * 1848,
+            30
+        )
 
-    sh, dt, header = getheader(input_file_8542)
-    data = np.memmap(
-        input_file_8542,
-        mode='r',
-        shape=sh,
-        dtype=dt,
-        order='F',
-        offset=512
-    )
+        sh, dt, header = getheader(input_file_8542)
+        data = np.memmap(
+            input_file_8542,
+            mode='r',
+            shape=sh,
+            dtype=dt,
+            order='F',
+            offset=512
+        )
 
-    data = np.transpose(
-        data.reshape(1848, 1236, 100, 4, 20),
-        axes=(2, 3, 4, 1, 0)
-    )
+        data = np.transpose(
+            data.reshape(1848, 1236, 100, 4, 20),
+            axes=(2, 3, 4, 1, 0)
+        )
 
-    whole_data[:, 30:30 + 20] = np.transpose(
-        data[selected_frames][:, 0],
-        axes=(0, 2, 3, 1)
-    ).reshape(
-        7 * 1236 * 1848,
-        20
-    )[rpp * d4p.my_procid(): rpp * d4p.my_procid() + rpp, :]
+        whole_data[:, 30:30 + 20] = np.transpose(
+            data[selected_frames][:, 0],
+            axes=(0, 2, 3, 1)
+        ).reshape(
+            7 * 1236 * 1848,
+            20
+        )
 
-    sh, dt, header = getheader(input_file_6173)
-    data = np.memmap(
-        input_file_6173,
-        mode='r',
-        shape=sh,
-        dtype=dt,
-        order='F',
-        offset=512
-    )
+        sh, dt, header = getheader(input_file_6173)
+        data = np.memmap(
+            input_file_6173,
+            mode='r',
+            shape=sh,
+            dtype=dt,
+            order='F',
+            offset=512
+        )
 
-    data = np.transpose(
-        data.reshape(1848, 1236, 100, 4, 14),
-        axes=(2, 3, 4, 1, 0)
-    )
+        data = np.transpose(
+            data.reshape(1848, 1236, 100, 4, 14),
+            axes=(2, 3, 4, 1, 0)
+        )
 
-    whole_data[:, 30 + 20:30 + 20 + 14] = np.transpose(
-        data[selected_frames][:, 0],
-        axes=(0, 2, 3, 1)
-    ).reshape(
-        7 * 1236 * 1848,
-        14
-    )[rpp * d4p.my_procid(): rpp * d4p.my_procid() + rpp, :]
+        whole_data[:, 30 + 20:30 + 20 + 14] = np.transpose(
+            data[selected_frames][:, 0],
+            axes=(0, 2, 3, 1)
+        ).reshape(
+            7 * 1236 * 1848,
+            14
+        )
+
+        for i in range(1, d4p.num_procs()):
+            comm.send(
+                {
+                    'whole_data': whole_data[rpp * i: rpp * i + rpp, :]
+                },
+                dest=i,
+                tag=3
+            )
+        whole_data = whole_data[rpp * i: rpp * i + rpp, :]
+    else:
+        data_dict = comm.recv(
+            source=0,
+            tag=3,
+            status=status
+        )
+        whole_data = data_dict['whole_data']
 
     local_clusters = np.zeros((100, 30 + 20 + 14))
     total_numbers = np.zeros(100)
