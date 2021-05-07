@@ -303,7 +303,7 @@ if __name__ == '__main__':
 
         labels = f.root.columns.assignments
 
-        labels[0:assignments.shape[0]] = assignments
+        labels[0:assignments.shape[0]] = assignments[:, 0]
 
         f.create_array(gcolumns, 'centroids', result.centroids, "Centroids")
 
@@ -366,7 +366,7 @@ if __name__ == '__main__':
         comm.send({}, dest=0, tag=0)
         f = tb.open_file('/data/harsh/result_kmeans_whole_data.h5', mode='a')
         labels = f.root.columns.assignments
-        labels[assignments.shape[0] * d4p.my_procid(): assignments.shape[0] * d4p.my_procid() + assignments.shape[0]] = assignments
+        labels[assignments.shape[0] * d4p.my_procid(): assignments.shape[0] * d4p.my_procid() + assignments.shape[0]] = assignments[:, 0]
         f.close()
         sys.stdout.write(
             'Process {}: Updated File {}\n'.format(
