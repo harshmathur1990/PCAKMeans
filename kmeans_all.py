@@ -342,7 +342,7 @@ if __name__ == '__main__':
 
             k -= 1
 
-        rps = local_clusters / total_numbers
+        rps = local_clusters / total_numbers[:, np.newaxis]
 
         f = tb.open_file('/data/harsh/result_kmeans_whole_data.h5', mode='a')
 
