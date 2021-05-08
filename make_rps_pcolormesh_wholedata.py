@@ -10,9 +10,9 @@ file_list = [
 ]
 
 selected_frames = np.array([0, 11, 25, 36, 60, 78, 87])
-input_file_3950 = 'nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits'
-input_file_8542 = 'nb_8542_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
-input_file_6173 = 'nb_6173_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
+input_file_3950 = '/data/harsh/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits'
+input_file_8542 = '/data/harsh/nb_8542_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
+input_file_6173 = '/data/harsh/nb_6173_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
 
 whole_data = np.zeros((7 * 1236 * 1848, 30 + 20 + 14))
 
