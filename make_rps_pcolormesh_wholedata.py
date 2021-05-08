@@ -1,7 +1,7 @@
 import sys
-from astropy.io import fits
 import numpy as np
 import h5py
+import sunpy.io
 import matplotlib.pyplot as plt
 from helita.io.lp import *
 
