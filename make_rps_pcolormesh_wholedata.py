@@ -169,7 +169,7 @@ def plot_profiles():
                 center = f['columns']['rps'][k] / cont_array
 
                 farthest_profile = get_farthest(a, center)
- 
+
                 H1, xedge1, yedge1 = np.histogram2d(
                     np.tile(wave_3933, a.shape[0]),
                     whole_data[a, 0:29].flatten() / cont_value[0],
