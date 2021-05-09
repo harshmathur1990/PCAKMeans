@@ -201,22 +201,40 @@ def do_kmeans(method='plusPlusDense'):
             d4p.my_procid()
         )
     )
-    order_array = np.arange(100 * 1236 * 1848).reshape(100, 1236, 1848)
 
     data_part_all = 100 * 1236 * 1848 // d4p.num_procs()
     extradata_all = 100 * 1236 * 1848 % d4p.num_procs()
 
     if d4p.my_procid() == 0:
+        order_array = np.arange(100 * 1236 * 1848, dtype=np.int64).reshape(100, 1236, 1848)
+        for i in range(1, d4p.num_procs()):
+            a, b, c = np.where(
+                (order_array >= (i * data_part_all + extradata_all)) &
+                (order_array < (i * data_part_all + data_part_all + extradata_all))
+            )[0]
+            comm.send(
+                {
+                    'a': a,
+                    'b': b,
+                    'c': c
+                },
+                dest=i,
+                tag=5
+            )
+
         whole_data = np.zeros((data_part_all + extradata_all, 64))
         a, b, c = np.where(order_array < data_part_all + extradata_all)[0]
+        del order_array
     else:
+        data_dict = comm.recv(
+            source=0,
+            tag=5,
+            status=status
+        )
         whole_data = np.zeros((data_part_all, 64))
-        a, b, c = np.where(
-            (order_array >= (d4p.my_procid() * data_part_all + extradata_all)) &
-            (order_array < (d4p.my_procid() * data_part_all + data_part_all + extradata_all))
-        )[0]
-
-    del order_array
+        a = data_dict['a']
+        b = data_dict['b']
+        c = data_dict['c']
 
     data, header = sunpy.io.fits.read(input_file_3950, memmap=True)[0]
 
