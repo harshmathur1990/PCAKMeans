@@ -322,7 +322,7 @@ if __name__ == '__main__':
 
         flabels = f.root.columns.final_labels
 
-        flabels[a, b, c] = final_labels
+        flabels[a, b, c] = final_labels[:, 0]
 
         f.create_array(gcolumns, 'centroids', result.centroids, "Centroids")
 
@@ -393,7 +393,7 @@ if __name__ == '__main__':
         labels = f.root.columns.assignments
         labels[data_part * d4p.my_procid() + extradata: data_part * d4p.my_procid() + data_part + extradata] = assignments[:, 0]
         flabels = f.root.columns.final_labels
-        flabels[a, b, c] = final_labels
+        flabels[a, b, c] = final_labels[:, 0]
         f.close()
         log(
             'Process {}: Updated File {}'.format(
