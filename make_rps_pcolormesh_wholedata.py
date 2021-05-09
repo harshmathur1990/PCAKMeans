@@ -107,8 +107,8 @@ cont_array = np.zeros(30 + 20 + 14)
 cont_array[0:30] = cont_value[0]
 cont_array[30:30 + 20] = cont_value[1]
 cont_array[30 + 20: 30 + 20 + 14] = cont_value[2]
-in_bins_3950 = np.linspace(0, 0.6, 1000)
-in_bins_8542 = np.linspace(0, 1, 1000)
+in_bins_3950 = np.linspace(0, 0.8, 1000)
+in_bins_8542 = np.linspace(0, 1.3, 1000)
 in_bins_6173 = np.linspace(0, 1.3, 1000)
 
 
@@ -245,7 +245,7 @@ def plot_profiles():
 
                 ax1[i][j].pcolormesh(X1, Y1, H1.T, cmap='Greys')
 
-                ax1[i][j].set_ylim(0, 0.6)
+                ax1[i][j].set_ylim(0, 0.8)
 
                 ax1[i][j].tick_params(
                     axis='y',          # changes apply to the x-axis
@@ -281,7 +281,7 @@ def plot_profiles():
 
                 ax2[i][j].pcolormesh(X2, Y2, H2.T, cmap='Greys')
 
-                ax2[i][j].set_ylim(0, 1)
+                ax2[i][j].set_ylim(0, 1.3)
 
                 ax2[i][j].tick_params(
                     axis='y',          # changes apply to the x-axis
