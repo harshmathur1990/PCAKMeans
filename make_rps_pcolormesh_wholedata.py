@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from helita.io.lp import *
 
 file_list = [
-    '/data/harsh/result_kmeans_whole_data.h5'
+    '/data/harsh/sub_fov_result_kmeans_whole_data.h5'
 ]
 
 selected_frames = np.array([0, 11, 25, 36, 60, 78, 87])
@@ -107,7 +107,7 @@ cont_array = np.zeros(30 + 20 + 14)
 cont_array[0:30] = cont_value[0]
 cont_array[30:30 + 20] = cont_value[1]
 cont_array[30 + 20: 30 + 20 + 14] = cont_value[2]
-in_bins_3950 = np.linspace(0, 0.8, 1000)
+in_bins_3950 = np.linspace(0, 0.6, 1000)
 in_bins_8542 = np.linspace(0, 1, 1000)
 in_bins_6173 = np.linspace(0, 1.3, 1000)
 
@@ -147,7 +147,9 @@ def plot_profiles():
             'r'
         )
 
-        labels = f['columns']['assignments'][()]
+        labels = f['columns']['final_labels'][selected_frames].reshape(
+            7 * 1236 * 1848
+        )
 
         plt.close('all')
 
@@ -243,7 +245,7 @@ def plot_profiles():
 
                 ax1[i][j].pcolormesh(X1, Y1, H1.T, cmap='Greys')
 
-                ax1[i][j].set_ylim(0, 0.8)
+                ax1[i][j].set_ylim(0, 0.6)
 
                 ax1[i][j].tick_params(
                     axis='y',          # changes apply to the x-axis
@@ -279,7 +281,7 @@ def plot_profiles():
 
                 ax2[i][j].pcolormesh(X2, Y2, H2.T, cmap='Greys')
 
-                ax2[i][j].set_ylim(0, 0.02)
+                ax2[i][j].set_ylim(0, 1)
 
                 ax2[i][j].tick_params(
                     axis='y',          # changes apply to the x-axis
@@ -315,7 +317,7 @@ def plot_profiles():
 
                 ax3[i][j].pcolormesh(X3, Y3, H3.T, cmap='Greys')
 
-                ax3[i][j].set_ylim(0, 1.5)
+                ax3[i][j].set_ylim(0, 1.3)
 
                 ax3[i][j].tick_params(
                     axis='y',          # changes apply to the x-axis
@@ -352,24 +354,24 @@ def plot_profiles():
                 k += 1
 
         fig1.savefig(
-            '3950_RPs100.eps',
-            format='eps',
+            '3950_RPs100.png',
+            format='png',
             dpi=100
         )
 
         sys.stdout.write('Saved {}\n'.format('3950_RPs100.eps'))
 
         fig2.savefig(
-            '8542_RPs100.eps',
-            format='eps',
+            '8542_RPs100.png',
+            format='png',
             dpi=100
         )
 
         sys.stdout.write('Saved {}\n'.format('8542_RPs100.eps'))
 
         fig3.savefig(
-            '6173_RPs100.eps',
-            format='eps',
+            '6173_RPs100.png',
+            format='png',
             dpi=100
         )
 
