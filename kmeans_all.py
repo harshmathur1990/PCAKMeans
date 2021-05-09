@@ -25,7 +25,7 @@ def log(logString):
     )
 
 
-def do_kmeans(filename, method='plusPlusDense'):
+def do_kmeans(method='plusPlusDense'):
 
     old_kmeans_file = '/data/harsh/out_100_0.5_0.5_n_iter_10000_tol_1en5.h5'
     input_file_3950 = '/data/harsh/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits'
