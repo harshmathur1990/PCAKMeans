@@ -102,14 +102,14 @@ wave_6173 = np.array(
     ]
 )
 
-cont_value = [2.4434714e-05, 4.2277254e-05, 4.054384e-08]
+cont_value = [2.4434714e-05, 4.2277254e-08, 4.054384e-08]
 cont_array = np.zeros(30 + 20 + 14)
 cont_array[0:30] = cont_value[0]
 cont_array[30:30 + 20] = cont_value[1]
 cont_array[30 + 20: 30 + 20 + 14] = cont_value[2]
 in_bins_3950 = np.linspace(0, 0.8, 1000)
-in_bins_8542 = np.linspace(0, 0.02, 1000)
-in_bins_6173 = np.linspace(0, 1.5, 1000)
+in_bins_8542 = np.linspace(0, 1, 1000)
+in_bins_6173 = np.linspace(0, 1.3, 1000)
 
 
 red = '#ec5858'
