@@ -309,6 +309,8 @@ if __name__ == '__main__':
 
     (a, b, c, final_labels, mn, sd, data_part, extradata, total_numbers, local_clusters, assignments, result) = do_kmeans()
 
+    comm.Barrier()
+
     if d4p.my_procid() == 0:
 
         f = tb.open_file('/data/harsh/result_kmeans_whole_data.h5', mode='w', title='KMeans Data')
@@ -414,3 +416,8 @@ if __name__ == '__main__':
             )
         )
         comm.send({'total_numbers':total_numbers, 'local_clusters': local_clusters}, dest=0, tag=1)
+        log(
+            'Process {}: Send message with tag 1'.format(
+                d4p.my_procid()
+            )
+        )
