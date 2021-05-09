@@ -150,9 +150,9 @@ def do_kmeans(method='plusPlusDense'):
 
     accuracyThreshold = 1e-6
 
-    data_local = (whole_data - mn) / sd
+    whole_data = (whole_data - mn) / sd
 
-    data_local *= weights
+    whole_data *= weights
 
     log(
         'Process {}: Finished Loading data, proceeding for kmeans'.format(
@@ -167,7 +167,7 @@ def do_kmeans(method='plusPlusDense'):
         distributed=True
     )
 
-    result = algo.compute(data_local, initial_centroids)
+    result = algo.compute(whole_data, initial_centroids)
 
     log(
         'Process {}: Finished KMeans'.format(
@@ -177,7 +177,7 @@ def do_kmeans(method='plusPlusDense'):
 
     algo = d4p.kmeans(nClusters, 0, assignFlag=True)
 
-    assignments = algo.compute(data_local, result.centroids).assignments
+    assignments = algo.compute(whole_data, result.centroids).assignments
 
     log(
         'Process {}: Asigned Labels to training data'.format(
