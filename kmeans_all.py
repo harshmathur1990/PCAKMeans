@@ -1,4 +1,5 @@
 import sys
+import logging
 import numpy as np
 import sunpy.io
 import h5py
@@ -7,6 +8,8 @@ from helita.io.lp import *
 import daal4py as d4p
 import tables as tb
 from mpi4py import MPI
+
+logging.basicConfig(filename='app.log', filemode='w')
 
 y = 0.011995
 x = 0.022555
@@ -367,6 +370,15 @@ if __name__ == '__main__':
 
             k -= 1
 
+            log(
+                'K: {}'.format(
+                    k
+                )
+            )
+
+        log(
+            'Out of for loop'
+        )
         rps = local_clusters / total_numbers[:, np.newaxis]
 
         f = tb.open_file('/data/harsh/result_kmeans_whole_data.h5', mode='a')
