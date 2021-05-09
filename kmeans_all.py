@@ -211,7 +211,7 @@ def do_kmeans(method='plusPlusDense'):
             a, b, c = np.where(
                 (order_array >= (i * data_part_all + extradata_all)) &
                 (order_array < (i * data_part_all + data_part_all + extradata_all))
-            )[0]
+            )
             comm.send(
                 {
                     'a': a,
@@ -223,7 +223,7 @@ def do_kmeans(method='plusPlusDense'):
             )
 
         whole_data = np.zeros((data_part_all + extradata_all, 64))
-        a, b, c = np.where(order_array < data_part_all + extradata_all)[0]
+        a, b, c = np.where(order_array < data_part_all + extradata_all)
         del order_array
     else:
         data_dict = comm.recv(
