@@ -285,9 +285,9 @@ def actual_plotting(labels, rps, name='guess'):
             ax[axgtr][axtr][1].set_xticklabels([])
             ax[axgtr][axtr][2].set_xticklabels([])
 
-            ax[axgtr][axtr][0].set_aspect(1.0 /  ax[axgtr][axtr][0].get_data_ratio(), adjustable='box')
-            ax[axgtr][axtr][1].set_aspect(1.0 /  ax[axgtr][axtr][1].get_data_ratio(), adjustable='box')
-            ax[axgtr][axtr][2].set_aspect(1.0 /  ax[axgtr][axtr][2].get_data_ratio(), adjustable='box')
+            # ax[axgtr][axtr][0].set_aspect(1.0 /  ax[axgtr][axtr][0].get_data_ratio(), adjustable='box')
+            # ax[axgtr][axtr][1].set_aspect(1.0 /  ax[axgtr][axtr][1].get_data_ratio(), adjustable='box')
+            # ax[axgtr][axtr][2].set_aspect(1.0 /  ax[axgtr][axtr][2].get_data_ratio(), adjustable='box')
 
             ax[axgtr][axtr][1].text(
                 0.2,
@@ -355,6 +355,7 @@ def actual_plotting(labels, rps, name='guess'):
         savename = 'KMeans_100_{}_{}.png'.format(
             name, i
         )
+        fig[i].tight_layout()
         fig[i].savefig(
             savename,
             format='png',
