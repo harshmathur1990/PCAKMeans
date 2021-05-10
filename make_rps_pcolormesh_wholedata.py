@@ -54,7 +54,7 @@ cont_array = np.zeros(30 + 20 + 14)
 cont_array[0:30] = cont_value[0]
 cont_array[30:30 + 20] = cont_value[1]
 cont_array[30 + 20: 30 + 20 + 14] = cont_value[2]
-in_bins_3950 = np.linspace(0, 0.8, 1000)
+in_bins_3950 = np.linspace(0, 0.6, 1000)
 in_bins_8542 = np.linspace(0, 1.3, 1000)
 in_bins_6173 = np.linspace(0.4, 2, 1000)
 
@@ -241,7 +241,7 @@ def actual_plotting(labels, rps, name='guess'):
 
             ax[axgtr][axtr][0].pcolormesh(X1, Y1, H1.T, cmap='Greys')
 
-            ax[axgtr][axtr][0].set_ylim(0, 0.8)
+            ax[axgtr][axtr][0].set_ylim(0, 0.6)
 
             ax[axgtr][axtr][0].text(
                 0.2,
