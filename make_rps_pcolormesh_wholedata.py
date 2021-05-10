@@ -5,72 +5,19 @@ import sunpy.io
 import matplotlib.pyplot as plt
 from helita.io.lp import *
 
-file_list = [
-    '/data/harsh/sub_fov_result_kmeans_whole_data.h5'
-]
+file = '/data/harsh/sub_fov_result_kmeans_whole_data.h5'
 
 selected_frames = np.array([0, 11, 25, 36, 60, 78, 87])
+old_kmeans_file = '/data/harsh/out_100_0.5_0.5_n_iter_10000_tol_1en5.h5'
+mask_file_crisp = '/data/harsh/crisp_chromis_mask_2019-06-06.fits'
 input_file_3950 = '/data/harsh/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits'
 input_file_8542 = '/data/harsh/nb_8542_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
 input_file_6173 = '/data/harsh/nb_6173_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
 
-whole_data = np.zeros((7 * 1236 * 1848, 30 + 20 + 14))
+mask, _  = sunpy.io.fits.read(mask_file_crisp, memmap=True)[0]
 
-data, header = sunpy.io.fits.read(input_file_3950, memmap=True)[0]
+mask = np.transpose(mask, axes=(2, 1, 0))
 
-whole_data[:, 0:30] = np.transpose(
-    data[selected_frames][:, 0],
-    axes=(0, 2, 3, 1)
-).reshape(
-    7 * 1236 * 1848,
-    30
-)
-
-sh, dt, header = getheader(input_file_8542)
-data = np.memmap(
-    input_file_8542,
-    mode='r',
-    shape=sh,
-    dtype=dt,
-    order='F',
-    offset=512
-)
-
-data = np.transpose(
-    data.reshape(1848, 1236, 100, 4, 20),
-    axes=(2, 3, 4, 1, 0)
-)
-
-whole_data[:, 30:30 + 20] = np.transpose(
-    data[selected_frames][:, 0],
-    axes=(0, 2, 3, 1)
-).reshape(
-    7 * 1236 * 1848,
-    20
-)
-
-sh, dt, header = getheader(input_file_6173)
-data = np.memmap(
-    input_file_6173,
-    mode='r',
-    shape=sh,
-    dtype=dt,
-    order='F',
-    offset=512
-)
-
-data = np.transpose(
-    data.reshape(1848, 1236, 100, 4, 14),
-    axes=(2, 3, 4, 1, 0)
-)
-
-whole_data[:, 30 + 20:30 + 20 + 14] = np.transpose(
-    data[selected_frames][:, 0],
-    axes=(0, 2, 3, 1)
-).reshape(
-    7 * 1236 * 1848,
-    14
-)
 
 wave_3933 = np.array(
     [
@@ -136,248 +83,326 @@ def get_farthest(a, center):
     return all_profiles[index]
 
 
+def get_data(mode='full'):
+    if mode == 'partial':
+        n, o, p = np.where(mask[selected_frames] == 1)
+    else:
+        n, o, p = np.where(mask[selected_frames] != -1)
+
+    whole_data = np.zeros((n.size, 30 + 20 + 14))
+
+    data, header = sunpy.io.fits.read(input_file_3950, memmap=True)[0]
+
+    whole_data[:, 0:30] = np.transpose(
+        data[selected_frames][n, 0, :, o, p],
+        axes=(0, 2, 3, 1)
+    ).reshape(
+        n.size,
+        30
+    )
+
+    sh, dt, header = getheader(input_file_8542)
+    data = np.memmap(
+        input_file_8542,
+        mode='r',
+        shape=sh,
+        dtype=dt,
+        order='F',
+        offset=512
+    )
+
+    data = np.transpose(
+        data.reshape(1848, 1236, 100, 4, 20),
+        axes=(2, 3, 4, 1, 0)
+    )
+
+    whole_data[:, 30:30 + 20] = np.transpose(
+        data[selected_frames][n, 0, :, o, p],
+        axes=(0, 2, 3, 1)
+    ).reshape(
+        n.size,
+        20
+    )
+
+    sh, dt, header = getheader(input_file_6173)
+    data = np.memmap(
+        input_file_6173,
+        mode='r',
+        shape=sh,
+        dtype=dt,
+        order='F',
+        offset=512
+    )
+
+    data = np.transpose(
+        data.reshape(1848, 1236, 100, 4, 14),
+        axes=(2, 3, 4, 1, 0)
+    )
+
+    whole_data[:, 30 + 20:30 + 20 + 14] = np.transpose(
+        data[selected_frames][n, 0, :, o, p],
+        axes=(0, 2, 3, 1)
+    ).reshape(
+        n.size,
+        14
+    )
+
+    return whole_data, n, o, p
+
+
+def actual_plotting(whole_data, labels, rps, name='guess'):
+
+    plt.close('all')
+
+    plt.clf()
+
+    plt.cla()
+
+    fig01, ax01 = plt.subplots(10, 3, figsize=(8.27, 11.69))
+    fig02, ax02 = plt.subplots(10, 3, figsize=(8.27, 11.69))
+    fig03, ax03 = plt.subplots(10, 3, figsize=(8.27, 11.69))
+    fig04, ax04 = plt.subplots(10, 3, figsize=(8.27, 11.69))
+    fig05, ax05 = plt.subplots(10, 3, figsize=(8.27, 11.69))
+    fig06, ax06 = plt.subplots(10, 3, figsize=(8.27, 11.69))
+    fig07, ax07 = plt.subplots(10, 3, figsize=(8.27, 11.69))
+    fig08, ax08 = plt.subplots(10, 3, figsize=(8.27, 11.69))
+    fig09, ax09 = plt.subplots(10, 3, figsize=(8.27, 11.69))
+    fig10, ax10 = plt.subplots(10, 3, figsize=(8.27, 11.69))
+
+    fig = [fig01, fig02, fig03, fig04, fig05, fig06, fig07, fig08, fig09, fig10]
+    ax = [ax01, ax02, ax03, ax04, ax05, ax06, ax07, ax08, ax09, ax10]
+
+    k = 0
+    axgtr = 0
+
+    for i in range(10):
+
+        axtr = 0
+
+        for j in range(10):
+
+            a = np.where(labels == k)[0]
+
+            center = rps[k] / cont_array
+
+            farthest_profile = get_farthest(a, center)
+
+            H1, xedge1, yedge1 = np.histogram2d(
+                np.tile(wave_3933, a.shape[0]),
+                whole_data[a, 0:29].flatten() / cont_value[0],
+                bins=(wave_3933, in_bins_3950)
+            )
+
+            H2, xedge2, yedge2 = np.histogram2d(
+                np.tile(wave_8542, a.shape[0]),
+                whole_data[a, 30:30 + 20].flatten() / cont_value[1],
+                bins=(wave_8542, in_bins_8542)
+            )
+
+            H3, xedge3, yedge3 = np.histogram2d(
+                np.tile(wave_6173, a.shape[0]),
+                whole_data[a, 30 + 20: 30 + 20 + 14].flatten() / cont_value[2],
+                bins=(wave_6173, in_bins_6173)
+            )
+
+            ax[axgtr][axtr][0].plot(
+                wave_3933,
+                center[0:29],
+                color='black',
+                linewidth=0.5,
+                linestyle='solid'
+            )
+
+            ax[axgtr][axtr][0].plot(
+                wave_3933,
+                farthest_profile[0:29],
+                color='black',
+                linewidth=0.5,
+                linestyle='dotted'
+            )
+
+            ax[axgtr][axtr][1].plot(
+                wave_8542,
+                center[30:30 + 20],
+                color='black',
+                linewidth=0.5,
+                linestyle='solid'
+            )
+
+            ax[axgtr][axtr][1].plot(
+                wave_8542,
+                farthest_profile[30:30 + 20],
+                color='black',
+                linewidth=0.5,
+                linestyle='dotted'
+            )
+            ax[axgtr][axtr][2].plot(
+                wave_6173,
+                center[30 + 20:30 + 20 + 14],
+                color='black',
+                linewidth=0.5,
+                linestyle='solid'
+            )
+
+            ax[axgtr][axtr][2].plot(
+                wave_6173,
+                farthest_profile[30 + 20:30 + 20 + 14],
+                color='black',
+                linewidth=0.5,
+                linestyle='dotted'
+            )
+
+            X1, Y1 = np.meshgrid(xedge1, yedge1)
+
+            X2, Y2 = np.meshgrid(xedge2, yedge2)
+
+            X3, Y3 = np.meshgrid(xedge3, yedge3)
+
+            ax[axgtr][axtr][0].pcolormesh(X1, Y1, H1.T, cmap='Greys')
+
+            ax[axgtr][axtr][0].set_ylim(0, 0.8)
+
+            ax[axgtr][axtr][0].tick_params(
+                axis='y',          # changes apply to the x-axis
+                which='both',      # both major and minor ticks are affected
+                bottom=False,      # ticks along the bottom edge are off
+                top=False,         # ticks along the top edge are off
+                labelbottom=False  # labels along the bottom edge are off
+            )
+
+            ax[axgtr][axtr][0].tick_params(
+                axis='x',          # changes apply to the x-axis
+                which='both',      # both major and minor ticks are affected
+                bottom=False,      # ticks along the bottom edge are off
+                top=False,         # ticks along the top edge are off
+                labelbottom=False  # labels along the bottom edge are off
+            )
+
+            ax[axgtr][axtr][0].text(
+                0.2,
+                0.6,
+                'n = {} %'.format(
+                    np.round(a.size * 100 / labels.size, 4)
+                ),
+                transform=ax[axgtr][axtr][0].transAxes,
+                fontsize=8
+            )
+
+            ax[axgtr][axtr][0].text(
+                0.3,
+                0.8,
+                'RP {}'.format(k),
+                transform=ax[axgtr][axtr][0].transAxes,
+                fontsize=8
+            )
+
+            ax[axgtr][axtr][1].pcolormesh(X2, Y2, H2.T, cmap='Greys')
+
+            ax[axgtr][axtr][1].set_ylim(0, 1.3)
+
+            ax[axgtr][axtr][0].set_xticklabels([])
+            ax[axgtr][axtr][1].set_xticklabels([])
+            ax[axgtr][axtr][2].set_xticklabels([])
+
+            ax[axgtr][axtr][0].set_aspect(1.0 /  ax[axgtr][axtr][0].get_data_ratio(), adjustable='box')
+            ax[axgtr][axtr][1].set_aspect(1.0 /  ax[axgtr][axtr][1].get_data_ratio(), adjustable='box')
+            ax[axgtr][axtr][2].set_aspect(1.0 /  ax[axgtr][axtr][2].get_data_ratio(), adjustable='box')
+
+            ax[axgtr][axtr][1].text(
+                0.2,
+                0.6,
+                'n = {} %'.format(
+                    np.round(a.size * 100 / labels.size, 4)
+                ),
+                transform=ax[axgtr][axtr][1].transAxes,
+                fontsize=8
+            )
+
+            ax[axgtr][axtr][1].text(
+                0.3,
+                0.8,
+                'RP {}'.format(k),
+                transform=ax[axgtr][axtr][1].transAxes,
+                fontsize=8
+            )
+
+            ax[axgtr][axtr][2].pcolormesh(X3, Y3, H3.T, cmap='Greys')
+
+            ax[axgtr][axtr][2].set_ylim(0, 1.3)
+
+            ax[axgtr][axtr][2].tick_params(
+                axis='y',          # changes apply to the x-axis
+                which='both',      # both major and minor ticks are affected
+                bottom=False,      # ticks along the bottom edge are off
+                top=False,         # ticks along the top edge are off
+                labelbottom=False  # labels along the bottom edge are off
+            )
+
+            ax[axgtr][axtr][2].tick_params(
+                axis='x',          # changes apply to the x-axis
+                which='both',      # both major and minor ticks are affected
+                bottom=False,      # ticks along the bottom edge are off
+                top=False,         # ticks along the top edge are off
+                labelbottom=False  # labels along the bottom edge are off
+            )
+
+            ax[axgtr][axtr][2].text(
+                0.2,
+                0.6,
+                'n = {} %'.format(
+                    np.round(a.size * 100 / labels.size, 4)
+                ),
+                transform=ax[axgtr][axtr][2].transAxes,
+                fontsize=8
+            )
+
+            ax[axgtr][axtr][2].text(
+                0.3,
+                0.8,
+                'RP {}'.format(k),
+                transform=ax[axgtr][axtr][2].transAxes,
+                fontsize=8
+            )
+
+            k += 1
+
+            axtr += 1
+
+        axgtr += 1
+
+    for i in range(10):
+        savename = 'KMeans_100_{}_{}.png'.format(
+            name, i
+        )
+        fig[i].save(
+            savename,
+            format='png',
+            dpi=300
+        )
+        sys.stdout.write(
+            'Saved {}\n'.format(
+                savename
+            )
+        )
+
+
 def plot_profiles():
 
-    for file in file_list:
+    sys.stdout.write('Processing {}\n'.format(file))
 
-        sys.stdout.write('Processing {}\n'.format(file))
+    whole_data, n, o, p = get_data(mode='partial')
+    f = h5py.File(file, 'r')
+    labels = f['columns']['assignments'][()]
+    rps = f['columns']['rps'][()]
+    actual_plotting(whole_data, labels, rps, name='output')
+    f.close()
 
-        f = h5py.File(
-            file,
-            'r'
-        )
-
-        labels = f['columns']['final_labels'][selected_frames].reshape(
-            7 * 1236 * 1848
-        )
-
-        plt.close('all')
-
-        plt.clf()
-
-        plt.cla()
-
-        fig1, ax1 = plt.subplots(10, 10, figsize=(19.2, 10.8), sharey='col')
-        fig2, ax2 = plt.subplots(10, 10, figsize=(19.2, 10.8), sharey='col')
-        fig3, ax3 = plt.subplots(10, 10, figsize=(19.2, 10.8), sharey='col')
-
-        k = 0
-
-        for i in range(10):
-            for j in range(10):
-
-                a = np.where(labels == k)[0]
-
-                center = f['columns']['rps'][k] / cont_array
-
-                farthest_profile = get_farthest(a, center)
-
-                H1, xedge1, yedge1 = np.histogram2d(
-                    np.tile(wave_3933, a.shape[0]),
-                    whole_data[a, 0:29].flatten() / cont_value[0],
-                    bins=(wave_3933, in_bins_3950)
-                )
-
-                H2, xedge2, yedge2 = np.histogram2d(
-                    np.tile(wave_8542, a.shape[0]),
-                    whole_data[a, 30:30 + 20].flatten() / cont_value[1],
-                    bins=(wave_8542, in_bins_8542)
-                )
-
-                H3, xedge3, yedge3 = np.histogram2d(
-                    np.tile(wave_6173, a.shape[0]),
-                    whole_data[a, 30 + 20: 30 + 20 + 14].flatten() / cont_value[2],
-                    bins=(wave_6173, in_bins_6173)
-                )
-
-                ax1[i][j].plot(
-                    wave_3933,
-                    center[0:29],
-                    color='black',
-                    linewidth=0.5,
-                    linestyle='solid'
-                )
-
-                ax1[i][j].plot(
-                    wave_3933,
-                    farthest_profile[0:29],
-                    color='black',
-                    linewidth=0.5,
-                    linestyle='dotted'
-                )
-
-                ax2[i][j].plot(
-                    wave_8542,
-                    center[30:30 + 20],
-                    color='black',
-                    linewidth=0.5,
-                    linestyle='solid'
-                )
-
-                ax2[i][j].plot(
-                    wave_8542,
-                    farthest_profile[30:30 + 20],
-                    color='black',
-                    linewidth=0.5,
-                    linestyle='dotted'
-                )
-                ax3[i][j].plot(
-                    wave_6173,
-                    center[30 + 20:30 + 20 + 14],
-                    color='black',
-                    linewidth=0.5,
-                    linestyle='solid'
-                )
-
-                ax3[i][j].plot(
-                    wave_6173,
-                    farthest_profile[30 + 20:30 + 20 + 14],
-                    color='black',
-                    linewidth=0.5,
-                    linestyle='dotted'
-                )
-
-                X1, Y1 = np.meshgrid(xedge1, yedge1)
-
-                X2, Y2 = np.meshgrid(xedge2, yedge2)
-
-                X3, Y3 = np.meshgrid(xedge3, yedge3)
-
-                ax1[i][j].pcolormesh(X1, Y1, H1.T, cmap='Greys')
-
-                ax1[i][j].set_ylim(0, 0.8)
-
-                ax1[i][j].tick_params(
-                    axis='y',          # changes apply to the x-axis
-                    which='both',      # both major and minor ticks are affected
-                    bottom=False,      # ticks along the bottom edge are off
-                    top=False,         # ticks along the top edge are off
-                    labelbottom=False  # labels along the bottom edge are off
-                )
-
-                ax1[i][j].tick_params(
-                    axis='x',          # changes apply to the x-axis
-                    which='both',      # both major and minor ticks are affected
-                    bottom=False,      # ticks along the bottom edge are off
-                    top=False,         # ticks along the top edge are off
-                    labelbottom=False  # labels along the bottom edge are off
-                )
-
-                ax1[i][j].text(
-                    0.2,
-                    0.6,
-                    'n = {} %'.format(
-                        np.round(a.size * 100 / 15988896, 4)
-                    ),
-                    transform=ax1[i][j].transAxes
-                )
-
-                ax1[i][j].text(
-                    0.3,
-                    0.8,
-                    'RP {}'.format(k),
-                    transform=ax1[i][j].transAxes
-                )
-
-                ax2[i][j].pcolormesh(X2, Y2, H2.T, cmap='Greys')
-
-                ax2[i][j].set_ylim(0, 1.3)
-
-                ax2[i][j].tick_params(
-                    axis='y',          # changes apply to the x-axis
-                    which='both',      # both major and minor ticks are affected
-                    bottom=False,      # ticks along the bottom edge are off
-                    top=False,         # ticks along the top edge are off
-                    labelbottom=False  # labels along the bottom edge are off
-                )
-
-                ax2[i][j].tick_params(
-                    axis='x',          # changes apply to the x-axis
-                    which='both',      # both major and minor ticks are affected
-                    bottom=False,      # ticks along the bottom edge are off
-                    top=False,         # ticks along the top edge are off
-                    labelbottom=False  # labels along the bottom edge are off
-                )
-
-                ax2[i][j].text(
-                    0.2,
-                    0.6,
-                    'n = {} %'.format(
-                        np.round(a.size * 100 / 15988896, 4)
-                    ),
-                    transform=ax2[i][j].transAxes
-                )
-
-                ax2[i][j].text(
-                    0.3,
-                    0.8,
-                    'RP {}'.format(k),
-                    transform=ax2[i][j].transAxes
-                )
-
-                ax3[i][j].pcolormesh(X3, Y3, H3.T, cmap='Greys')
-
-                ax3[i][j].set_ylim(0, 1.3)
-
-                ax3[i][j].tick_params(
-                    axis='y',          # changes apply to the x-axis
-                    which='both',      # both major and minor ticks are affected
-                    bottom=False,      # ticks along the bottom edge are off
-                    top=False,         # ticks along the top edge are off
-                    labelbottom=False  # labels along the bottom edge are off
-                )
-
-                ax3[i][j].tick_params(
-                    axis='x',          # changes apply to the x-axis
-                    which='both',      # both major and minor ticks are affected
-                    bottom=False,      # ticks along the bottom edge are off
-                    top=False,         # ticks along the top edge are off
-                    labelbottom=False  # labels along the bottom edge are off
-                )
-
-                ax3[i][j].text(
-                    0.2,
-                    0.6,
-                    'n = {} %'.format(
-                        np.round(a.size * 100 / 15988896, 4)
-                    ),
-                    transform=ax3[i][j].transAxes
-                )
-
-                ax3[i][j].text(
-                    0.3,
-                    0.8,
-                    'RP {}'.format(k),
-                    transform=ax3[i][j].transAxes
-                )
-
-                k += 1
-
-        fig1.savefig(
-            '3950_RPs100.png',
-            format='png',
-            dpi=100
-        )
-
-        sys.stdout.write('Saved {}\n'.format('3950_RPs100.eps'))
-
-        fig2.savefig(
-            '8542_RPs100.png',
-            format='png',
-            dpi=100
-        )
-
-        sys.stdout.write('Saved {}\n'.format('8542_RPs100.eps'))
-
-        fig3.savefig(
-            '6173_RPs100.png',
-            format='png',
-            dpi=100
-        )
-
-        sys.stdout.write('Saved {}\n'.format('6173_RPs100.eps'))
-
-        f.close()
+    whole_data, n, o, p = get_data(mode='full')
+    f = h5py.File(old_kmeans_file, 'r')
+    labels = f['final_labels'][n, o, p]
+    rps = f['rps'][()]
+    actual_plotting(whole_data, labels, rps, name='guess')
+    f.close()
 
 
 if __name__ == '__main__':
