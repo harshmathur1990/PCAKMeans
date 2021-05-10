@@ -63,7 +63,7 @@ red = '#ec5858'
 brown = '#fd8c04'
 yellow = '#edf285'
 blue = '#93abd3'
-
+whole_data = None
 
 def get_farthest(a, center):
     global whole_data
@@ -132,7 +132,9 @@ def get_data(mode='full'):
     return whole_data, n, o, p
 
 
-def actual_plotting(whole_data, labels, rps, name='guess'):
+def actual_plotting(labels, rps, name='guess'):
+
+    global whole_data
 
     plt.close('all')
 
@@ -369,6 +371,7 @@ def actual_plotting(whole_data, labels, rps, name='guess'):
 
 
 def plot_profiles():
+    global whole_data
 
     sys.stdout.write('Processing {}\n'.format(file))
 
@@ -376,14 +379,14 @@ def plot_profiles():
     f = h5py.File(file, 'r')
     labels = f['columns']['assignments'][()]
     rps = f['columns']['rps'][()]
-    actual_plotting(whole_data, labels, rps, name='output')
+    actual_plotting(labels, rps, name='output')
     f.close()
 
     whole_data, n, o, p = get_data(mode='full')
     f = h5py.File(old_kmeans_file, 'r')
     labels = f['final_labels'][n, o, p]
     rps = f['rps'][()]
-    actual_plotting(whole_data, labels, rps, name='guess')
+    actual_plotting(labels, rps, name='guess')
     f.close()
 
 
