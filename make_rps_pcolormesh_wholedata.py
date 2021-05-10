@@ -384,7 +384,7 @@ def plot_profiles():
 
     whole_data, n, o, p = get_data(mode='full')
     f = h5py.File(old_kmeans_file, 'r')
-    labels = f['final_labels'][n, o, p]
+    labels = f['final_labels'][()][n, o, p]
     rps = f['rps'][()]
     actual_plotting(labels, rps, name='guess')
     f.close()
