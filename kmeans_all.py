@@ -1,5 +1,4 @@
 import sys
-import logging
 import numpy as np
 import sunpy.io
 import h5py
@@ -9,14 +8,15 @@ import daal4py as d4p
 import tables as tb
 from mpi4py import MPI
 
-logging.basicConfig(filename='app.log', filemode='w')
 
-y = 0.011995
-x = 0.022555
-weights = np.ones(30 + 20 + 14) * y
-weights[10:20] = x
-weights[30 + 4:30 + 16] = x
-
+x = 0.0144503
+y = 0.017539
+z = 0.01520
+weights = np.ones(30 + 20 + 14)
+weights[np.array([0, 1, 2, 3, 25, 26, 27, 28, 29, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63])] = x
+weights[np.array([4, 5, 6, 7, 8, 9, 20, 21, 22, 23, 24, 30, 31, 32, 33, 46, 47, 48, 49])] = y
+weights[np.array([10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45])] = z
+outfilename = '/data/harsh/sub_fov_result_kmeans_whole_data_diff_weights.h5'
 
 def log(logString):
     current_time = time.strftime("%Y-%m-%d-%H:%M:%S")
@@ -313,7 +313,7 @@ if __name__ == '__main__':
 
     if d4p.my_procid() == 0:
 
-        f = tb.open_file('/data/harsh/result_kmeans_whole_data.h5', mode='w', title='KMeans Data')
+        f = tb.open_file(outfilename, mode='w', title='KMeans Data')
 
         gcolumns = f.create_group('/', "columns", "KMeans arrays")
 
@@ -345,7 +345,7 @@ if __name__ == '__main__':
 
         log(
             'Process 0: Created File {}'.format(
-                '/data/harsh/result_kmeans_whole_data.h5'
+                outfilename
             )
         )
 
@@ -383,7 +383,7 @@ if __name__ == '__main__':
         )
         rps = local_clusters / total_numbers[:, np.newaxis]
 
-        f = tb.open_file('/data/harsh/result_kmeans_whole_data.h5', mode='a')
+        f = tb.open_file(outfilename, mode='a')
 
         f.create_array(f.root.columns, 'rps', rps, "Representative Profiles")
 
@@ -392,7 +392,7 @@ if __name__ == '__main__':
         log(
             'Process {}: Updated File {}'.format(
                 d4p.my_procid(),
-                '/data/harsh/result_kmeans_whole_data.h5'
+                outfilename
             )
         )
 
@@ -403,7 +403,7 @@ if __name__ == '__main__':
             status=status
         )
         comm.send({}, dest=0, tag=0)
-        f = tb.open_file('/data/harsh/result_kmeans_whole_data.h5', mode='a')
+        f = tb.open_file(outfilename, mode='a')
         labels = f.root.columns.assignments
         labels[data_part * d4p.my_procid() + extradata: data_part * d4p.my_procid() + data_part + extradata] = assignments[:, 0]
         flabels = f.root.columns.final_labels
@@ -412,7 +412,7 @@ if __name__ == '__main__':
         log(
             'Process {}: Updated File {}'.format(
                 d4p.my_procid(),
-                '/data/harsh/result_kmeans_whole_data.h5'
+                outfilename
             )
         )
         comm.send({'total_numbers':total_numbers, 'local_clusters': local_clusters}, dest=0, tag=1)
