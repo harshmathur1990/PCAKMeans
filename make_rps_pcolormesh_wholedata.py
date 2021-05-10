@@ -56,7 +56,7 @@ cont_array[30:30 + 20] = cont_value[1]
 cont_array[30 + 20: 30 + 20 + 14] = cont_value[2]
 in_bins_3950 = np.linspace(0, 0.8, 1000)
 in_bins_8542 = np.linspace(0, 1.3, 1000)
-in_bins_6173 = np.linspace(0, 1.3, 1000)
+in_bins_6173 = np.linspace(0.4, 2, 1000)
 
 
 red = '#ec5858'
@@ -243,22 +243,6 @@ def actual_plotting(labels, rps, name='guess'):
 
             ax[axgtr][axtr][0].set_ylim(0, 0.8)
 
-            ax[axgtr][axtr][0].tick_params(
-                axis='y',          # changes apply to the x-axis
-                which='both',      # both major and minor ticks are affected
-                bottom=False,      # ticks along the bottom edge are off
-                top=False,         # ticks along the top edge are off
-                labelbottom=False  # labels along the bottom edge are off
-            )
-
-            ax[axgtr][axtr][0].tick_params(
-                axis='x',          # changes apply to the x-axis
-                which='both',      # both major and minor ticks are affected
-                bottom=False,      # ticks along the bottom edge are off
-                top=False,         # ticks along the top edge are off
-                labelbottom=False  # labels along the bottom edge are off
-            )
-
             ax[axgtr][axtr][0].text(
                 0.2,
                 0.6,
@@ -285,9 +269,9 @@ def actual_plotting(labels, rps, name='guess'):
             ax[axgtr][axtr][1].set_xticklabels([])
             ax[axgtr][axtr][2].set_xticklabels([])
 
-            # ax[axgtr][axtr][0].set_aspect(1.0 /  ax[axgtr][axtr][0].get_data_ratio(), adjustable='box')
-            # ax[axgtr][axtr][1].set_aspect(1.0 /  ax[axgtr][axtr][1].get_data_ratio(), adjustable='box')
-            # ax[axgtr][axtr][2].set_aspect(1.0 /  ax[axgtr][axtr][2].get_data_ratio(), adjustable='box')
+            ax[axgtr][axtr][0].set_aspect(1.0 /  ax[axgtr][axtr][0].get_data_ratio(), adjustable='box')
+            ax[axgtr][axtr][1].set_aspect(1.0 /  ax[axgtr][axtr][1].get_data_ratio(), adjustable='box')
+            ax[axgtr][axtr][2].set_aspect(1.0 /  ax[axgtr][axtr][2].get_data_ratio(), adjustable='box')
 
             ax[axgtr][axtr][1].text(
                 0.2,
@@ -309,23 +293,7 @@ def actual_plotting(labels, rps, name='guess'):
 
             ax[axgtr][axtr][2].pcolormesh(X3, Y3, H3.T, cmap='Greys')
 
-            ax[axgtr][axtr][2].set_ylim(0, 1.3)
-
-            ax[axgtr][axtr][2].tick_params(
-                axis='y',          # changes apply to the x-axis
-                which='both',      # both major and minor ticks are affected
-                bottom=False,      # ticks along the bottom edge are off
-                top=False,         # ticks along the top edge are off
-                labelbottom=False  # labels along the bottom edge are off
-            )
-
-            ax[axgtr][axtr][2].tick_params(
-                axis='x',          # changes apply to the x-axis
-                which='both',      # both major and minor ticks are affected
-                bottom=False,      # ticks along the bottom edge are off
-                top=False,         # ticks along the top edge are off
-                labelbottom=False  # labels along the bottom edge are off
-            )
+            ax[axgtr][axtr][2].set_ylim(0.4, 2)
 
             ax[axgtr][axtr][2].text(
                 0.2,
