@@ -93,13 +93,7 @@ def get_data(mode='full'):
 
     data, header = sunpy.io.fits.read(input_file_3950, memmap=True)[0]
 
-    whole_data[:, 0:30] = np.transpose(
-        data[selected_frames][n, 0, :, o, p],
-        axes=(0, 2, 3, 1)
-    ).reshape(
-        n.size,
-        30
-    )
+    whole_data[:, 0:30] = data[selected_frames][n, 0, :, o, p],
 
     sh, dt, header = getheader(input_file_8542)
     data = np.memmap(
@@ -116,13 +110,7 @@ def get_data(mode='full'):
         axes=(2, 3, 4, 1, 0)
     )
 
-    whole_data[:, 30:30 + 20] = np.transpose(
-        data[selected_frames][n, 0, :, o, p],
-        axes=(0, 2, 3, 1)
-    ).reshape(
-        n.size,
-        20
-    )
+    whole_data[:, 30:30 + 20] = data[selected_frames][n, 0, :, o, p]
 
     sh, dt, header = getheader(input_file_6173)
     data = np.memmap(
@@ -139,13 +127,7 @@ def get_data(mode='full'):
         axes=(2, 3, 4, 1, 0)
     )
 
-    whole_data[:, 30 + 20:30 + 20 + 14] = np.transpose(
-        data[selected_frames][n, 0, :, o, p],
-        axes=(0, 2, 3, 1)
-    ).reshape(
-        n.size,
-        14
-    )
+    whole_data[:, 30 + 20:30 + 20 + 14] = data[selected_frames][n, 0, :, o, p]
 
     return whole_data, n, o, p
 
