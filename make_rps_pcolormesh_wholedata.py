@@ -83,11 +83,8 @@ def get_farthest(a, center):
     return all_profiles[index]
 
 
-def get_data(mode='full'):
-    if mode == 'partial':
-        n, o, p = np.where(mask[selected_frames] == 1)
-    else:
-        n, o, p = np.where(mask[selected_frames] != -1)
+def get_data():
+    n, o, p = np.where(mask[selected_frames] == 1)
 
     whole_data = np.zeros((n.size, 30 + 20 + 14))
 
@@ -375,17 +372,20 @@ def plot_profiles():
 
     sys.stdout.write('Processing {}\n'.format(file))
 
-    whole_data, n, o, p = get_data(mode='partial')
+    whole_data, n, o, p = get_data()
     f = h5py.File(file, 'r')
     labels = f['columns']['assignments'][()]
     rps = f['columns']['rps'][()]
     actual_plotting(labels, rps, name='output')
     f.close()
 
-    whole_data, n, o, p = get_data(mode='full')
     f = h5py.File(old_kmeans_file, 'r')
-    labels = f['final_labels'][()][n, o, p]
-    rps = f['rps'][()]
+    labels = f['new_final_labels'][selected_frames][n, o, p]
+    rps = np.zeros((100, 64))
+    for i in range(100):
+        ind = np.where(labels == i)[0]
+        rps[i] = np.mean(whole_data[ind], 0)
+
     actual_plotting(labels, rps, name='guess')
     f.close()
 
