@@ -93,7 +93,7 @@ def get_data(mode='full'):
 
     data, header = sunpy.io.fits.read(input_file_3950, memmap=True)[0]
 
-    whole_data[:, 0:30] = data[selected_frames][n, 0, :, o, p],
+    whole_data[:, 0:30] = data[selected_frames][n, 0, :, o, p]
 
     sh, dt, header = getheader(input_file_8542)
     data = np.memmap(
