@@ -358,7 +358,7 @@ def actual_plotting(labels, rps, name='guess'):
         savename = 'KMeans_100_{}_{}.png'.format(
             name, i
         )
-        fig[i].save(
+        fig[i].savefig(
             savename,
             format='png',
             dpi=300
