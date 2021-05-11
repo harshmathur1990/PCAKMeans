@@ -5,7 +5,7 @@ import sunpy.io
 import matplotlib.pyplot as plt
 from helita.io.lp import *
 
-file = '/data/harsh/sub_fov_result_kmeans_whole_data_same_weights.h5'
+file = '/data/harsh/sub_fov_result_kmeans_whole_data_inertia_weights.h5'
 
 selected_frames = np.array([0, 11, 25, 36, 60, 78, 87])
 old_kmeans_file = '/data/harsh/out_100_0.5_0.5_n_iter_10000_tol_1en5.h5'
@@ -320,7 +320,7 @@ def actual_plotting(labels, rps, name='guess'):
         axgtr += 1
 
     for i in range(10):
-        savename = 'SW_KMeans_100_{}_{}.png'.format(
+        savename = 'IW_KMeans_100_{}_{}.png'.format(
             name, i
         )
         fig[i].tight_layout()
