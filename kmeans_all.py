@@ -12,11 +12,11 @@ from mpi4py import MPI
 x = 0.0144503
 y = 0.017539
 z = 0.01520
-weights = np.ones(30 + 20 + 14)
-weights[np.array([0, 1, 2, 3, 25, 26, 27, 28, 29, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63])] = x
-weights[np.array([4, 5, 6, 7, 8, 9, 20, 21, 22, 23, 24, 30, 31, 32, 33, 46, 47, 48, 49])] = y
-weights[np.array([10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45])] = z
-outfilename = '/data/harsh/sub_fov_result_kmeans_whole_data_diff_weights.h5'
+# weights = np.ones(30 + 20 + 14)
+# weights[np.array([0, 1, 2, 3, 25, 26, 27, 28, 29, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63])] = x
+# weights[np.array([4, 5, 6, 7, 8, 9, 20, 21, 22, 23, 24, 30, 31, 32, 33, 46, 47, 48, 49])] = y
+# weights[np.array([10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45])] = z
+outfilename = '/data/harsh/sub_fov_result_kmeans_whole_data_same_weights.h5'
 
 def log(logString):
     current_time = time.strftime("%Y-%m-%d-%H:%M:%S")
@@ -96,7 +96,7 @@ def do_kmeans(method='plusPlusDense'):
         f.close()
 
         whole_data = (whole_data - mn) / sd
-        whole_data *= weights
+        # whole_data *= weights
 
         initial_centroids= np.zeros((100, 30 + 20 + 14))
 
@@ -105,7 +105,7 @@ def do_kmeans(method='plusPlusDense'):
 
             initial_centroids[i] = np.mean(whole_data[ind], 0)
 
-        whole_data /= weights
+        # whole_data /= weights
         whole_data = whole_data * sd + mn
 
         data_part = a.size // d4p.num_procs()
@@ -155,7 +155,7 @@ def do_kmeans(method='plusPlusDense'):
 
     whole_data = (whole_data - mn) / sd
 
-    whole_data *= weights
+    # whole_data *= weights
 
     log(
         'Process {}: Finished Loading data, proceeding for kmeans'.format(
@@ -188,15 +188,19 @@ def do_kmeans(method='plusPlusDense'):
         )
     )
 
-    whole_data /= weights
+    # whole_data /= weights
     whole_data = whole_data * sd + mn
 
     local_clusters = np.zeros((100, 30 + 20 + 14))
+    squarred_differences = np.zeros((100, 30 + 20 + 14))
     total_numbers = np.zeros(100)
     for i in range(100):
         ind = np.where(assignments == i)[0]
 
         local_clusters[i] = np.sum(whole_data[ind], 0)
+        squarred_differences[i] = np.square(
+            ((whole_data[ind] - mn) / sd) - result.centroids[i]
+        )
         total_numbers[i] = ind.size
 
     log(
@@ -278,7 +282,7 @@ def do_kmeans(method='plusPlusDense'):
     whole_data[:, 30 + 20:30 + 20 + 14] = data[a, 0, :, b, c]
 
     whole_data = (whole_data - mn) / sd
-    whole_data *= weights
+    # whole_data *= weights
 
     log(
         'Process {}: Loaded Partitioned data from whole full data'.format(
@@ -296,7 +300,7 @@ def do_kmeans(method='plusPlusDense'):
         )
     )
 
-    return (a, b, c, final_labels, mn, sd, data_part, extradata, total_numbers, local_clusters, assignments, result)
+    return (a, b, c, final_labels, mn, sd, data_part, extradata, total_numbers, local_clusters, squarred_differences, assignments, result)
 
 
 if __name__ == '__main__':
@@ -307,7 +311,7 @@ if __name__ == '__main__':
 
     d4p.daalinit()
 
-    (a, b, c, final_labels, mn, sd, data_part, extradata, total_numbers, local_clusters, assignments, result) = do_kmeans()
+    (a, b, c, final_labels, mn, sd, data_part, extradata, total_numbers, local_clusters, squarred_differences, assignments, result) = do_kmeans()
 
     comm.Barrier()
 
@@ -339,7 +343,7 @@ if __name__ == '__main__':
 
         f.create_array(gcolumns, 'sd', sd, "Std of Samples")
 
-        f.create_array(gcolumns, 'weights', weights, "Wavelength weights")
+        # f.create_array(gcolumns, 'weights', weights, "Wavelength weights")
 
         f.close()
 
@@ -369,6 +373,7 @@ if __name__ == '__main__':
 
             total_numbers = np.add(total_numbers, data_dict['total_numbers'])
             local_clusters = np.add(local_clusters, data_dict['local_clusters'])
+            squarred_differences = np.add(squarred_differences, data_dict['squarred_differences'])
 
             k -= 1
 
@@ -383,9 +388,13 @@ if __name__ == '__main__':
         )
         rps = local_clusters / total_numbers[:, np.newaxis]
 
+        inertia = np.sqrt(squarred_differences) / total_numbers[:, np.newaxis]
+
         f = tb.open_file(outfilename, mode='a')
 
         f.create_array(f.root.columns, 'rps', rps, "Representative Profiles")
+
+        f.create_array(f.root.columns, 'inertia', inertia, "Inertia")
 
         f.close()
 
@@ -415,7 +424,7 @@ if __name__ == '__main__':
                 outfilename
             )
         )
-        comm.send({'total_numbers':total_numbers, 'local_clusters': local_clusters}, dest=0, tag=1)
+        comm.send({'total_numbers':total_numbers, 'local_clusters': local_clusters, 'squarred_differences': squarred_differences}, dest=0, tag=1)
         log(
             'Process {}: Send message with tag 1'.format(
                 d4p.my_procid()
