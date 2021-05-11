@@ -198,8 +198,11 @@ def do_kmeans(method='plusPlusDense'):
         ind = np.where(assignments == i)[0]
 
         local_clusters[i] = np.sum(whole_data[ind], 0)
-        squarred_differences[i] = np.square(
-            ((whole_data[ind] - mn[np.newaxis, :]) / sd[np.newaxis, :]) - result.centroids[i][np.newaxis, :]
+        squarred_differences[i] = np.sum(
+            np.square(
+                ((whole_data[ind] - mn) / sd) - result.centroids[i]
+            ),
+            0
         )
         total_numbers[i] = ind.size
 
