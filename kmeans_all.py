@@ -9,14 +9,25 @@ import tables as tb
 from mpi4py import MPI
 
 
-x = 0.0144503
-y = 0.017539
-z = 0.01520
-# weights = np.ones(30 + 20 + 14)
-# weights[np.array([0, 1, 2, 3, 25, 26, 27, 28, 29, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63])] = x
-# weights[np.array([4, 5, 6, 7, 8, 9, 20, 21, 22, 23, 24, 30, 31, 32, 33, 46, 47, 48, 49])] = y
-# weights[np.array([10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45])] = z
-outfilename = '/data/harsh/sub_fov_result_kmeans_whole_data_same_weights.h5'
+weights = np.array(
+    [
+        0.01163262, 0.01156011, 0.01134999, 0.0112064 , 0.01130734,
+        0.01225208, 0.0117292 , 0.01231974, 0.01335993, 0.01600201,
+        0.01743874, 0.02022419, 0.02158955, 0.02184081, 0.02165721,
+        0.02116544, 0.02008175, 0.01908124, 0.01721239, 0.01488855,
+        0.01319056, 0.01222358, 0.01169559, 0.01138442, 0.01133857,
+        0.01153457, 0.01175034, 0.01205306, 0.01241954, 0.01478657,
+        0.01760499, 0.0154747 , 0.01449769, 0.01396424, 0.01432799,
+        0.01721551, 0.01987806, 0.02105709, 0.02198457, 0.02294375,
+        0.02242386, 0.02127857, 0.02134655, 0.02094614, 0.0168878 ,
+        0.01406624, 0.01384265, 0.01496679, 0.0166017 , 0.01611505,
+        0.01246966, 0.01246273, 0.01268374, 0.01410584, 0.01827967,
+        0.01983389, 0.01919988, 0.01529413, 0.01419569, 0.01350287,
+        0.01268345, 0.01242869, 0.01251868, 0.01264109
+    ]
+)
+
+outfilename = '/data/harsh/sub_fov_result_kmeans_whole_data_inertia_weights.h5'
 
 def log(logString):
     current_time = time.strftime("%Y-%m-%d-%H:%M:%S")
@@ -96,7 +107,7 @@ def do_kmeans(method='plusPlusDense'):
         f.close()
 
         whole_data = (whole_data - mn) / sd
-        # whole_data *= weights
+        whole_data *= weights
 
         initial_centroids= np.zeros((100, 30 + 20 + 14))
 
@@ -105,7 +116,7 @@ def do_kmeans(method='plusPlusDense'):
 
             initial_centroids[i] = np.mean(whole_data[ind], 0)
 
-        # whole_data /= weights
+        whole_data /= weights
         whole_data = whole_data * sd + mn
 
         data_part = a.size // d4p.num_procs()
@@ -155,7 +166,7 @@ def do_kmeans(method='plusPlusDense'):
 
     whole_data = (whole_data - mn) / sd
 
-    # whole_data *= weights
+    whole_data *= weights
 
     log(
         'Process {}: Finished Loading data, proceeding for kmeans'.format(
@@ -188,7 +199,7 @@ def do_kmeans(method='plusPlusDense'):
         )
     )
 
-    # whole_data /= weights
+    whole_data /= weights
     whole_data = whole_data * sd + mn
 
     local_clusters = np.zeros((100, 30 + 20 + 14))
@@ -285,7 +296,7 @@ def do_kmeans(method='plusPlusDense'):
     whole_data[:, 30 + 20:30 + 20 + 14] = data[a, 0, :, b, c]
 
     whole_data = (whole_data - mn) / sd
-    # whole_data *= weights
+    whole_data *= weights
 
     log(
         'Process {}: Loaded Partitioned data from whole full data'.format(
@@ -346,7 +357,7 @@ if __name__ == '__main__':
 
         f.create_array(gcolumns, 'sd', sd, "Std of Samples")
 
-        # f.create_array(gcolumns, 'weights', weights, "Wavelength weights")
+        f.create_array(gcolumns, 'weights', weights, "Wavelength weights")
 
         f.close()
 
