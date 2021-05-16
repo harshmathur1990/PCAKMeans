@@ -1,4 +1,5 @@
 import sys
+import time
 from pathlib import Path
 import sunpy.io
 import h5py
@@ -77,6 +78,16 @@ x = [662, 712]
 y = [708, 758]
 
 atmos_indices0, atmos_indices1, atmos_indices2 = None, None, None
+
+
+def log(logString):
+    current_time = time.strftime("%Y-%m-%d-%H:%M:%S")
+    sys.stdout.write(
+        '[{}] {}\n'.format(
+            current_time,
+            logString
+        )
+    )
 
 
 def get_fov_0_21():
@@ -954,80 +965,151 @@ def plot_fov_parameter_variation(
 
         contour_mask[sr, sc] = 1
 
-        im00.set_array(
-            np.mean(
-                all_profiles[j, :, :, wave_indices_list[0]],
-                axis=0
-            )
+        data00 = np.mean(
+            all_profiles[j, :, :, wave_indices_list[0]],
+            axis=0
         )
 
-        im10.set_array(
-            np.mean(
-                all_profiles[j, :, :, wave_indices_list[1]],
-                axis=0
-            )
+        data10 = np.mean(
+            all_profiles[j, :, :, wave_indices_list[1]],
+            axis=0
         )
 
-        im20.set_array(
-            np.mean(
-                all_profiles[j, :, :, wave_indices_list[2]],
-                axis=0
-            )
+        data20 = np.mean(
+            all_profiles[j, :, :, wave_indices_list[2]],
+            axis=0
         )
 
-        im01.set_array(
-            np.mean(
-                syn_profiles[j, :, :, wave_indices_list[0]],
-                0
-            )
-        )
-        im11.set_array(
-            np.mean(
-                syn_profiles[j, :, :, wave_indices_list[1]],
-                0
-            )
-        )
-        im21.set_array(
-            np.mean(
-                syn_profiles[j, :, :, wave_indices_list[2]],
-                0
-            )
+        data01 = np.mean(
+            syn_profiles[j, :, :, wave_indices_list[0]],
+            0
         )
 
-        im02.set_array(np.mean(all_temp[j, :, :, atmos_indices0], axis=0))
-        im12.set_array(np.mean(all_temp[j, :, :, atmos_indices1], axis=0))
-        im22.set_array(np.mean(all_temp[j, :, :, atmos_indices2], axis=0))
-
-        im03.set_array(
-            np.mean(
-                all_vlos[j, :, :, atmos_indices0], axis=0
-            )
-        )
-        im13.set_array(
-            np.mean(
-                all_vlos[j, :, :, atmos_indices1], axis=0
-            )
-        )
-        im23.set_array(
-            np.mean(
-                all_vlos[j, :, :, atmos_indices2], axis=0
-            )
+        data11 = np.mean(
+            syn_profiles[j, :, :, wave_indices_list[1]],
+            0
         )
 
-        im04.set_array(
-            np.mean(
-                all_vturb[j, :, :, atmos_indices0], axis=0
-            )
+        data21 = np.mean(
+            syn_profiles[j, :, :, wave_indices_list[2]],
+            0
         )
-        im14.set_array(
-            np.mean(
-                all_vturb[j, :, :, atmos_indices1], axis=0
-            )
+
+        data02 = np.mean(
+            all_temp[j, :, :, atmos_indices0],
+            axis=0
         )
-        im24.set_array(
-            np.mean(
-                all_vturb[j, :, :, atmos_indices2], axis=0
-            )
+
+        data12 = np.mean(
+            all_temp[j, :, :, atmos_indices1],
+            axis=0
+        )
+
+        data22 = np.mean(
+            all_temp[j, :, :, atmos_indices2],
+            axis=0
+        )
+
+        data03 = np.mean(
+            all_vlos[j, :, :, atmos_indices0], axis=0
+        )
+
+        data13 = np.mean(
+            all_vlos[j, :, :, atmos_indices1], axis=0
+        )
+
+        data23 = np.mean(
+            all_vlos[j, :, :, atmos_indices2], axis=0
+        )
+
+        data04 = np.mean(
+            all_vturb[j, :, :, atmos_indices0], axis=0
+        )
+
+        data14 = np.mean(
+            all_vturb[j, :, :, atmos_indices1], axis=0
+        )
+
+        data24 = np.mean(
+            all_vturb[j, :, :, atmos_indices2], axis=0
+        )
+
+        im00.set_array(data00)
+        im10.set_array(data10)
+        im20.set_array(data20)
+        im01.set_array(data01)
+        im11.set_array(data11)
+        im21.set_array(data21)
+        im02.set_array(data02)
+        im12.set_array(data12)
+        im22.set_array(data22)
+        im03.set_array(data03)
+        im13.set_array(data13)
+        im23.set_array(data23)
+        im04.set_array(data04)
+        im14.set_array(data14)
+        im24.set_array(data24)
+
+
+        im00.set_clim(
+            data00.min(),
+            data00.max()
+        )
+        im00.set_clim(
+            data10.min(),
+            data10.max()
+        )
+        im00.set_clim(
+            data20.min(),
+            data20.max()
+        )
+        im00.set_clim(
+            data01.min(),
+            data01.max()
+        )
+        im00.set_clim(
+            data11.min(),
+            data11.max()
+        )
+        im00.set_clim(
+            data21.min(),
+            data21.max()
+        )
+        im00.set_clim(
+            data02.min(),
+            data02.max()
+        )
+        im00.set_clim(
+            data12.min(),
+            data12.max()
+        )
+        im00.set_clim(
+            data22.min(),
+            data22.max()
+        )
+        im00.set_clim(
+            data03.min(),
+            data03.max()
+        )
+        im00.set_clim(
+            data13.min(),
+            data13.max()
+        )
+        im00.set_clim(
+            data23.min(),
+            data23.max()
+        )
+        im00.set_clim(
+            data04.min(),
+            data04.max()
+        )
+        im00.set_clim(
+            data14.min(),
+            data14.max()
+        )
+        im00.set_clim(
+            data24.min(),
+            data24.max()
         )
 
         for coll in cs00.collections:
@@ -1077,21 +1159,22 @@ def plot_fov_parameter_variation(
         cs23 = axs[1][4].contour(X, Y, contour_mask, levels=1, cmap='gray')
         cs24 = axs[2][4].contour(X, Y, contour_mask, levels=1, cmap='gray')
 
-        cbar00.remove()
-        cbar10.remove()
-        cbar20.remove()
-        cbar01.remove()
-        cbar11.remove()
-        cbar21.remove()
-        cbar02.remove()
-        cbar12.remove()
-        cbar22.remove()
-        cbar03.remove()
-        cbar13.remove()
-        cbar23.remove()
-        cbar04.remove()
-        cbar14.remove()
-        cbar24.remove()
+
+        cbar00.ax.cla()
+        cbar10.ax.cla()
+        cbar20.ax.cla()
+        cbar01.ax.cla()
+        cbar11.ax.cla()
+        cbar21.ax.cla()
+        cbar02.ax.cla()
+        cbar12.ax.cla()
+        cbar22.ax.cla()
+        cbar03.ax.cla()
+        cbar13.ax.cla()
+        cbar23.ax.cla()
+        cbar04.ax.cla()
+        cbar14.ax.cla()
+        cbar24.ax.cla()
 
         cbar00 = fig.colorbar(im00, ax=axs[0][0])
         cbar10 = fig.colorbar(im10, ax=axs[1][0])
@@ -1125,12 +1208,17 @@ def plot_fov_parameter_variation(
         cbar14.ax.tick_params(labelsize=10)
         cbar24.ax.tick_params(labelsize=10)
 
-
         cur_date = parser.parse(time_info[0][0][j, 0, 0, 0, 0])
 
         time_diff = np.round((cur_date - start_date).total_seconds(), 2)
 
         text.set_text('t={}s'.format(time_diff))
+
+        log(
+            'Finished Frame {}'.format(
+                j
+            )
+        )
 
         return [im00, im10, im20, im01, im11, im21, im02, im12, im22, im03, im13, im23, im04, im14, im24]
 
