@@ -10,7 +10,7 @@ base_path = Path('/home/harsh/OsloAnalysis')
 
 new_kmeans = base_path / 'new_kmeans'
 
-write_path = base_path / 'new_kmeans/inversions/plots_v1_fifth_fov'
+write_path = base_path / 'new_kmeans/inversions/plots_v1_fifth_fov/new_21_42'
 
 data, header = sunpy.io.fits.read(base_path / 'nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits', memmap=True)[0]
 
@@ -26,13 +26,13 @@ for ii in cw:
 # x = [662, 712]
 # y = [708, 758]
 
-## fov2
-frames = [77, 100]
+# fov2
+frames = [21, 42]
 x = [770, 820]
 y = [338, 388]
 
-## fov3
-# frames = [0, 21]
+# ## fov3
+# frames = [21, 42]
 # x = [520, 570]
 # y = [715, 765]
 
@@ -57,7 +57,7 @@ y = [338, 388]
 # y = [715, 765]
 
 
-cw = np.asarray([4000.])
+cw = np.asarray([4000., 8542., 6302.])
 cont = []
 
 for ii in cw: cont.append(getCont(ii))
@@ -314,6 +314,12 @@ for profile_type, name in zip([quiet_profiles, shock_spicule_profiles, retry_sho
     m.vlos[0, 0] = get_vlos(labels)
 
     m.vturb[0, 0] = get_vturb(labels)
+
+    # m.Bln[0,0,0,:] = 100.
+
+    # m.Bho[0,0,0,:] = 100.
+
+    # m.azi[0,0,0,:] = 100. * 3.14159 / 180.
 
     write_filename = write_path / '{}_initial_atmos_frame_{}_{}_x_{}_{}_y_{}_{}.nc'.format(name, frames[0], frames[1], x[0], x[1], y[0], y[1])
 
