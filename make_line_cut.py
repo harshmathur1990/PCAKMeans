@@ -91,6 +91,9 @@ cf10 = None
 cf11 = None
 cf12 = None
 
+x = [662, 712]
+
+y = [708, 758]
 
 def log(logString):
     current_time = time.strftime("%Y-%m-%d-%H:%M:%S")
