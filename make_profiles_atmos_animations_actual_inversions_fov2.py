@@ -789,81 +789,152 @@ def plot_fov_parameter_variation(
 
         contour_mask[sr, sc] = 1
 
-        im00.set_array(
-            np.mean(
-                all_profiles[j, :, :, wave_indices_list[0]],
-                axis=0
-            )
+        data00 = np.mean(
+            all_profiles[j, :, :, wave_indices_list[0]],
+            axis=0
         )
 
-        im10.set_array(
-            np.mean(
-                all_profiles[j, :, :, wave_indices_list[1]],
-                axis=0
-            )
+        data10 = np.mean(
+            all_profiles[j, :, :, wave_indices_list[1]],
+            axis=0
         )
 
-        im20.set_array(
-            np.mean(
-                all_profiles[j, :, :, wave_indices_list[2]],
-                axis=0
-            )
+        data20 = np.mean(
+            all_profiles[j, :, :, wave_indices_list[2]],
+            axis=0
         )
 
-        im01.set_array(
-            np.mean(
-                syn_profiles[j, :, :, wave_indices_list[0]],
-                0
-            )
-        )
-        im11.set_array(
-            np.mean(
-                syn_profiles[j, :, :, wave_indices_list[1]],
-                0
-            )
-        )
-        im21.set_array(
-            np.mean(
-                syn_profiles[j, :, :, wave_indices_list[2]],
-                0
-            )
+        data01 = np.mean(
+            syn_profiles[j, :, :, wave_indices_list[0]],
+            0
         )
 
-        im02.set_array(np.mean(all_temp[j, :, :, atmos_indices0], axis=0))
-        im12.set_array(np.mean(all_temp[j, :, :, atmos_indices1], axis=0))
-        im22.set_array(np.mean(all_temp[j, :, :, atmos_indices2], axis=0))
-
-        im03.set_array(
-            np.mean(
-                all_vlos[j, :, :, atmos_indices0], axis=0
-            )
-        )
-        im13.set_array(
-            np.mean(
-                all_vlos[j, :, :, atmos_indices1], axis=0
-            )
-        )
-        im23.set_array(
-            np.mean(
-                all_vlos[j, :, :, atmos_indices2], axis=0
-            )
+        data11 = np.mean(
+            syn_profiles[j, :, :, wave_indices_list[1]],
+            0
         )
 
-        im04.set_array(
-            np.mean(
-                all_vturb[j, :, :, atmos_indices0], axis=0
-            )
+        data21 = np.mean(
+            syn_profiles[j, :, :, wave_indices_list[2]],
+            0
         )
-        im14.set_array(
-            np.mean(
-                all_vturb[j, :, :, atmos_indices1], axis=0
-            )
+
+        data02 = np.mean(
+            all_temp[j, :, :, atmos_indices0],
+            axis=0
         )
-        im24.set_array(
-            np.mean(
-                all_vturb[j, :, :, atmos_indices2], axis=0
-            )
+
+        data12 = np.mean(
+            all_temp[j, :, :, atmos_indices1],
+            axis=0
         )
+
+        data22 = np.mean(
+            all_temp[j, :, :, atmos_indices2],
+            axis=0
+        )
+
+        data03 = np.mean(
+            all_vlos[j, :, :, atmos_indices0], axis=0
+        )
+
+        data13 = np.mean(
+            all_vlos[j, :, :, atmos_indices1], axis=0
+        )
+
+        data23 = np.mean(
+            all_vlos[j, :, :, atmos_indices2], axis=0
+        )
+
+        data04 = np.mean(
+            all_vturb[j, :, :, atmos_indices0], axis=0
+        )
+
+        data14 = np.mean(
+            all_vturb[j, :, :, atmos_indices1], axis=0
+        )
+
+        data24 = np.mean(
+            all_vturb[j, :, :, atmos_indices2], axis=0
+        )
+
+        im00.set_array(data00)
+        im10.set_array(data10)
+        im20.set_array(data20)
+        im01.set_array(data01)
+        im11.set_array(data11)
+        im21.set_array(data21)
+        im02.set_array(data02)
+        im12.set_array(data12)
+        im22.set_array(data22)
+        im03.set_array(data03)
+        im13.set_array(data13)
+        im23.set_array(data23)
+        im04.set_array(data04)
+        im14.set_array(data14)
+        im24.set_array(data24)
+
+
+        im00.set_clim(
+            data00.min(),
+            data00.max()
+        )
+        im10.set_clim(
+            data10.min(),
+            data10.max()
+        )
+        im20.set_clim(
+            data20.min(),
+            data20.max()
+        )
+        im01.set_clim(
+            data01.min(),
+            data01.max()
+        )
+        im11.set_clim(
+            data11.min(),
+            data11.max()
+        )
+        im21.set_clim(
+            data21.min(),
+            data21.max()
+        )
+        im02.set_clim(
+            data02.min(),
+            data02.max()
+        )
+        im12.set_clim(
+            data12.min(),
+            data12.max()
+        )
+        im22.set_clim(
+            data22.min(),
+            data22.max()
+        )
+        # im03.set_clim(
+        #     data03.min(),
+        #     data03.max()
+        # )
+        # im13.set_clim(
+        #     data13.min(),
+        #     data13.max()
+        # )
+        # im23.set_clim(
+        #     data23.min(),
+        #     data23.max()
+        # )
+        # im04.set_clim(
+        #     data04.min(),
+        #     data04.max()
+        # )
+        # im14.set_clim(
+        #     data14.min(),
+        #     data14.max()
+        # )
+        # im24.set_clim(
+        #     data24.min(),
+        #     data24.max()
+        # )
 
         for coll in cs00.collections:
             coll.remove()
