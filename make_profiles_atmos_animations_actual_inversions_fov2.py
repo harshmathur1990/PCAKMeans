@@ -1,4 +1,5 @@
 import sys
+import time
 from pathlib import Path
 import sunpy.io
 import h5py
@@ -66,6 +67,16 @@ atmos_indices0, atmos_indices1, atmos_indices2 = None, None, None
 
 x = [770, 820]
 y = [338, 388]
+
+
+def log(logString):
+    current_time = time.strftime("%Y-%m-%d-%H:%M:%S")
+    sys.stdout.write(
+        '[{}] {}\n'.format(
+            current_time,
+            logString
+        )
+    )
 
 
 def get_atmos_params(
@@ -988,6 +999,12 @@ def plot_fov_parameter_variation(
         time_diff = np.round((cur_date - start_date).total_seconds(), 2)
 
         text.set_text('t={}s'.format(time_diff))
+
+        log(
+            'Finished Frame {}'.format(
+                j
+            )
+        )
 
         return [im00, im10, im20, im01, im11, im21, im02, im12, im22, im03, im13, im23, im04, im14, im24]
 
