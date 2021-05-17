@@ -1087,30 +1087,30 @@ def plot_fov_parameter_variation(
             data22.min(),
             data22.max()
         )
-        im03.set_clim(
-            data03.min(),
-            data03.max()
-        )
-        im13.set_clim(
-            data13.min(),
-            data13.max()
-        )
-        im23.set_clim(
-            data23.min(),
-            data23.max()
-        )
-        im04.set_clim(
-            data04.min(),
-            data04.max()
-        )
-        im14.set_clim(
-            data14.min(),
-            data14.max()
-        )
-        im24.set_clim(
-            data24.min(),
-            data24.max()
-        )
+        # im03.set_clim(
+        #     data03.min(),
+        #     data03.max()
+        # )
+        # im13.set_clim(
+        #     data13.min(),
+        #     data13.max()
+        # )
+        # im23.set_clim(
+        #     data23.min(),
+        #     data23.max()
+        # )
+        # im04.set_clim(
+        #     data04.min(),
+        #     data04.max()
+        # )
+        # im14.set_clim(
+        #     data14.min(),
+        #     data14.max()
+        # )
+        # im24.set_clim(
+        #     data24.min(),
+        #     data24.max()
+        # )
 
         for coll in cs00.collections:
             coll.remove()
