@@ -1055,59 +1055,59 @@ def plot_fov_parameter_variation(
             data00.min(),
             data00.max()
         )
-        im00.set_clim(
+        im10.set_clim(
             data10.min(),
             data10.max()
         )
-        im00.set_clim(
+        im20.set_clim(
             data20.min(),
             data20.max()
         )
-        im00.set_clim(
+        im01.set_clim(
             data01.min(),
             data01.max()
         )
-        im00.set_clim(
+        im11.set_clim(
             data11.min(),
             data11.max()
         )
-        im00.set_clim(
+        im21.set_clim(
             data21.min(),
             data21.max()
         )
-        im00.set_clim(
+        im02.set_clim(
             data02.min(),
             data02.max()
         )
-        im00.set_clim(
+        im12.set_clim(
             data12.min(),
             data12.max()
         )
-        im00.set_clim(
+        im22.set_clim(
             data22.min(),
             data22.max()
         )
-        im00.set_clim(
+        im03.set_clim(
             data03.min(),
             data03.max()
         )
-        im00.set_clim(
+        im13.set_clim(
             data13.min(),
             data13.max()
         )
-        im00.set_clim(
+        im23.set_clim(
             data23.min(),
             data23.max()
         )
-        im00.set_clim(
+        im04.set_clim(
             data04.min(),
             data04.max()
         )
-        im00.set_clim(
+        im14.set_clim(
             data14.min(),
             data14.max()
         )
-        im00.set_clim(
+        im24.set_clim(
             data24.min(),
             data24.max()
         )
@@ -1159,54 +1159,6 @@ def plot_fov_parameter_variation(
         cs23 = axs[1][4].contour(X, Y, contour_mask, levels=1, cmap='gray')
         cs24 = axs[2][4].contour(X, Y, contour_mask, levels=1, cmap='gray')
 
-
-        cbar00.ax.cla()
-        cbar10.ax.cla()
-        cbar20.ax.cla()
-        cbar01.ax.cla()
-        cbar11.ax.cla()
-        cbar21.ax.cla()
-        cbar02.ax.cla()
-        cbar12.ax.cla()
-        cbar22.ax.cla()
-        cbar03.ax.cla()
-        cbar13.ax.cla()
-        cbar23.ax.cla()
-        cbar04.ax.cla()
-        cbar14.ax.cla()
-        cbar24.ax.cla()
-
-        cbar00 = fig.colorbar(im00, ax=axs[0][0])
-        cbar10 = fig.colorbar(im10, ax=axs[1][0])
-        cbar20 = fig.colorbar(im20, ax=axs[2][0])
-        cbar01 = fig.colorbar(im01, ax=axs[0][1])
-        cbar11 = fig.colorbar(im11, ax=axs[1][1])
-        cbar21 = fig.colorbar(im21, ax=axs[2][1])
-        cbar02 = fig.colorbar(im02, ax=axs[0][2])
-        cbar12 = fig.colorbar(im12, ax=axs[1][2])
-        cbar22 = fig.colorbar(im22, ax=axs[2][2])
-        cbar03 = fig.colorbar(im03, ax=axs[0][3])
-        cbar13 = fig.colorbar(im13, ax=axs[1][3])
-        cbar23 = fig.colorbar(im23, ax=axs[2][3])
-        cbar04 = fig.colorbar(im04, ax=axs[0][4])
-        cbar14 = fig.colorbar(im14, ax=axs[1][4])
-        cbar24 = fig.colorbar(im24, ax=axs[2][4])
-
-        cbar00.ax.tick_params(labelsize=10)
-        cbar10.ax.tick_params(labelsize=10)
-        cbar20.ax.tick_params(labelsize=10)
-        cbar01.ax.tick_params(labelsize=10)
-        cbar11.ax.tick_params(labelsize=10)
-        cbar21.ax.tick_params(labelsize=10)
-        cbar02.ax.tick_params(labelsize=10)
-        cbar12.ax.tick_params(labelsize=10)
-        cbar22.ax.tick_params(labelsize=10)
-        cbar03.ax.tick_params(labelsize=10)
-        cbar13.ax.tick_params(labelsize=10)
-        cbar23.ax.tick_params(labelsize=10)
-        cbar04.ax.tick_params(labelsize=10)
-        cbar14.ax.tick_params(labelsize=10)
-        cbar24.ax.tick_params(labelsize=10)
 
         cur_date = parser.parse(time_info[0][0][j, 0, 0, 0, 0])
 
