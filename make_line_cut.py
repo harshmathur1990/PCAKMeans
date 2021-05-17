@@ -812,7 +812,7 @@ def plot_fov_parameter_variation(
     ani = animation.FuncAnimation(
         fig,
         updatefig,
-        frames=range(21),
+        frames=range(100),
         interval=rate,
         blit=True
     )
