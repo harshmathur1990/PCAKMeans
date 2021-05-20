@@ -332,3 +332,8 @@ def make_files():
                 )
             )
         )
+
+
+if __name__ == '__main__':
+    make_files()
+
