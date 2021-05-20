@@ -294,8 +294,8 @@ def make_files():
         rps[i] = np.mean(whole_data[ind], 0)
 
     wck, ick = findgrid(wave_3933[:-1], (wave_3933[1] - wave_3933[0]), extra=8)
-    wfe, ife = findgrid(wave_6173, (wave_6173[1] - wave_6173[0])*0.25, extra=8)
-    wc8, ic8 = findgrid(wave_8542, (wave_8542[1] - wave_8542[0])*0.5, extra=8)
+    wfe, ife = findgrid(wave_6173, (wave_6173[10] - wave_6173[9])*0.25, extra=8)
+    wc8, ic8 = findgrid(wave_8542, (wave_8542[10] - wave_8542[9])*0.5, extra=8)
 
     get_temp, get_vlos, get_vturb = get_old_rps_result_atmos()
 
