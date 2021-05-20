@@ -1,0 +1,70 @@
+def plot(fft_param, fft_param2, x, y, lt_indice=87, lt=-4.8):
+
+    plt.close('all')
+    plt.clf()
+    plt.cla()
+    size = plt.rcParams['lines.markersize']
+    fig, axs = plt.subplots(3, 2, figsize=(19.2, 10.8))
+    velocitypower = np.abs(fft_param[lt_indice, x, y, ind])
+    axs[0][0].errorbar(freq[ind] * 1e3, velocitypower, yerr=velocitypower.std(), label='ltau={}'.format(lt))
+    axs[0][0].scatter(freq[ind] * 1e3, velocitypower)
+
+    vvphase = np.angle(fft_param[lt_indice, x, y, ind]) - np.angle(fft_param[140, x, y, ind])
+    axs[0][1].errorbar(freq[ind] * 1e3, vvphase, yerr=vvphase.std(), label='ltau={}'.format(lt))
+    axs[0][1].scatter(freq[ind] * 1e3, vvphase)
+
+    vtphase = np.angle(fft_param[lt_indice, x, y, ind]) - np.angle(fft_param2[lt_indice, x, y, ind])
+    axs[1][0].errorbar(freq[ind] * 1e3, vtphase, yerr=vtphase.std(), label='ltau={}'.format(lt))
+    axs[1][0].scatter(freq[ind] * 1e3, vtphase)
+
+    phasestrata6 = np.angle(fft_param[:, x, y, 5]) - np.angle(fft_param[140, x, y, 5])
+    phasestrata7 = np.angle(fft_param[:, x, y, 6]) - np.angle(fft_param[140, x, y, 6])
+    phasestrata10 = np.angle(fft_param[:, x, y, 9]) - np.angle(fft_param[140, x, y, 9])
+    phasestrata12 = np.angle(fft_param[:, x, y, 10]) - np.angle(fft_param[140, x, y, 10])
+    phasestrata15 = np.angle(fft_param[:, x, y, 13]) - np.angle(fft_param[140, x, y, 13])
+    phasestrata18 = np.angle(fft_param[:, x, y, 15]) - np.angle(fft_param[140, x, y, 15])
+
+    axs[1][1].errorbar(ltau, phasestrata6, yerr=phasestrata6.std(), label='f=6.05 mHz')
+    axs[1][1].errorbar(ltau, phasestrata7, yerr=phasestrata7.std(), label='f=7.26 mHz')
+    axs[1][1].errorbar(ltau, phasestrata10, yerr=phasestrata10.std(), label='f=10.89 mHz')
+    axs[1][1].errorbar(ltau, phasestrata12, yerr=phasestrata12.std(), label='f=12.1 mHz')
+    axs[1][1].errorbar(ltau, phasestrata15, yerr=phasestrata15.std(), label='f=15.7 mHz')
+    axs[1][1].errorbar(ltau, phasestrata18, yerr=phasestrata18.std(), label='f=18.1 mHz')
+
+    temppower = np.abs(fft_param2[lt_indice, x, y, ind])
+    axs[2][0].errorbar(freq[ind] * 1e3, temppower, yerr=temppower.std(), label='ltau={}'.format(lt))
+    axs[2][0].scatter(freq[ind] * 1e3, temppower)
+
+    tempphasestrata6 = np.angle(fft_param2[:, x, y, 5]) - np.angle(fft_param2[140, x, y, 5])
+    tempphasestrata7 = np.angle(fft_param2[:, x, y, 6]) - np.angle(fft_param2[140, x, y, 6])
+    tempphasestrata10 = np.angle(fft_param2[:, x, y, 9]) - np.angle(fft_param2[140, x, y, 9])
+    tempphasestrata15 = np.angle(fft_param2[:, x, y, 13]) - np.angle(fft_param2[140, x, y, 13])
+    tempphasestrata18 = np.angle(fft_param2[:, x, y, 15]) - np.angle(fft_param2[140, x, y, 15])
+
+    axs[2][1].errorbar(ltau, tempphasestrata6, yerr=tempphasestrata6.std(), label='f=6.05 mHz')
+    axs[2][1].errorbar(ltau, tempphasestrata7, yerr=tempphasestrata7.std(), label='f=7.26 mHz')
+    axs[2][1].errorbar(ltau, tempphasestrata10, yerr=tempphasestrata10.std(), label='f=10.89 mHz')
+    axs[2][1].errorbar(ltau, tempphasestrata15, yerr=tempphasestrata15.std(), label='f=15.7 mHz')
+    axs[2][1].errorbar(ltau, tempphasestrata18, yerr=tempphasestrata18.std(), label='f=18.1 mHz')
+
+    axs[0][0].legend(loc="upper right")
+    axs[0][1].legend(loc="upper right")
+    axs[1][0].legend(loc="upper right")
+    axs[1][1].legend(loc="upper right")
+    axs[2][0].legend(loc="upper right")
+    axs[2][1].legend(loc="upper right")
+
+    axs[0][0].set_xlabel('Freq (mHz)')
+    axs[0][1].set_xlabel('Freq (mHz)')
+    axs[1][0].set_xlabel('Freq (mHz)')
+    axs[1][1].set_xlabel('ltau500')
+    axs[2][0].set_xlabel('Freq (mHz)')
+    axs[2][1].set_xlabel('ltau500')
+
+    axs[0][0].set_ylabel('Power Spectra (Velocity)')
+    axs[0][1].set_ylabel('Phase Spectra (Velocity)')
+    axs[1][0].set_ylabel('Phase Spectra (Velocity - Temperature)')
+    axs[1][1].set_ylabel('Phase Stratification (Velocity)')
+    axs[2][0].set_ylabel('Power Spectra (Temperature)')
+    axs[2][1].set_ylabel('Phase Stratification (Temperature)')
+    fig.show()
