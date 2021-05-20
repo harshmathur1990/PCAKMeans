@@ -228,7 +228,7 @@ def get_data():
         axes=(2, 3, 4, 1, 0)
     )
 
-    whole_data[:, 30 + 14:30 + 14 + 20, :] = np.transpose(data[selected_frames][n, 0, :, o, p], axes=(0, 2, 1))
+    whole_data[:, 30 + 14:30 + 14 + 20, :] = np.transpose(data[selected_frames][n, :, :, o, p], axes=(0, 2, 1))
 
     return whole_data, n, o, p
 
