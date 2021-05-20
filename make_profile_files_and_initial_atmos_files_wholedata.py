@@ -285,11 +285,10 @@ def make_files():
         ca_8.weights[ic8,:] = 0.004
         ca_8.weights[ic8,1:3] /= 7.0 # Some more weight for Q&U
         ca_8.weights[ic8,3] /= 4.0    # Some more weight for V
-        ca_8.weights[ic8[9:12],0] /= 2.0
+        ca_8.weights[ic8[8:12],0] /= 2.0
         
         ca_k.weights[:,:] = 1.e16 # Very high value means weight zero
         ca_k.weights[ick,0] = 0.002
-        ca_8.weights[ick[19:22],0] /= 2.0
         ca_k.weights[-1,0] = 0.004 # Continuum point
 
         sp_all = ca_k + ca_8 + fe_1
