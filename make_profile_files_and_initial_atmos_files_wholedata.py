@@ -133,7 +133,7 @@ pgas = np.array(
     ]
 )
 
-cw = np.asarray([4000., 6302., 8542.])
+cw = np.asarray([4000., 6173., 8542.])
 cont = []
 for ii in cw:
     cont.append(getCont(ii))
@@ -299,6 +299,8 @@ def make_files():
 
     get_temp, get_vlos, get_vturb = get_old_rps_result_atmos()
 
+    flag = 0
+
     for profiles, name in zip([new_quiet_profiles, new_shock_profiles, new_reverse_shock_profiles, new_other_emission_profiles], names):
         fe_1 = sp.profile(nx=profiles.size, ny=1, ns=4, nw=wfe.size)
         ca_8 = sp.profile(nx=profiles.size, ny=1, ns=4, nw=wc8.size)
@@ -353,6 +355,46 @@ def make_files():
             )
         )
 
+        if flag == 0:
+            lab = "region = {0:10.5f}, {1:8.5f}, {2:3d}, {3:e}, {4}"
+            print(" ")
+            print("Regions information for the input file:" )
+            print(lab.format(ca_k.wav[0], ca_k.wav[1]-ca_k.wav[0], ca_k.wav.size-1, cont[0], 'fpi, 3934.nc'))
+            print(lab.format(ca_k.wav[-1], ca_k.wav[1]-ca_k.wav[0], 1, cont[0], 'none, none'))
+            print(lab.format(ca_8.wav[0], ca_8.wav[1]-ca_8.wav[0], ca_8.wav.size, cont[2], 'fpi, 8542.nc'))
+            print(lab.format(wfe[0], wfe[1]-wfe[0], wfe.size, cont[1], 'fpi, 6173.nc'))
+            print("(w0, dw, nw, normalization, degradation_type, instrumental_profile file)")
+            print(" ")
+
+            dw =  ca_k.wav[1]-ca_k.wav[0]
+            ntw= 25 # Always an odd number < ca_k.wav.size
+            tw1 = (np.arange(ntw)-ntw//2)*dw + 3934.0
+            tr1 = cr.dual_fpi(tw1)
+            tr1 /= tr1.sum()
+            # Stores the FPI profile and the parameters of the prefilter
+            writeInstProf('3934.nc', tr1, [ca_k.wav[ick[29//2]], 4.5, 3.0])
+
+            # Ca II 8542
+            dw =  ca_8.wav[1]-ca_8.wav[0]
+            ntw= 25
+            f=fpi.crisp(8542.0)
+            tw = (np.arange(ntw)-ntw//2)*dw
+            tr = f.dual_fpi(tw, erh = -0.025)
+            tr /= tr.sum()
+            writeInstProf('8542.nc', tr,  [8542.091, 9.0, 2.0])
+
+            # 6301/6302, we will use the same profile, so it should not have more points than any
+            # of the 2 regions
+            dw =  fe_1.wav[1]-fe_1.wav[0]
+            ntw = 45
+            f = fpi.crisp(6173)
+            tw = (np.arange(ntw)-ntw//2)*dw
+            tr = f.dual_fpi(tw, erh=-0.015)
+            tr /= tr.sum()
+            writeInstProf('6173.nc', tr,  [6173.334, 4.4, 2.0])
+
+            flag = 1
+
         m = sp.model(nx=profiles.size, ny=1, nt=1, ndep=150)
 
         m.ltau[:, :, :] = ltau
@@ -365,11 +407,11 @@ def make_files():
 
         m.vturb[0, 0] = get_vturb(profiles)
 
-        # m.Bln[0,0,0,:] = 100.
+        m.Bln[0,0,0,:] = 100.
 
-        # m.Bho[0,0,0,:] = 100.
+        m.Bho[0,0,0,:] = 100.
 
-        # m.azi[0,0,0,:] = 100. * 3.14159 / 180.
+        m.azi[0,0,0,:] = 100. * 3.14159 / 180.
 
         m.write(
             'wholedata_rps_initial_atmos_{}_{}.nc'.format(
