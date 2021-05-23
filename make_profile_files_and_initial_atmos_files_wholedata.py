@@ -407,11 +407,11 @@ def make_files():
 
         m.vturb[0, 0] = get_vturb(profiles)
 
-        m.Bln[0,0,0,:] = 100.
+        m.Bln[0,0] = 100.
 
-        m.Bho[0,0,0,:] = 100.
+        m.Bho[0,0] = 100.
 
-        m.azi[0,0,0,:] = 100. * 3.14159 / 180.
+        m.azi[0,0] = 100. * 3.14159 / 180.
 
         m.write(
             'wholedata_rps_initial_atmos_{}_{}.nc'.format(
