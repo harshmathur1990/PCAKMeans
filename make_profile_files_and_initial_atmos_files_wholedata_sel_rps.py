@@ -349,7 +349,7 @@ def make_files():
 
         fe_1.weights[:,:] = 1.e16
         fe_1.weights[ife, 0] = 0.002
-        fe_1.weights[ife[4:10, 0] = 0.004
+        fe_1.weights[ife[4:10], 0] = 0.004
 
         ca_8.weights[:,:] = 1.e16
         ca_8.weights[ic8,0] = 0.002
