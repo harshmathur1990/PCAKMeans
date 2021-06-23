@@ -317,7 +317,10 @@ def make_files():
 
     for profiles in sel_profiles:
 
-        profiles = np.array([profiles])
+        if isinstance(profiles, list):
+            profiles = np.array(profiles)
+        else:
+            profiles = np.array([profiles])
 
         fe_1 = sp.profile(nx=profiles.size, ny=1, ns=4, nw=wfe.size)
         ca_8 = sp.profile(nx=profiles.size, ny=1, ns=4, nw=wc8.size)
@@ -333,7 +336,7 @@ def make_files():
             axes=(1, 0, 2)
         )
 
-        fe1.dat[0, 0, :, ife, 0] *= correction_factor[1]
+        fe_1.dat[0, 0, :, ife, 0] *= correction_factor[1]
 
         ca_8.dat[0,0,:,ic8,:] = np.transpose(
             rps[profiles, 30 + 14:30 + 14 + 20, :] * 1e3 / cont[2],
