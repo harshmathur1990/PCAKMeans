@@ -317,6 +317,8 @@ def make_files():
 
     for profiles in sel_profiles:
 
+        profiles = np.array(profiles)
+
         fe_1 = sp.profile(nx=profiles.size, ny=1, ns=4, nw=wfe.size)
         ca_8 = sp.profile(nx=profiles.size, ny=1, ns=4, nw=wc8.size)
         ca_k = sp.profile(nx=profiles.size, ny=1, ns=4, nw=wck.size+1)
