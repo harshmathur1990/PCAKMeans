@@ -5,7 +5,7 @@ from pathlib import Path
 from helita.sim import rh15d
 from prepare_data import *
 from witt import *
-from scipy.integrate.quadrature import cumtrapz
+from scipy.integrate import cumtrapz
 
 nicole_file = '/Users/harshmathur/CourseworkRepo/NICOLE/run/falc.model'
 rh_file = '/Users/harshmathur/CourseworkRepo/rh/rh/Atmos/FALC_82_5x5.hdf5'

@@ -313,7 +313,7 @@ def make_files():
 
     flag = 0
 
-    sel_profiles = [78]
+    sel_profiles = [[78, 18]]
 
     for profiles in sel_profiles:
 
@@ -354,20 +354,19 @@ def make_files():
 
         fe_1.weights[:,:] = 1.e16
         fe_1.weights[ife, 0] = 0.002
-        fe_1.weights[ife[4:10], 0] = 0.004
 
         ca_8.weights[:,:] = 1.e16
-        ca_8.weights[ic8,0] = 0.002
-        ca_8.weights[ic8[4:16],0] = 0.008
+        ca_8.weights[ic8,0] = 0.004
         
         ca_k.weights[:,:] = 1.e16
         ca_k.weights[ick,0] = 0.001
+        ca_k.weights[ick[9:19],0] = 0.0005
         ca_k.weights[-1,0] = 0.001
 
         sp_all = ca_k + ca_8 + fe_1
         sp_all.write(
             'wholedata_rps_{}.nc'.format(
-                profiles
+                '_'.join(str(prof) for prof in list(profiles))
             )
         )
 
@@ -431,7 +430,8 @@ def make_files():
 
         m.write(
             'wholedata_rps_initial_atmos_{}.nc'.format(
-                profiles            )
+                '_'.join(str(prof) for prof in list(profiles))
+            )
         )
 
 
