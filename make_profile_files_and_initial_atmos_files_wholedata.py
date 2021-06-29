@@ -20,11 +20,12 @@ mask, _  = sunpy.io.fits.read(mask_file_crisp, memmap=True)[0]
 mask = np.transpose(mask, axes=(2, 1, 0))
 
 new_quiet_profiles = np.array([0, 11, 14, 15, 20, 21, 24, 28, 31, 34, 40, 42, 43, 47, 48, 51, 60, 62, 69, 70, 73, 74, 75, 86, 89, 90, 84, 8, 44, 63])
-new_shock_profiles = np.array([2, 4, 10, 19, 26, 30, 37, 52, 79, 85, 94, 1, 22, 23, 53, 55, 56, 66, 67, 72, 77, 80, 81, 92, 87, 99, 18, 36, 78, 6, 49, 17, 96, 98])
+new_shock_profiles = np.array([2, 4, 10, 19, 26, 30, 37, 52, 79, 85, 94, 1, 22, 23, 53, 55, 56, 66, 67, 72, 77, 80, 81, 92, 87, 99, 36, 6, 49, 17, 96, 98])
+shocks_78_18 = np.array([78, 18])
 new_reverse_shock_profiles = np.array([3, 13, 16, 25, 32, 33, 35, 41, 45, 46, 58, 61, 64, 68, 82, 95, 97])
 new_other_emission_profiles = np.array([5, 7, 9, 12, 27, 29, 38, 39, 50, 54, 57, 59, 65, 71, 76, 83, 88, 91, 93])
 
-names = ['quiet_profiles_rps', 'shock_profiles_rps', 'reverse_shock_profiles_rps', 'other_emission_profiles_rps']
+names = ['quiet_profiles_rps', 'shock_profiles_rps', 'shocks_78_18_profile_rps', 'reverse_shock_profiles_rps', 'other_emission_profiles_rps']
 wave_3933 = np.array(
     [
         3932.78952, 3932.85488, 3932.92024, 3932.9856 , 3933.05096,
@@ -137,6 +138,17 @@ cw = np.asarray([4000., 6173., 8542.])
 cont = []
 for ii in cw:
     cont.append(getCont(ii))
+
+
+b1 = 0.7168740850938748
+c1 = 0.8464003210886183
+b2 = 0.7762134127173193
+c2 = 1.0281220695362765
+
+correction_factor = [
+    b1 / b2,
+    c1 / c2
+]
 
 
 def get_old_rps_result_atmos():
@@ -301,7 +313,7 @@ def make_files():
 
     flag = 0
 
-    for profiles, name in zip([new_quiet_profiles, new_shock_profiles, new_reverse_shock_profiles, new_other_emission_profiles], names):
+    for profiles, name in zip([new_quiet_profiles, new_shock_profiles, shocks_78_18, new_reverse_shock_profiles, new_other_emission_profiles], names):
         fe_1 = sp.profile(nx=profiles.size, ny=1, ns=4, nw=wfe.size)
         ca_8 = sp.profile(nx=profiles.size, ny=1, ns=4, nw=wc8.size)
         ca_k = sp.profile(nx=profiles.size, ny=1, ns=4, nw=wck.size+1)
@@ -316,10 +328,14 @@ def make_files():
             axes=(1, 0, 2)
         )
 
+        fe_1.dat[0, 0, :, ife, 0] *= correction_factor[1]
+
         ca_8.dat[0,0,:,ic8,:] = np.transpose(
             rps[profiles, 30 + 14:30 + 14 + 20, :] * 1e3 / cont[2],
             axes=(1, 0, 2)
         )
+
+        ca_8.dat[0, 0, :, ic8, 0] *= correction_factor[0]
 
         ca_k.dat[0,0,:,ick,:] = np.transpose(
             rps[profiles, 0:29, :] / cont[0],
@@ -328,20 +344,16 @@ def make_files():
 
         ca_k.dat[0,0,:, -1,:] = rps[profiles, 29, :] / cont[0]
 
-        fe_1.weights[:,:] = 1.e16 # Very high value means weight zero
-        fe_1.weights[ife,:] = 0.005
-        fe_1.weights[ife,1:3] /= 4.5 # Some more weight for Q&U
-        fe_1.weights[ife,3] /= 3.5    # Some more weight for V
+        fe_1.weights[:,:] = 1.e16
+        fe_1.weights[ife, 0] = 0.002
 
-        ca_8.weights[:,:] = 1.e16 # Very high value means weight zero
-        ca_8.weights[ic8,:] = 0.004
-        ca_8.weights[ic8,1:3] /= 7.0 # Some more weight for Q&U
-        ca_8.weights[ic8,3] /= 4.0    # Some more weight for V
-        ca_8.weights[ic8[8:12],0] /= 2.0
+        ca_8.weights[:,:] = 1.e16
+        ca_8.weights[ic8, 0] = 0.004
         
-        ca_k.weights[:,:] = 1.e16 # Very high value means weight zero
-        ca_k.weights[ick,0] = 0.002
-        ca_k.weights[-1,0] = 0.004 # Continuum point
+        ca_k.weights[:,:] = 1.e16
+        ca_k.weights[ick,0] = 0.001
+        ca_k.weights[ick[9:19],0] = 0.0005
+        ca_k.weights[-1,0] = 0.001
 
         sp_all = ca_k + ca_8 + fe_1
         sp_all.write(
