@@ -1,0 +1,4 @@
+1. equal weight
+2. velocity nodes in -6 for shocks
+3. quiet vlos nodes 1/2
+4. email likhna hai
