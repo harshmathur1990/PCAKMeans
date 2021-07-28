@@ -64,13 +64,13 @@ label_file = Path(
 
 spectra_file_path = Path('/home/harsh/OsloAnalysis/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits')
 
-quiet_profiles = [0, 11, 14, 15, 20, 21, 24, 28, 31, 34, 40, 42, 43, 47, 48, 51, 60, 62, 69, 70, 73, 74, 75, 86, 89, 90, 8, 44, 63, 84]
+quiet_profiles = [0, 11, 14, 15, 20, 21, 24, 28, 31, 34, 40, 42, 43, 47, 48, 51, 60, 62, 69, 70, 73, 74, 75, 86, 89, 90, 84, 8, 44, 63]
 
-shock_proiles = [4, 10, 19, 26, 37, 52, 79, 85, 94, 1, 22, 23, 53, 55, 56, 66, 72, 77, 92, 99, 6, 49, 18, 36, 78]
+shock_proiles = [2, 4, 10, 19, 26, 30, 37, 52, 79, 85, 94, 1, 22, 23, 53, 55, 56, 66, 67, 72, 77, 80, 81, 92, 87, 99, 36, 6, 49, 17, 96, 98, 78, 18]
 
-reverse_shock_profiles = [3, 13, 16, 17, 25, 32, 33, 35, 41, 58, 61, 64, 68, 82, 95, 97]
+reverse_shock_profiles = [3, 13, 16, 25, 32, 33, 35, 41, 45, 46, 58, 61, 64, 68, 82, 95, 97]
 
-other_emission_profiles = [2, 5, 7, 9, 12, 27, 29, 30, 38, 39, 45, 46, 50, 54, 57, 59, 65, 67, 71, 76, 80, 81, 83, 87, 88, 91, 93, 96, 98]
+other_emission_profiles = [5, 7, 9, 12, 27, 29, 38, 39, 50, 54, 57, 59, 65, 71, 76, 83, 88, 91, 93]
 
 photosphere_indices = np.array([29])
 
@@ -95,6 +95,17 @@ x = [662, 712]
 
 y = [708, 758]
 
+m1 = -1
+s1 = 49
+
+m2 = 1
+s2 = 0
+
+hx = np.arange(50)
+
+hy1 = hx * m1 + s1
+hy2 = hx * m2 + s2
+
 def log(logString):
     current_time = time.strftime("%Y-%m-%d-%H:%M:%S")
     sys.stdout.write(
@@ -105,176 +116,33 @@ def log(logString):
     )
 
 
-def get_fov_0_21():
+def get_exact_filename(base_dir, starts_with, ends_with):
+    all_files = base_dir.glob('**/*')
 
-    global x, y
+    for file in all_files:
+        if file.name.startswith(starts_with) and file.name.endswith(ends_with):
+            return file
 
-    frames = [0, 21]
+    return None
 
-    input_profile_path = Path(
-        '/home/harsh/OsloAnalysis/new_kmeans/inversions/frame_0_21_x_662_712_y_708_758.nc'
-    )
-
-    output_atmos_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/plots_v1/frame_0_21_x_662_712_y_708_758_cycle_1_t_4_vl_7_vt_4_atmos.nc')
-
-    output_atmos_quiet_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/plots_quiet_v1/quiet_frame_0_21_x_662_712_y_708_758_cycle_1_t_5_vl_1_vt_4_atmos.nc')
-
-    output_atmos_reverse_shock_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/plots_reverse_shock_v1/reverse_shock_frame_0_21_x_662_712_y_708_758_cycle_1_t_5_vl_5_vt_4_atmos.nc')
-
-    output_atmos_other_emission_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/plots_other_emission_v1/other_emission_frame_0_21_x_662_712_y_708_758_cycle_1_t_5_vl_5_vt_4_atmos.nc')
-
-    output_atmos_failed_inversion_falc_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/plots_v1_failed_inversions_falc/failed_inversions_falc_frame_0_21_x_662_712_y_708_758_cycle_1_t_5_vl_1_vt_4_atmos.nc')
-
-    output_atmos_failed_inversion_falc_2_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/plots_v1_failed_inversions_falc_2/failed_inversions_falc_2_frame_0_21_x_662_712_y_708_758_cycle_1_t_4_vl_1_vt_4_atmos.nc')
-
-    output_profile_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/plots_v1/frame_0_21_x_662_712_y_708_758_cycle_1_t_4_vl_7_vt_4_profs.nc')
-
-    output_profile_quiet_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/plots_quiet_v1/quiet_frame_0_21_x_662_712_y_708_758_cycle_1_t_5_vl_1_vt_4_profs.nc')
-
-    output_profile_reverse_shock_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/plots_reverse_shock_v1/reverse_shock_frame_0_21_x_662_712_y_708_758_cycle_1_t_5_vl_5_vt_4_profs.nc')
-
-    output_profile_other_emission_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/plots_other_emission_v1/other_emission_frame_0_21_x_662_712_y_708_758_cycle_1_t_5_vl_5_vt_4_profs.nc')
-
-    output_profile_failed_inversion_falc_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/plots_v1_failed_inversions_falc/failed_inversions_falc_frame_0_21_x_662_712_y_708_758_cycle_1_t_5_vl_1_vt_4_profs.nc')
-
-    output_profile_failed_inversion_falc_2_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/plots_v1_failed_inversions_falc_2/failed_inversions_falc_2_frame_0_21_x_662_712_y_708_758_cycle_1_t_4_vl_1_vt_4_profs.nc')
-
-    reverse_shock_pixel_file = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/pixel_indices_reverse_shock.h5')
-
-    quiet_pixel_file = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/pixel_indices_new.h5')
-
-    other_emission_pixel_file = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/pixel_indices_other_emission.h5')
-
-    failed_inversions_pixel_file = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/pixel_indices_failed_inversions.h5')
-
-    failed_inversions_falc_2_pixel_file = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/pixel_indices_failed_inversions_falc_2.h5')
-
-    finputprofiles = h5py.File(input_profile_path, 'r')
-
-    ind = np.where(finputprofiles['profiles'][0, 0, 0, :, 0] != 0)[0]
-
-    fquiet = h5py.File(quiet_pixel_file, 'r')
-
-    a1, b1, c1 = fquiet['pixel_indices'][0:3]
-
-    freverse = h5py.File(reverse_shock_pixel_file, 'r')
-
-    d1, e1, g1 = freverse['pixel_indices'][0:3]
-
-    fother = h5py.File(other_emission_pixel_file, 'r')
-
-    h1, i1, j1 = fother['pixel_indices'][0:3]
-
-    ffailed = h5py.File(failed_inversions_pixel_file, 'r')
-
-    k1, l1, m1 = ffailed['pixel_indices'][0:3]
-
-    ffailed_falc_2 = h5py.File(failed_inversions_falc_2_pixel_file, 'r')
-
-    n1, o1, p1 = ffailed_falc_2['pixel_indices'][0:3]
-
-    calib_velocity = 333390.00079943583
-
-    fout = h5py.File(output_atmos_filepath, 'r')
-
-    fout_quiet = h5py.File(output_atmos_quiet_filepath, 'r')
-
-    fout_reverse = h5py.File(output_atmos_reverse_shock_filepath, 'r')
-
-    fout_other = h5py.File(output_atmos_other_emission_filepath, 'r')
-
-    fout_failed_falc = h5py.File(
-        output_atmos_failed_inversion_falc_filepath,
-        'r'
-    )
-
-    fout_failed_falc_2 = h5py.File(
-        output_atmos_failed_inversion_falc_2_filepath,
-        'r'
-    )
-
-    fout_profile = h5py.File(output_profile_filepath, 'r')
-
-    fout_quiet_profile = h5py.File(output_profile_quiet_filepath, 'r')
-
-    fout_reverse_profile = h5py.File(
-        output_profile_reverse_shock_filepath,
-        'r'
-    )
-
-    fout_other_profile = h5py.File(output_profile_other_emission_filepath, 'r')
-
-    fout_failed_falc_profile = h5py.File(
-        output_profile_failed_inversion_falc_filepath,
-        'r'
-    )
-
-    fout_failed_falc_2_profile = h5py.File(
-        output_profile_failed_inversion_falc_2_filepath,
-        'r'
-    )
-
-    all_profiles = finputprofiles['profiles'][:, :, :, ind, 0]
-
-    syn_profiles = fout_profile['profiles'][:, :, :, ind, 0]
-
-    syn_profiles[a1, b1, c1] = fout_quiet_profile['profiles'][0, 0, :, ind, 0]
-    syn_profiles[d1, e1, g1] = fout_reverse_profile['profiles'][0, 0, :, ind, 0]
-    syn_profiles[h1, i1, j1] = fout_other_profile['profiles'][0, 0, :, ind, 0]
-    syn_profiles[k1, l1, m1] = fout_failed_falc_profile['profiles'][0, 0, :, ind, 0]
-    syn_profiles[n1, o1, p1] = fout_failed_falc_2_profile['profiles'][0, 0, :, ind, 0]
-
-    all_temp = fout['temp'][()]
-
-    all_vlos = fout['vlos'][()]
-
-    all_vturb = fout['vturb'][()]
-
-    all_temp[a1, b1, c1] = fout_quiet['temp'][0, 0]
-    all_temp[d1, e1, g1] = fout_reverse['temp'][0, 0]
-    all_temp[h1, i1, j1] = fout_other['temp'][0, 0]
-    all_temp[k1, l1, m1] = fout_failed_falc['temp'][0, 0]
-    all_temp[n1, o1, p1] = fout_failed_falc_2['temp'][0, 0]
-
-    all_vlos[a1, b1, c1] = fout_quiet['vlos'][0, 0]
-    all_vlos[d1, e1, g1] = fout_reverse['vlos'][0, 0]
-    all_vlos[h1, i1, j1] = fout_other['vlos'][0, 0]
-    all_vlos[k1, l1, m1] = fout_failed_falc['vlos'][0, 0]
-    all_vlos[n1, o1, p1] = fout_failed_falc_2['vlos'][0, 0]
-
-    all_vturb[a1, b1, c1] = fout_quiet['vturb'][0, 0]
-    all_vturb[d1, e1, g1] = fout_reverse['vturb'][0, 0]
-    all_vturb[h1, i1, j1] = fout_other['vturb'][0, 0]
-    all_vturb[k1, l1, m1] = fout_failed_falc['vturb'][0, 0]
-    all_vturb[n1, o1, p1] = fout_failed_falc_2['vturb'][0, 0]
-
-    all_vlos = (all_vlos - calib_velocity) / 1e5
-
-    all_vturb = all_vturb / 1e5
-
-    return all_profiles, syn_profiles, all_temp, all_vlos, all_vturb
 
 def get_atmos_params(
     x, y, frames,
     input_profile_quiet,
     input_profile_shock,
     input_profile_reverse,
-    input_profile_retry,
     input_profile_other,
     output_atmos_quiet_filepath,
     output_atmos_shock_filepath,
     output_atmos_reverse_filepath,
-    output_atmos_retry_filepath,
     output_atmos_other_filepath,
     output_profile_quiet_filepath,
     output_profile_shock_filepath,
     output_profile_reverse_filepath,
-    output_profile_retry_filepath,
     output_profile_other_filepath,
     quiet_pixel_file,
     shock_pixel_file,
     reverse_pixel_file,
-    retry_pixel_file,
     other_pixel_file,
     input_profile_shock_78=None,
     output_atmos_shock_78_filepath=None,
@@ -291,8 +159,6 @@ def get_atmos_params(
 
     finputprofiles_reverse = h5py.File(input_profile_reverse, 'r')
 
-    finputprofiles_retry = h5py.File(input_profile_retry, 'r')
-
     finputprofiles_other = h5py.File(input_profile_other, 'r')
 
     fout_atmos_quiet = h5py.File(output_atmos_quiet_filepath, 'r')
@@ -303,11 +169,6 @@ def get_atmos_params(
         fout_atmos_shock_78 = h5py.File(output_atmos_shock_78_filepath, 'r')
 
     fout_atmos_reverse = h5py.File(output_atmos_reverse_filepath, 'r')
-
-    fout_atmos_retry = h5py.File(
-        output_atmos_retry_filepath,
-        'r'
-    )
 
     fout_atmos_other = h5py.File(
         output_atmos_other_filepath,
@@ -323,8 +184,6 @@ def get_atmos_params(
 
     fout_profile_reverse = h5py.File(output_profile_reverse_filepath, 'r')
 
-    fout_profile_retry = h5py.File(output_profile_retry_filepath, 'r')
-
     fout_profile_other = h5py.File(output_profile_other_filepath, 'r')
 
     fquiet = h5py.File(quiet_pixel_file, 'r')
@@ -335,8 +194,6 @@ def get_atmos_params(
         fshock_78 = h5py.File(shock_78_pixel_file, 'r')
 
     freverse = h5py.File(reverse_pixel_file, 'r')
-
-    fretry = h5py.File(retry_pixel_file, 'r')
 
     fother = h5py.File(other_pixel_file, 'r')
 
@@ -349,8 +206,6 @@ def get_atmos_params(
 
     a4, b4, c4 = freverse['pixel_indices'][0:3]
 
-    a5, b5, c5 = fretry['pixel_indices'][0:3]
-
     a6, b6, c6 = fother['pixel_indices'][0:3]
 
     calib_velocity = 333390.00079943583
@@ -360,7 +215,7 @@ def get_atmos_params(
             frames[1] - frames[0],
             x[1] - x[0],
             y[1] - y[0],
-            30
+            64
         )
     )
 
@@ -373,7 +228,6 @@ def get_atmos_params(
         all_profiles[a3, b3, c3] = finputprofiles_shock_78['profiles'][0, 0, :, ind, 0]
 
     all_profiles[a4, b4, c4] = finputprofiles_reverse['profiles'][0, 0, :, ind, 0]
-    all_profiles[a5, b5, c5] = finputprofiles_retry['profiles'][0, 0, :, ind, 0]
     all_profiles[a6, b6, c6] = finputprofiles_other['profiles'][0, 0, :, ind, 0]
 
     syn_profiles = np.zeros(
@@ -381,7 +235,7 @@ def get_atmos_params(
             frames[1] - frames[0],
             x[1] - x[0],
             y[1] - y[0],
-            30
+            64
         )
     )
 
@@ -392,7 +246,6 @@ def get_atmos_params(
         syn_profiles[a3, b3, c3] = fout_profile_shock_78['profiles'][0, 0, :, ind, 0]
 
     syn_profiles[a4, b4, c4] = fout_profile_reverse['profiles'][0, 0, :, ind, 0]
-    syn_profiles[a5, b5, c5] = fout_profile_retry['profiles'][0, 0, :, ind, 0]
     syn_profiles[a6, b6, c6] = fout_profile_other['profiles'][0, 0, :, ind, 0]
 
     all_temp = np.zeros(
@@ -429,7 +282,6 @@ def get_atmos_params(
         all_temp[a3, b3, c3] = fout_atmos_shock_78['temp'][0, 0]
 
     all_temp[a4, b4, c4] = fout_atmos_reverse['temp'][0, 0]
-    all_temp[a5, b5, c5] = fout_atmos_retry['temp'][0, 0]
     all_temp[a6, b6, c6] = fout_atmos_other['temp'][0, 0]
 
     all_vlos[a1, b1, c1] = fout_atmos_quiet['vlos'][0, 0]
@@ -439,7 +291,6 @@ def get_atmos_params(
         all_vlos[a3, b3, c3] = fout_atmos_shock_78['vlos'][0, 0]
 
     all_vlos[a4, b4, c4] = fout_atmos_reverse['vlos'][0, 0]
-    all_vlos[a5, b5, c5] = fout_atmos_retry['vlos'][0, 0]
     all_vlos[a6, b6, c6] = fout_atmos_other['vlos'][0, 0]
 
     all_vturb[a1, b1, c1] = fout_atmos_quiet['vturb'][0, 0]
@@ -449,7 +300,6 @@ def get_atmos_params(
         all_vturb[a3, b3, c3] = fout_atmos_shock_78['vturb'][0, 0]
 
     all_vturb[a4, b4, c4] = fout_atmos_reverse['vturb'][0, 0]
-    all_vturb[a5, b5, c5] = fout_atmos_retry['vturb'][0, 0]
     all_vturb[a6, b6, c6] = fout_atmos_other['vturb'][0, 0]
 
     all_vlos = (all_vlos - calib_velocity) / 1e5
@@ -459,147 +309,188 @@ def get_atmos_params(
     return all_profiles, syn_profiles, all_temp, all_vlos, all_vturb
 
 
-def get_filename_params(foldername, x, y, frameslist):
+def get_filename_params(x, y, frameslist):
     return_tuple_list = list()
 
+    base_path_input = Path(
+        '/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/fov_{}_{}_{}_{}'.format(
+            x[0], x[1], y[0], y[1]
+        )
+    )
+    base_path_inversions = base_path_input / 'plots'
+
     for frames, shock_78 in frameslist:
-        input_profile_quiet = Path(
-            '/home/harsh/OsloAnalysis/new_kmeans/inversions/{}/quiet_profiles_frame_{}_{}_x_{}_{}_y_{}_{}.nc'.format(
-                foldername, frames[0], frames[1], x[0], x[1], y[0], y[1]
-            )
+        input_profile_quiet = get_exact_filename(
+            base_path_input,
+            'wholedata_quiet_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                frames[0], frames[1], x[0], x[1], y[0], y[1]
+            ),
+            '.nc'
         )
 
-        input_profile_shock = Path(
-            '/home/harsh/OsloAnalysis/new_kmeans/inversions/{}/shock_spicule_profiles_frame_{}_{}_x_{}_{}_y_{}_{}.nc'.format(
-                foldername, frames[0], frames[1], x[0], x[1], y[0], y[1]
-            )
-        )
-
-        if shock_78:
-            input_profile_shock_78 = Path(
-                '/home/harsh/OsloAnalysis/new_kmeans/inversions/{}/shock_78_profiles_frame_{}_{}_x_{}_{}_y_{}_{}.nc'.format(
-                    foldername, frames[0], frames[1], x[0], x[1], y[0], y[1]
-                )
-            )
-
-        input_profile_reverse = Path(
-            '/home/harsh/OsloAnalysis/new_kmeans/inversions/{}/reverse_shock_profiles_frame_{}_{}_x_{}_{}_y_{}_{}.nc'.format(
-                foldername, frames[0], frames[1], x[0], x[1], y[0], y[1]
-            )
-        )
-
-        input_profile_retry = Path(
-            '/home/harsh/OsloAnalysis/new_kmeans/inversions/{}/retry_shock_spicule_profiles_frame_{}_{}_x_{}_{}_y_{}_{}.nc'.format(
-                foldername, frames[0], frames[1], x[0], x[1], y[0], y[1]
-            )
-        )
-
-        input_profile_other = Path(
-            '/home/harsh/OsloAnalysis/new_kmeans/inversions/{}/other_emission_profiles_frame_{}_{}_x_{}_{}_y_{}_{}.nc'.format(
-                foldername, frames[0], frames[1], x[0], x[1], y[0], y[1]
-            )
-        )
-
-        output_atmos_quiet_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/{}/quiet_profiles_frame_{}_{}_x_{}_{}_y_{}_{}_cycle_1_t_5_vl_1_vt_4_atmos.nc'.format(
-                foldername, frames[0], frames[1], x[0], x[1], y[0], y[1]
-            )
-        )
-
-        output_atmos_shock_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/{}/shock_spicule_profiles_frame_{}_{}_x_{}_{}_y_{}_{}_cycle_1_t_4_vl_5_vt_4_atmos.nc'.format(
-                foldername, frames[0], frames[1], x[0], x[1], y[0], y[1]
-            )
+        input_profile_shock = get_exact_filename(
+            base_path_input,
+            'wholedata_shock_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                frames[0], frames[1], x[0], x[1], y[0], y[1]
+            ),
+            '.nc'
         )
 
         if shock_78:
-            output_atmos_shock_78_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/{}/shock_78_profiles_frame_{}_{}_x_{}_{}_y_{}_{}_cycle_1_t_4_vl_5_vt_4_atmos.nc'.format(
-                    foldername, frames[0], frames[1], x[0], x[1], y[0], y[1]
-                )
+            input_profile_shock_78 = get_exact_filename(
+                base_path_input,
+                'wholedata_shocks_78_18_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                    frames[0], frames[1], x[0], x[1], y[0], y[1]
+                ),
+                '.nc'
             )
 
-        output_atmos_reverse_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/{}/reverse_shock_profiles_frame_{}_{}_x_{}_{}_y_{}_{}_cycle_1_t_5_vl_5_vt_4_atmos.nc'.format(
-                foldername, frames[0], frames[1], x[0], x[1], y[0], y[1]
-            )
+        input_profile_reverse = get_exact_filename(
+            base_path_input,
+            'wholedata_reverse_shock_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                frames[0], frames[1], x[0], x[1], y[0], y[1]
+            ),
+            '.nc'
         )
 
-        output_atmos_retry_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/{}/retry_shock_spicule_profiles_frame_{}_{}_x_{}_{}_y_{}_{}_cycle_1_t_4_vl_5_vt_4_atmos.nc'.format(
-                foldername, frames[0], frames[1], x[0], x[1], y[0], y[1]
-            )
+        input_profile_other = get_exact_filename(
+            base_path_input,
+            'wholedata_other_emission_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                frames[0], frames[1], x[0], x[1], y[0], y[1]
+            ),
+            '.nc'
         )
 
-        output_atmos_other_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/{}/other_emission_profiles_frame_{}_{}_x_{}_{}_y_{}_{}_cycle_1_t_5_vl_5_vt_4_atmos.nc'.format(
-                foldername, frames[0], frames[1], x[0], x[1], y[0], y[1]
-            )
+        output_atmos_quiet_filepath = get_exact_filename(
+            base_path_inversions,
+            'wholedata_quiet_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                frames[0], frames[1], x[0], x[1], y[0], y[1]
+            ),
+            'atmos.nc'
         )
 
-        output_profile_quiet_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/{}/quiet_profiles_frame_{}_{}_x_{}_{}_y_{}_{}_cycle_1_t_5_vl_1_vt_4_profs.nc'.format(
-                foldername, frames[0], frames[1], x[0], x[1], y[0], y[1]
-            )
-        )
-
-        output_profile_shock_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/{}/shock_spicule_profiles_frame_{}_{}_x_{}_{}_y_{}_{}_cycle_1_t_4_vl_5_vt_4_profs.nc'.format(
-                foldername, frames[0], frames[1], x[0], x[1], y[0], y[1]
-            )
-        )
-
-        if shock_78:
-            output_profile_shock_78_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/{}/shock_78_profiles_frame_{}_{}_x_{}_{}_y_{}_{}_cycle_1_t_4_vl_5_vt_4_profs.nc'.format(
-                    foldername, frames[0], frames[1], x[0], x[1], y[0], y[1]
-                )
-            )
-
-        output_profile_reverse_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/{}/reverse_shock_profiles_frame_{}_{}_x_{}_{}_y_{}_{}_cycle_1_t_5_vl_5_vt_4_profs.nc'.format(
-                foldername, frames[0], frames[1], x[0], x[1], y[0], y[1]
-            )
-        )
-
-        output_profile_retry_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/{}/retry_shock_spicule_profiles_frame_{}_{}_x_{}_{}_y_{}_{}_cycle_1_t_4_vl_5_vt_4_profs.nc'.format(
-                foldername, frames[0], frames[1], x[0], x[1], y[0], y[1]
-            )
-        )
-
-        output_profile_other_filepath = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/{}/other_emission_profiles_frame_{}_{}_x_{}_{}_y_{}_{}_cycle_1_t_5_vl_5_vt_4_profs.nc'.format(
-                foldername, frames[0], frames[1], x[0], x[1], y[0], y[1]
-            )
-        )
-
-        quiet_pixel_file = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/{}/pixel_indices_quiet_profiles_frame_{}_{}_x_{}_{}_y_{}_{}.h5'.format(
-                foldername, frames[0], frames[1], x[0], x[1], y[0], y[1]
-            )
-        )
-
-        shock_pixel_file = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/{}/pixel_indices_shock_spicule_profiles_frame_{}_{}_x_{}_{}_y_{}_{}.h5'.format(
-                foldername, frames[0], frames[1], x[0], x[1], y[0], y[1]
-            )
+        output_atmos_shock_filepath = get_exact_filename(
+            base_path_inversions,
+            'wholedata_shock_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                frames[0], frames[1], x[0], x[1], y[0], y[1]
+            ),
+            'atmos.nc'
         )
 
         if shock_78:
-            shock_78_pixel_file = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/{}/pixel_indices_shock_78_profiles_frame_{}_{}_x_{}_{}_y_{}_{}.h5'.format(
-                    foldername, frames[0], frames[1], x[0], x[1], y[0], y[1]
-                )
+            output_atmos_shock_78_filepath = get_exact_filename(
+                base_path_inversions,
+                'wholedata_shocks_78_18_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                    frames[0], frames[1], x[0], x[1], y[0], y[1]
+                ),
+                'atmos.nc'
             )
 
-        reverse_pixel_file = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/{}/pixel_indices_reverse_shock_profiles_frame_{}_{}_x_{}_{}_y_{}_{}.h5'.format(
-                foldername, frames[0], frames[1], x[0], x[1], y[0], y[1]
-            )
+        output_atmos_reverse_filepath = get_exact_filename(
+            base_path_inversions,
+            'wholedata_reverse_shock_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                frames[0], frames[1], x[0], x[1], y[0], y[1]
+            ),
+            'atmos.nc'
         )
 
-        retry_pixel_file = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/{}/pixel_indices_retry_shock_spicule_profiles_frame_{}_{}_x_{}_{}_y_{}_{}.h5'.format(
-                foldername, frames[0], frames[1], x[0], x[1], y[0], y[1]
-            )
+        output_atmos_other_filepath = get_exact_filename(
+            base_path_inversions,
+            'wholedata_other_emission_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                frames[0], frames[1], x[0], x[1], y[0], y[1]
+            ),
+            'atmos.nc'
         )
 
-        other_pixel_file = Path('/home/harsh/OsloAnalysis/new_kmeans/inversions/{}/pixel_indices_other_emission_profiles_frame_{}_{}_x_{}_{}_y_{}_{}.h5'.format(
-                foldername, frames[0], frames[1], x[0], x[1], y[0], y[1]
+        output_profile_quiet_filepath = get_exact_filename(
+            base_path_inversions,
+            'wholedata_quiet_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                frames[0], frames[1], x[0], x[1], y[0], y[1]
+            ),
+            'profs.nc'
+        )
+
+        output_profile_shock_filepath = get_exact_filename(
+            base_path_inversions,
+            'wholedata_shock_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                frames[0], frames[1], x[0], x[1], y[0], y[1]
+            ),
+            'profs.nc'
+        )
+
+        if shock_78:
+            output_profile_shock_78_filepath = get_exact_filename(
+                base_path_inversions,
+                'wholedata_shocks_78_18_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                    frames[0], frames[1], x[0], x[1], y[0], y[1]
+                ),
+                'profs.nc'
             )
+
+        output_profile_reverse_filepath = get_exact_filename(
+            base_path_inversions,
+            'wholedata_reverse_shock_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                frames[0], frames[1], x[0], x[1], y[0], y[1]
+            ),
+            'profs.nc'
+        )
+
+        output_profile_other_filepath = get_exact_filename(
+            base_path_inversions,
+            'wholedata_other_emission_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                frames[0], frames[1], x[0], x[1], y[0], y[1]
+            ),
+            'profs.nc'
+        )
+
+        quiet_pixel_file = get_exact_filename(
+            base_path_input,
+            'pixel_indices_quiet_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                frames[0], frames[1], x[0], x[1], y[0], y[1]
+            ),
+            '.h5'
+        )
+
+        shock_pixel_file = get_exact_filename(
+            base_path_input,
+            'pixel_indices_shock_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                frames[0], frames[1], x[0], x[1], y[0], y[1]
+            ),
+            '.h5'
+        )
+
+        if shock_78:
+            shock_78_pixel_file = get_exact_filename(
+                base_path_input,
+                'pixel_indices_shocks_78_18_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                    frames[0], frames[1], x[0], x[1], y[0], y[1]
+                ),
+                '.h5'
+            )
+
+        reverse_pixel_file = get_exact_filename(
+            base_path_input,
+            'pixel_indices_reverse_shock_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                frames[0], frames[1], x[0], x[1], y[0], y[1]
+            ),
+            '.h5'
+        )
+
+        other_pixel_file = get_exact_filename(
+            base_path_input,
+            'pixel_indices_other_emission_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                frames[0], frames[1], x[0], x[1], y[0], y[1]
+            ),
+            '.h5'
         )
 
         if shock_78:
             return_tuple_list.append(
-                (input_profile_quiet, input_profile_shock, input_profile_reverse, input_profile_retry, input_profile_other, output_atmos_quiet_filepath, output_atmos_shock_filepath, output_atmos_reverse_filepath, output_atmos_retry_filepath, output_atmos_other_filepath, output_profile_quiet_filepath, output_profile_shock_filepath, output_profile_reverse_filepath, output_profile_retry_filepath, output_profile_other_filepath, quiet_pixel_file, shock_pixel_file, reverse_pixel_file, retry_pixel_file, other_pixel_file, input_profile_shock_78, output_atmos_shock_78_filepath, output_profile_shock_78_filepath, shock_78_pixel_file)
+                (input_profile_quiet, input_profile_shock, input_profile_reverse, input_profile_other, output_atmos_quiet_filepath, output_atmos_shock_filepath, output_atmos_reverse_filepath, output_atmos_other_filepath, output_profile_quiet_filepath, output_profile_shock_filepath, output_profile_reverse_filepath, output_profile_other_filepath, quiet_pixel_file, shock_pixel_file, reverse_pixel_file, other_pixel_file, input_profile_shock_78, output_atmos_shock_78_filepath, output_profile_shock_78_filepath, shock_78_pixel_file)
             )
         else:
             return_tuple_list.append(
-                (input_profile_quiet, input_profile_shock, input_profile_reverse, input_profile_retry, input_profile_other, output_atmos_quiet_filepath, output_atmos_shock_filepath, output_atmos_reverse_filepath, output_atmos_retry_filepath, output_atmos_other_filepath, output_profile_quiet_filepath, output_profile_shock_filepath, output_profile_reverse_filepath, output_profile_retry_filepath, output_profile_other_filepath, quiet_pixel_file, shock_pixel_file, reverse_pixel_file, retry_pixel_file, other_pixel_file)
+                (input_profile_quiet, input_profile_shock, input_profile_reverse, input_profile_other, output_atmos_quiet_filepath, output_atmos_shock_filepath, output_atmos_reverse_filepath, output_atmos_other_filepath, output_profile_quiet_filepath, output_profile_shock_filepath, output_profile_reverse_filepath, output_profile_other_filepath, quiet_pixel_file, shock_pixel_file, reverse_pixel_file, other_pixel_file)
             )
 
     return return_tuple_list
@@ -609,25 +500,23 @@ def get_fov():
 
     global x, y
 
-    all_profiles, syn_profiles, all_temp, all_vlos, all_vturb = get_fov_0_21()
+    frameslist = [([0, 21], True), ([21, 42], False), ([42, 63], True), ([63, 84], True), ([84, 100], True)]
 
-    foldername = 'plots_v1_fourth_fov'
-    frameslist = [([21, 42], False), ([42, 63], False), ([63, 84], False), ([84, 100], False)]
+    tuple_list = get_filename_params(x, y, frameslist)
 
-    tuple_list = get_filename_params(foldername, x, y, frameslist)
-
+    all_profiles, syn_profiles, all_temp, all_vlos, all_vturb = None, None, None, None, None
     for index, a_tuple in enumerate(tuple_list):
         if all_profiles is None:
             all_profiles, syn_profiles, all_temp, all_vlos, all_vturb = get_atmos_params(
-                [770, 820],
-                [338, 388],
+                x,
+                y,
                 frameslist[index][0],
                 *a_tuple
             )
         else:
             a, b, c, d, e = get_atmos_params(
-                [770, 820],
-                [338, 388],
+                x,
+                y,
                 frameslist[index][0],
                 *a_tuple
             )
@@ -647,25 +536,26 @@ def plot_fov_parameter_variation(
 
     global cf00, cf01, cf02, cf10, cf11, cf12
 
+    global x, y
+
     plt.cla()
 
     plt.clf()
 
     plt.close('all')
 
-    all_profiles, syn_profiles, all_temp, all_vlos, all_vturb = get_fov()
-
     data, header = sunpy.io.fits.read(spectra_file_path)[0]
 
     time_info, header_time = sunpy.io.fits.read(spectra_file_path)[5]
 
+    all_profiles, syn_profiles, all_temp, all_vlos, all_vturb = get_fov()
+
     fig, axs = plt.subplots(2, 3, figsize=(19.2, 10.8), dpi=100)
 
-    # import ipdb;ipdb.set_trace()
     cf00 = axs[0][0].pcolormesh(
         arcsec,
         ltau,
-        all_temp[0, 25].T,
+        all_temp[0, hx, hy1].T,
         shading='nearest',
         cmap='hot',
         vmin=4000,
@@ -674,16 +564,16 @@ def plot_fov_parameter_variation(
     cf01 = axs[0][1].pcolormesh(
         arcsec,
         ltau,
-        all_vlos[0, 25].T,
+        all_vlos[0, hx, hy1].T,
         shading='nearest',
         cmap='bwr',
-        vmin=-6,
-        vmax=6
+        vmin=-10,
+        vmax=10
     )
     cf02 = axs[0][2].pcolormesh(
         arcsec,
         ltau,
-        all_vturb[0, 25].T,
+        all_vturb[0, hx, hy1].T,
         shading='nearest',
         cmap='copper',
         vmin=0,
@@ -693,7 +583,7 @@ def plot_fov_parameter_variation(
     cf10 = axs[1][0].pcolormesh(
         arcsec,
         ltau,
-        all_temp[0, :, 25].T,
+        all_temp[0, hx, hy2].T,
         shading='nearest',
         cmap='hot',
         vmin=4000,
@@ -702,22 +592,21 @@ def plot_fov_parameter_variation(
     cf11 = axs[1][1].pcolormesh(
         arcsec,
         ltau,
-        all_vlos[0, :, 25].T,
+        all_vlos[0, hx, hy2].T,
         shading='nearest',
         cmap='bwr',
-        vmin=-6,
-        vmax=6
+        vmin=-10,
+        vmax=10
     )
     cf12 = axs[1][2].pcolormesh(
         arcsec,
         ltau,
-        all_vturb[0, :, 25].T,
+        all_vturb[0, hx, hy2].T,
         shading='nearest',
         cmap='copper',
         vmin=0,
         vmax=5
     )
-
     axs[0][0].set_aspect(1.0 / axs[0][0].get_data_ratio(), adjustable='box')
     axs[0][1].set_aspect(1.0 / axs[0][1].get_data_ratio(), adjustable='box')
     axs[0][2].set_aspect(1.0 / axs[0][2].get_data_ratio(), adjustable='box')
@@ -757,12 +646,12 @@ def plot_fov_parameter_variation(
     cbar11 = fig.colorbar(cf11, ax=axs[1][1])
     cbar12 = fig.colorbar(cf12, ax=axs[1][2])
 
-    # cbar00.ax.tick_params(labelsize=10)
-    # cbar01.ax.tick_params(labelsize=10)
-    # cbar02.ax.tick_params(labelsize=10)
-    # cbar10.ax.tick_params(labelsize=10)
-    # cbar11.ax.tick_params(labelsize=10)
-    # cbar12.ax.tick_params(labelsize=10)
+    cbar00.ax.tick_params(labelsize=10)
+    cbar01.ax.tick_params(labelsize=10)
+    cbar02.ax.tick_params(labelsize=10)
+    cbar10.ax.tick_params(labelsize=10)
+    cbar11.ax.tick_params(labelsize=10)
+    cbar12.ax.tick_params(labelsize=10)
 
     start_date = parser.parse(time_info[0][0][0, 0, 0, 0, 0])
 
@@ -772,23 +661,23 @@ def plot_fov_parameter_variation(
         global cf00, cf01, cf02, cf10, cf11, cf12
 
         cf00.set_array(
-            all_temp[j, 25].T
+            all_temp[j, hx, hy1].T
         )
         cf01.set_array(
-            all_vlos[j, 25].T
+            all_vlos[j, hx, hy1].T
         )
         cf02.set_array(
-            all_vturb[j, 25].T
+            all_vturb[j, hx, hy1].T
         )
 
         cf10.set_array(
-            all_temp[j, :, 25].T
+            all_temp[j, hx, hy2].T
         )
         cf11.set_array(
-            all_vlos[j, :, 25].T
+            all_vlos[j, hx, hy2].T
         )
         cf12.set_array(
-            all_vturb[j, :, 25].T
+            all_vturb[j, hx, hy2].T
         )
 
         cur_date = parser.parse(time_info[0][0][j, 0, 0, 0, 0])
@@ -796,12 +685,6 @@ def plot_fov_parameter_variation(
         time_diff = np.round((cur_date - start_date).total_seconds(), 2)
 
         text.set_text('t={}s'.format(time_diff))
-
-        log(
-            'Finished Frame {}'.format(
-                j
-            )
-        )
 
         return [cf00, cf01, cf02, cf10, cf11, cf12]
 
