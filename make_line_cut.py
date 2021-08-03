@@ -208,7 +208,7 @@ def get_atmos_params(
 
     a6, b6, c6 = fother['pixel_indices'][0:3]
 
-    calib_velocity = 333390.00079943583
+    calib_velocity = -94841.87483891034
 
     all_profiles = np.zeros(
         (
