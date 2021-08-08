@@ -424,9 +424,28 @@ def plot_mask(x, y, t):
 
     f = h5py.File(old_kmeans_file, 'r')
 
-    mask = get_shocks_mask(f['new_final_labels'][t, x:x + 50, y:y + 50])
+    shocks_mask = get_shocks_mask(f['new_final_labels'][t, x:x + 50, y:y + 50])
 
-    plt.imshow(mask, cmap='gray', origin='lower')
+    plt.imshow(shocks_mask * mask[t, x:x + 50, y:y + 50], cmap='gray', origin='lower')
+
+    plt.clim(0, 3)
+
+    plt.colorbar()
+
+    plt.show()
+
+
+def plot_mask_whole(t):
+
+    plt.close('all')
+    plt.clf()
+    plt.cla()
+
+    f = h5py.File(old_kmeans_file, 'r')
+
+    shocks_mask = get_shocks_mask(f['new_final_labels'][t])
+
+    plt.imshow(shocks_mask * mask[t], cmap='gray', origin='lower')
 
     plt.clim(0, 3)
 

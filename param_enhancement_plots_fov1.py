@@ -7,8 +7,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from dateutil import parser
-from calculate_calib_velocity_and_classify_rps import get_shocks_mask
 
+
+label_file = Path(
+    '/home/harsh/OsloAnalysis/new_kmeans/out_100_0.5_0.5_n_iter_10000_tol_1en5.h5'
+)
+
+spectra_file_path = Path('/home/harsh/OsloAnalysis/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits')
+
+x = [662, 712]
+y = [708, 758]
 
 ltau = np.array(
     [
@@ -45,67 +53,6 @@ ltau = np.array(
     ]
 )
 
-arcsec = np.array(
-    [
-        623.12  , 623.1577, 623.1954, 623.2331, 623.2708, 623.3085,
-        623.3462, 623.3839, 623.4216, 623.4593, 623.497 , 623.5347,
-        623.5724, 623.6101, 623.6478, 623.6855, 623.7232, 623.7609,
-        623.7986, 623.8363, 623.874 , 623.9117, 623.9494, 623.9871,
-        624.0248, 624.0625, 624.1002, 624.1379, 624.1756, 624.2133,
-        624.251 , 624.2887, 624.3264, 624.3641, 624.4018, 624.4395,
-        624.4772, 624.5149, 624.5526, 624.5903, 624.628 , 624.6657,
-        624.7034, 624.7411, 624.7788, 624.8165, 624.8542, 624.8919,
-        624.9296, 624.9673
-    ]
-)
-
-label_file = Path(
-    '/home/harsh/OsloAnalysis/new_kmeans/out_100_0.5_0.5_n_iter_10000_tol_1en5.h5'
-)
-
-spectra_file_path = Path('/home/harsh/OsloAnalysis/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits')
-
-quiet_profiles = [0, 11, 14, 15, 20, 21, 24, 28, 31, 34, 40, 42, 43, 47, 48, 51, 60, 62, 69, 70, 73, 74, 75, 86, 89, 90, 84, 8, 44, 63]
-
-shock_proiles = [2, 4, 10, 19, 26, 30, 37, 52, 79, 85, 94, 1, 22, 23, 53, 55, 56, 66, 67, 72, 77, 80, 81, 92, 87, 99, 36, 6, 49, 17, 96, 98, 78, 18]
-
-reverse_shock_profiles = [3, 13, 16, 25, 32, 33, 35, 41, 45, 46, 58, 61, 64, 68, 82, 95, 97]
-
-other_emission_profiles = [5, 7, 9, 12, 27, 29, 38, 39, 50, 54, 57, 59, 65, 71, 76, 83, 88, 91, 93]
-
-photosphere_indices = np.array([29])
-
-mid_chromosphere_indices = np.array([4, 5, 6, 23, 24, 25])
-
-upper_chromosphere_indices = np.arange(12, 18)
-
-photosphere_tau = np.array([-1, 0])
-
-mid_chromosphere_tau = np.array([-4, -3])
-
-upper_chromosphere_tau = np.array([-5, -4])
-
-cf00 = None
-cf01 = None
-cf02 = None
-cf10 = None
-cf11 = None
-cf12 = None
-
-x = [662, 712]
-
-y = [708, 758]
-
-m1 = -1
-s1 = 49
-
-m2 = 1
-s2 = 0
-
-hx = np.arange(50)
-
-hy1 = hx * m1 + s1
-hy2 = hx * m2 + s2
 
 def log(logString):
     current_time = time.strftime("%Y-%m-%d-%H:%M:%S")
@@ -532,12 +479,12 @@ def get_fov():
 
 def plot_fov_parameter_variation(
     animation_path,
-    fps=1,
-    pixel_x=0,
-    pixel_y=0
+    fps=1
 ):
 
-    global cf00, cf01, cf02, cf10, cf11, cf12
+    global cs00, cs01, cs02, cs03, cs04, cs10, cs11, cs12, cs13, cs14, cs20, cs21, cs22, cs23, cs24
+
+    global atmos_indices0, atmos_indices1, atmos_indices2
 
     global x, y
 
@@ -547,110 +494,11 @@ def plot_fov_parameter_variation(
 
     plt.close('all')
 
-    data, header = sunpy.io.fits.read(spectra_file_path)[0]
-
-    time_info, header_time = sunpy.io.fits.read(spectra_file_path)[5]
-
     all_profiles, syn_profiles, all_temp, all_vlos, all_vturb = get_fov()
 
     f = h5py.File(label_file, 'r')
 
-    shocks_mask = get_shocks_mask(f['new_final_labels'][:, x[0] + pixel_x, y[0] + pixel_y])
-
-    start_date = parser.parse(time_info[0][0][0, 0, 0, 0, 0])
-
-    fig, ax = plt.subplots(1, 1, figsize=(19.2, 10.8), dpi=100)
-
-    ax2 = ax.twinx()
-
-    cf00, = ax.plot(ltau, all_temp[0, pixel_x, pixel_y, :], color='#3fC1C9')
-
-    cf01, = ax2.plot(ltau, all_vlos[0, pixel_x, pixel_y, :], color='#364f6B')
-
-    ax.set_ylim(all_temp.min(), all_temp.max())
-
-    ax2.set_ylim(all_vlos.min(), all_vlos.max())
-
-    ax.set_xlabel(r"$\log \tau_{500}$")
-
-    ax.set_ylabel(r"$Temperature\;(Kelvin)$")
-
-    ax2.set_ylabel(r"$Velocity\;Line\;of\;Sight\;(Km/sec)$")
-
-    if shocks_mask[0] == 0:
-        ax.set_title('Quiscient Profile t=0s')
-    elif shocks_mask[0] == 1:
-        ax.set_title('Weak Shock t=0s')
-    elif shocks_mask[0] == 2:
-        ax.set_title('Medium Shock t=0s')
-    else:
-        ax.set_title('Strong Shock t=0s')
-
-    def updatefig(j):
-        global cf00, cf01, cf02, cf10, cf11, cf12
-
-        cf00.set_data(ltau, all_temp[j, pixel_x, pixel_y, :])
-
-        cf01.set_data(ltau, all_vlos[j, pixel_x, pixel_y, :])
-
-        cur_date = parser.parse(time_info[0][0][j, 0, 0, 0, 0])
-
-        time_diff = np.round((cur_date - start_date).total_seconds(), 2)
-
-        if shocks_mask[j] == 0:
-            ax.set_title(
-                'Quiscient Profile t={}s'.format(
-                    time_diff
-                )
-            )
-        elif shocks_mask[j] == 1:
-            ax.set_title(
-                'Weak Shock t={}s'.format(
-                    time_diff
-                )
-            )
-        elif shocks_mask[j] == 2:
-            ax.set_title(
-                'Medium Shock t={}s'.format(
-                    time_diff
-                )
-            )
-        else:
-            ax.set_title(
-                'Strong Shock t={}s'.format(
-                    time_diff
-                )
-            )
-
-        log(
-            'Finished Frame {}, Shocks mask: {}'.format(
-                j, shocks_mask[j]
-            )
-        )
-
-        return cf00, cf01
-
-    rate = 1000 / fps
-
-    fig.tight_layout()
-
-    ani = animation.FuncAnimation(
-        fig,
-        updatefig,
-        frames=range(100),
-        interval=rate,
-        blit=True
-    )
-
-    Writer = animation.writers['ffmpeg']
-
-    writer = Writer(
-        fps=fps,
-        metadata=dict(artist='Harsh Mathur'),
-        bitrate=1800
-    )
-
-    ani.save(animation_path + '_{}_{}.mp4'.format(pixel_x, pixel_y), writer=writer)
+    labels = f['new_final_labels'][:, x[0]:x[1], y[0]:y[1]]
 
     plt.cla()
 
@@ -663,7 +511,7 @@ if __name__ == '__main__':
 
     calib_velocity = None
 
+    
     plot_fov_parameter_variation(
-        animation_path='inversion_fov_1_pixel_variation',
-        pixel_x=25, pixel_y=20
+        animation_path='inversion_map_fov_1.mp4'
     )
