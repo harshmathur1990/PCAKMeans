@@ -416,6 +416,19 @@ def get_shocks_mask(arr):
     return mask
 
 
+def get_reverse_shocks_mask(arr):
+
+    mask = np.zeros_like(arr)
+
+    for i in list(weak_reverse_shocks_profiles):
+        mask[np.where(arr == i)] = 1
+
+    for i in list(strong_reverese_shock_profiles):
+        mask[np.where(arr == i)] = 2
+
+    return mask
+
+
 def plot_mask(x, y, t):
 
     plt.close('all')
@@ -434,6 +447,24 @@ def plot_mask(x, y, t):
 
     plt.show()
 
+
+def plot_reverse_mask(x, y, t):
+
+    plt.close('all')
+    plt.clf()
+    plt.cla()
+
+    f = h5py.File(old_kmeans_file, 'r')
+
+    mask = get_reverse_shocks_mask(f['new_final_labels'][t, x:x + 50, y:y + 50])
+
+    plt.imshow(mask, cmap='gray', origin='lower')
+
+    plt.clim(0, 2)
+
+    plt.colorbar()
+
+    plt.show()
 
 # TODO:
 #
