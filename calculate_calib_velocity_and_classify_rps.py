@@ -322,7 +322,7 @@ emerging_shock_profiles = np.array(
 
 weak_shocks_profiles = np.array(
     [
-        6, 57, 10, 80, 49, 56, 98, 96, 87,  9, 91, 23,  5, 12, 65, 67,
+        6, 57, 10, 80, 49, 56, 98, 96, 87, 9, 91, 23,  5, 12, 65, 67,
         92
     ]
 )
@@ -482,6 +482,19 @@ def plot_reverse_mask(x, y, t):
     plt.clim(0, 2)
 
     plt.colorbar()
+
+    plt.show()
+
+
+def plot_category(x, y, del_x, del_y):
+
+    plt.close('all')
+    plt.clf()
+    plt.cla()
+
+    category = categorize_pixels(x, y, del_x, del_y)
+
+    plt.scatter(range(100), category)
 
     plt.show()
 

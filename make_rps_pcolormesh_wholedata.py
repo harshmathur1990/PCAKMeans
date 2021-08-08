@@ -241,7 +241,7 @@ def actual_plotting(labels, rps, name='guess'):
 
             ax[axgtr][axtr][0].pcolormesh(X1, Y1, H1.T, cmap='Greys')
 
-            ax[axgtr][axtr][0].set_ylim(0, 0.6)
+            # ax[axgtr][axtr][0].set_ylim(0, 0.6)
 
             ax[axgtr][axtr][0].text(
                 0.2,
@@ -263,7 +263,7 @@ def actual_plotting(labels, rps, name='guess'):
 
             ax[axgtr][axtr][1].pcolormesh(X2, Y2, H2.T, cmap='Greys')
 
-            ax[axgtr][axtr][1].set_ylim(0, 1.3)
+            # ax[axgtr][axtr][1].set_ylim(0, 1.3)
 
             ax[axgtr][axtr][0].set_xticklabels([])
             ax[axgtr][axtr][1].set_xticklabels([])
@@ -293,7 +293,7 @@ def actual_plotting(labels, rps, name='guess'):
 
             ax[axgtr][axtr][2].pcolormesh(X3, Y3, H3.T, cmap='Greys')
 
-            ax[axgtr][axtr][2].set_ylim(0.4, 2)
+            # ax[axgtr][axtr][2].set_ylim(0.4, 2)
 
             ax[axgtr][axtr][2].text(
                 0.2,
@@ -320,7 +320,7 @@ def actual_plotting(labels, rps, name='guess'):
         axgtr += 1
 
     for i in range(10):
-        savename = 'IIW_KMeans_100_{}_{}.png'.format(
+        savename = 'KMeans_100_{}_{}.png'.format(
             name, i
         )
         fig[i].tight_layout()
