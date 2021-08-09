@@ -80,10 +80,10 @@ def get_farthest(a, center):
     return all_profiles[index]
 
 
-def get_max(a):
+def get_max_min(a):
     global whole_data
     all_profiles = whole_data[a] / cont_array
-    return all_profiles[:, 0:29].max(), all_profiles[:, 30:30 + 20].max(), all_profiles[:, 30 + 20:30 + 20 + 14].max() 
+    return all_profiles[:, 0:29].max(), all_profiles[:, 30:30 + 20].max(), all_profiles[:, 30 + 20:30 + 20 + 14].max(), all_profiles[:, 0:29].min(), all_profiles[:, 30:30 + 20].min(), all_profiles[:, 30 + 20:30 + 20 + 14].min()
 
 
 def get_data():
@@ -171,11 +171,24 @@ def actual_plotting(labels, rps, name='guess'):
 
             farthest_profile = get_farthest(a, center)
 
-            b, c, d = get_max(a)
+            b, c, d, e, f, g = get_max(a)
 
-            in_bins_3950 = np.linspace(0, b, 1000)
-            in_bins_8542 = np.linspace(0, c, 1000)
-            in_bins_6173 = np.linspace(0.4, d, 1000)
+            max_3950, min_3950  = b, e
+            max_8542, min_8542  = c, f
+            max_6173, min_6173  = d, g
+
+            min_3950 = min_3950 * 0.9
+            max_3950 = max_3950 * 1.1
+
+            min_8542 = min_8542 * 0.9
+            max_8542 = max_8542 * 1.1
+
+            min_6173 = min_6173 * 0.9
+            max_6173 = max_6173 * 1.1
+
+            in_bins_3950 = np.linspace(min_3950, max_3950, 1000)
+            in_bins_8542 = np.linspace(min_8542, max_8542, 1000)
+            in_bins_6173 = np.linspace(min_6173, max_6173, 1000)
 
             H1, xedge1, yedge1 = np.histogram2d(
                 np.tile(wave_3933, a.shape[0]),
@@ -250,7 +263,7 @@ def actual_plotting(labels, rps, name='guess'):
 
             ax[axgtr][axtr][0].pcolormesh(X1, Y1, H1.T, cmap='Greys')
 
-            ax[axgtr][axtr][0].set_ylim(0, b)
+            ax[axgtr][axtr][0].set_ylim(min_3950, max_3950)
 
             ax[axgtr][axtr][0].text(
                 0.2,
@@ -272,7 +285,7 @@ def actual_plotting(labels, rps, name='guess'):
 
             ax[axgtr][axtr][1].pcolormesh(X2, Y2, H2.T, cmap='Greys')
 
-            ax[axgtr][axtr][1].set_ylim(0, c)
+            ax[axgtr][axtr][1].set_ylim(min_8542, max_8542)
 
             ax[axgtr][axtr][0].set_xticklabels([])
             ax[axgtr][axtr][1].set_xticklabels([])
@@ -302,7 +315,7 @@ def actual_plotting(labels, rps, name='guess'):
 
             ax[axgtr][axtr][2].pcolormesh(X3, Y3, H3.T, cmap='Greys')
 
-            ax[axgtr][axtr][2].set_ylim(0.4, d)
+            ax[axgtr][axtr][2].set_ylim(min_6173, max_6173)
 
             ax[axgtr][axtr][2].text(
                 0.2,
