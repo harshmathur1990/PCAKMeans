@@ -171,7 +171,7 @@ def actual_plotting(labels, rps, name='guess'):
 
             farthest_profile = get_farthest(a, center)
 
-            b, c, d, e, f, g = get_max(a)
+            b, c, d, e, f, g = get_max_min(a)
 
             max_3950, min_3950  = b, e
             max_8542, min_8542  = c, f
