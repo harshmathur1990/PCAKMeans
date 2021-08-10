@@ -7,15 +7,15 @@ from helita.io.lp import *
 import matplotlib.pyplot as plt
 
 
-mask_file_crisp = Path('/home/harsh/OsloAnalysis/crisp_chromis_mask_2019-06-06.fits')
+# mask_file_crisp = Path('/home/harsh/OsloAnalysis/crisp_chromis_mask_2019-06-06.fits')
 input_file_3950 = Path('/home/harsh/OsloAnalysis/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits')
 input_file_8542 = Path('/home/harsh/OsloAnalysis/nb_8542_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube')
 input_file_6173 = Path('/home/harsh/OsloAnalysis/nb_6173_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube')
 
 
-mask, _  = sunpy.io.fits.read(mask_file_crisp, memmap=True)[0]
+# mask, _  = sunpy.io.fits.read(mask_file_crisp, memmap=True)[0]
 
-mask = np.transpose(mask, axes=(2, 1, 0))
+# mask = np.transpose(mask, axes=(2, 1, 0))
 
 selected_frames = np.array([0])
 
@@ -108,6 +108,15 @@ def plot_fov_images():
 
     extent = [596.31, 666.312, -35.041, 11.765]
 
+    fov_1_mask = np.zeros((1236, 1848))
+    fov_2_mask = np.zeros((1236, 1848))
+
+    #fov 1
+    fov_1_mask[662:712, 708:758] = 1
+
+    #fov 2
+    fov_2_mask[520:570, 715:765] = 1
+
     axs[0][0].imshow(whole_data[0, 29, :, :], cmap='gray', origin='lower', extent=extent)
     axs[0][1].imshow(whole_data[0, 13, :, :], cmap='gray', origin='lower', extent=extent)
 
@@ -119,10 +128,15 @@ def plot_fov_images():
     axs[1][0].text(0.0, 0.1, r'(c) Ca II k $+6.7\;km/sec$', transform=axs[1][0].transAxes, color='white')
     axs[1][1].text(0.0, 0.1, r'(d) Ca II 8542 core', transform=axs[1][1].transAxes, color='white')
 
-    axs[0][0].contour(mask[0], levels=0, extent=extent, origin='lower', colors='white')
-    axs[0][1].contour(mask[0], levels=0, extent=extent, origin='lower', colors='white')
-    axs[1][0].contour(mask[0], levels=0, extent=extent, origin='lower', colors='white')
-    axs[1][1].contour(mask[0], levels=0, extent=extent, origin='lower', colors='white')
+    axs[0][0].contour(fov_1_mask, levels=0, extent=extent, origin='lower', colors='blue')
+    axs[0][1].contour(fov_1_mask, levels=0, extent=extent, origin='lower', colors='blue')
+    axs[1][0].contour(fov_1_mask, levels=0, extent=extent, origin='lower', colors='blue')
+    axs[1][1].contour(fov_1_mask, levels=0, extent=extent, origin='lower', colors='blue')
+
+    axs[0][0].contour(fov_2_mask, levels=0, extent=extent, origin='lower', colors='red')
+    axs[0][1].contour(fov_2_mask, levels=0, extent=extent, origin='lower', colors='red')
+    axs[1][0].contour(fov_2_mask, levels=0, extent=extent, origin='lower', colors='red')
+    axs[1][1].contour(fov_2_mask, levels=0, extent=extent, origin='lower', colors='red')
 
     axs[0][0].set_xticklabels([])
     axs[0][1].set_xticklabels([])

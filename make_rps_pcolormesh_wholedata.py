@@ -54,9 +54,6 @@ cont_array = np.zeros(30 + 20 + 14)
 cont_array[0:30] = cont_value[0]
 cont_array[30:30 + 20] = cont_value[1]
 cont_array[30 + 20: 30 + 20 + 14] = cont_value[2]
-in_bins_3950 = np.linspace(0, 0.6, 1000)
-in_bins_8542 = np.linspace(0, 1.3, 1000)
-in_bins_6173 = np.linspace(0.4, 2, 1000)
 
 
 red = '#ec5858'
@@ -81,6 +78,12 @@ def get_farthest(a, center):
     )
     index = np.argsort(difference)[-1]
     return all_profiles[index]
+
+
+def get_max_min(a):
+    global whole_data
+    all_profiles = whole_data[a] / cont_array
+    return all_profiles[:, 0:29].max(), all_profiles[:, 30:30 + 20].max(), all_profiles[:, 30 + 20:30 + 20 + 14].max(), all_profiles[:, 0:29].min(), all_profiles[:, 30:30 + 20].min(), all_profiles[:, 30 + 20:30 + 20 + 14].min()
 
 
 def get_data():
@@ -168,6 +171,25 @@ def actual_plotting(labels, rps, name='guess'):
 
             farthest_profile = get_farthest(a, center)
 
+            b, c, d, e, f, g = get_max_min(a)
+
+            max_3950, min_3950  = b, e
+            max_8542, min_8542  = c, f
+            max_6173, min_6173  = d, g
+
+            min_3950 = min_3950 * 0.9
+            max_3950 = max_3950 * 1.1
+
+            min_8542 = min_8542 * 0.9
+            max_8542 = max_8542 * 1.1
+
+            min_6173 = min_6173 * 0.9
+            max_6173 = max_6173 * 1.1
+
+            in_bins_3950 = np.linspace(min_3950, max_3950, 1000)
+            in_bins_8542 = np.linspace(min_8542, max_8542, 1000)
+            in_bins_6173 = np.linspace(min_6173, max_6173, 1000)
+
             H1, xedge1, yedge1 = np.histogram2d(
                 np.tile(wave_3933, a.shape[0]),
                 whole_data[a, 0:29].flatten() / cont_value[0],
@@ -241,7 +263,7 @@ def actual_plotting(labels, rps, name='guess'):
 
             ax[axgtr][axtr][0].pcolormesh(X1, Y1, H1.T, cmap='Greys')
 
-            ax[axgtr][axtr][0].set_ylim(0, 0.6)
+            ax[axgtr][axtr][0].set_ylim(min_3950, max_3950)
 
             ax[axgtr][axtr][0].text(
                 0.2,
@@ -263,7 +285,7 @@ def actual_plotting(labels, rps, name='guess'):
 
             ax[axgtr][axtr][1].pcolormesh(X2, Y2, H2.T, cmap='Greys')
 
-            ax[axgtr][axtr][1].set_ylim(0, 1.3)
+            ax[axgtr][axtr][1].set_ylim(min_8542, max_8542)
 
             ax[axgtr][axtr][0].set_xticklabels([])
             ax[axgtr][axtr][1].set_xticklabels([])
@@ -293,7 +315,7 @@ def actual_plotting(labels, rps, name='guess'):
 
             ax[axgtr][axtr][2].pcolormesh(X3, Y3, H3.T, cmap='Greys')
 
-            ax[axgtr][axtr][2].set_ylim(0.4, 2)
+            ax[axgtr][axtr][2].set_ylim(min_6173, max_6173)
 
             ax[axgtr][axtr][2].text(
                 0.2,
@@ -320,7 +342,7 @@ def actual_plotting(labels, rps, name='guess'):
         axgtr += 1
 
     for i in range(10):
-        savename = 'IIW_KMeans_100_{}_{}.png'.format(
+        savename = 'KMeans_100_{}_{}.png'.format(
             name, i
         )
         fig[i].tight_layout()
@@ -342,11 +364,11 @@ def plot_profiles():
     sys.stdout.write('Processing {}\n'.format(file))
 
     whole_data, n, o, p = get_data()
-    f = h5py.File(file, 'r')
-    labels = f['columns']['assignments'][()]
-    rps = f['columns']['rps'][()]
-    actual_plotting(labels, rps, name='output')
-    f.close()
+    # f = h5py.File(file, 'r')
+    # labels = f['columns']['assignments'][()]
+    # rps = f['columns']['rps'][()]
+    # actual_plotting(labels, rps, name='output')
+    # f.close()
 
     f = h5py.File(old_kmeans_file, 'r')
     labels = f['new_final_labels'][selected_frames][n, o, p]
