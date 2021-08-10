@@ -5,6 +5,8 @@ from pathlib import Path
 import numpy as np
 import h5py
 import sunpy.io
+from helita.io.lp import *
+
 
 base_path = Path('/home/harsh/OsloAnalysis')
 new_kmeans = base_path / 'new_kmeans'
@@ -12,6 +14,9 @@ all_data_inversion_rps = new_kmeans / 'all_data_inversion_rps'
 selected_frames = np.array([0, 11, 25, 36, 60, 78, 87])
 old_kmeans_file = new_kmeans / 'out_100_0.5_0.5_n_iter_10000_tol_1en5.h5'
 mask_file_crisp = base_path / 'crisp_chromis_mask_2019-06-06.fits'
+input_file_3950 = '/home/harsh/OsloAnalysis/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits'
+input_file_8542 = '/home/harsh/OsloAnalysis/nb_8542_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
+input_file_6173 = '/home/harsh/OsloAnalysis/nb_6173_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
 
 
 new_quiet_profiles = np.array([0, 11, 14, 15, 20, 21, 24, 28, 31, 34, 40, 42, 43, 47, 48, 51, 60, 62, 69, 70, 73, 74, 75, 86, 89, 90, 84, 8, 44, 63])
@@ -24,6 +29,8 @@ new_other_emission_profiles = np.array([5, 7, 9, 12, 27, 29, 38, 39, 50, 54, 57,
 mask, _  = sunpy.io.fits.read(mask_file_crisp, memmap=True)[0]
 mask = np.transpose(mask, axes=(2, 1, 0))
 
+#3950, 6173, 8542
+cont = [2.4434714e-05, 4.014861e-08, 4.2277254e-08]
 
 ltau = np.array(
     [
@@ -57,6 +64,36 @@ ltau = np.array(
         -0.584996 , -0.485559 , -0.383085 , -0.273456 , -0.152177 ,
         -0.0221309,  0.110786 ,  0.244405 ,  0.378378 ,  0.51182  ,
         0.64474  ,  0.777188 ,  0.909063 ,  1.04044  ,  1.1711
+    ]
+)
+
+wave_3933 = np.array(
+    [
+        3932.78952, 3932.85488, 3932.92024, 3932.9856 , 3933.05096,
+        3933.11632, 3933.18168, 3933.24704, 3933.3124 , 3933.37776,
+        3933.44312, 3933.50848, 3933.57384, 3933.6392 , 3933.70456,
+        3933.76992, 3933.83528, 3933.90064, 3933.966  , 3934.03136,
+        3934.09672, 3934.16208, 3934.22744, 3934.2928 , 3934.35816,
+        3934.42352, 3934.48888, 3934.55424, 3934.6196, 4001.14744
+    ]
+)
+
+wave_8542 = np.array(
+    [
+        8540.3941552, 8540.9941552, 8541.2341552, 8541.3941552,
+        8541.5541552, 8541.7141552, 8541.8341552, 8541.9141552,
+        8541.9941552, 8542.0741552, 8542.1541552, 8542.2341552,
+        8542.3141552, 8542.4341552, 8542.5941552, 8542.7541552,
+        8542.9141552, 8543.1541552, 8543.7541552, 8544.4541552
+    ]
+)
+
+wave_6173 = np.array(
+    [
+        6172.9802566, 6173.0602566, 6173.1402566, 6173.1802566,
+        6173.2202566, 6173.2602566, 6173.3002566, 6173.3402566,
+        6173.3802566, 6173.4202566, 6173.4602566, 6173.5402566,
+        6173.6202566, 6173.9802566
     ]
 )
 
@@ -485,6 +522,124 @@ def plot_reverse_mask(x, y, t):
 
     plt.show()
 
+
+def get_input_profiles(ref_x, ref_y):
+    whole_data = np.zeros((100, 50, 50, 64))
+
+    data, header = sunpy.io.fits.read(input_file_3950, memmap=True)[0]
+
+    whole_data[:, :, :, 0:30] = np.transpose(
+        data[:, 0, :, ref_x: ref_x + 50, ref_y: ref_y + 50],
+        axes=(0, 2, 3, 1)
+    ) / cont[0]
+
+    sh, dt, header = getheader(input_file_6173)
+    data = np.memmap(
+        input_file_6173,
+        mode='r',
+        shape=sh,
+        dtype=dt,
+        order='F',
+        offset=512
+    )
+
+    data = np.transpose(
+        data.reshape(1848, 1236, 100, 4, 14),
+        axes=(2, 3, 4, 1, 0)
+    )
+
+    whole_data[:, :, :, 30:30 + 14] = np.transpose(
+        data[:, 0, :, ref_x: ref_x + 50, ref_y: ref_y + 50],
+        axes=(0, 2, 3, 1)
+    ) / cont[1]
+
+    sh, dt, header = getheader(input_file_8542)
+    data = np.memmap(
+        input_file_8542,
+        mode='r',
+        shape=sh,
+        dtype=dt,
+        order='F',
+        offset=512
+    )
+
+    data = np.transpose(
+        data.reshape(1848, 1236, 100, 4, 20),
+        axes=(2, 3, 4, 1, 0)
+    )
+
+    whole_data[:, :, :, 30 + 14:30 + 14 + 20] = np.transpose(
+        data[:, 0, :, ref_x: ref_x + 50, ref_y: ref_y + 50],
+        axes=(0, 2, 3, 1)
+    ) / cont[2]
+
+    return whole_data
+
+
+def get_doppler_velocity(wavelength, center_wavelength):
+    return (wavelength - center_wavelength) * 2.99792458e5 / center_wavelength
+
+
+@np.vectorize
+def get_doppler_velocity_3950(wavelength):
+    return get_doppler_velocity(wavelength, 3933.682)
+
+
+@np.vectorize
+def get_relative_velocity(wavelength):
+    return wavelength - 3933.682
+
+
+def plot_lambda_t_curve(ref_x, ref_y, x, y):
+    whole_data = get_input_profiles(ref_x, ref_y)
+    dv = get_relative_velocity(wave_3933)
+    time = np.arange(0, 8.26 * 100, 8.26)
+
+    plt.close('all')
+    plt.clf()
+    plt.cla()
+
+    X, Y = np.meshgrid(dv[:-1], time)
+    plt.pcolormesh(
+        X, Y,
+        whole_data[:, x, y, 0:29],
+        shading='nearest',
+        cmap='gray'
+    )
+
+    plt.xlabel(r'$\lambda\;(\AA)$')
+    plt.ylabel(r'$time\;(seconds)$')
+
+    fig = plt.gcf()
+
+    fig.set_size_inches(4.135, 4.135, forward=True)
+
+    fig.tight_layout()
+
+    plt.savefig(
+        'lambda_t_{}_{}_{}_{}.eps'.format(
+            ref_x, ref_y, x, y
+        ),
+        dpi=300,
+        format='eps'
+    )
+
+    plt.close('all')
+    plt.clf()
+    plt.cla()
+
+
+def plot_evolution_diagram(x, y, time_indice, wave_indice):
+    whole_data = get_input_profiles(x, y)
+
+    fig, axs = plt.subplots(t.size, w.size, figsize=(4.135, 11.69))
+
+    # time_indice = [0, 100)
+    # wave_indice = [0, 30)
+    for index_t, t in enumerate(time_indice):
+        for index_w, w in enumerate(wave_indice):
+            dv = get_doppler_velocity_3950(wave_3933[w])
+            axs[index_t][index_w].imshow(whole_data[t, :, :, w])
 # TODO:
 #
 # 1. Define fovs with timesteps such that 10 examples
