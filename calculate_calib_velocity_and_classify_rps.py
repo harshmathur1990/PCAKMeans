@@ -640,15 +640,45 @@ def plot_category(x, y, del_x, del_y):
 
 def plot_evolution_diagram(x, y, time_indice, wave_indice):
     whole_data = get_input_profiles(x, y)
+    time = np.arange(0, 8.26 * 100, 8.26)
 
-    fig, axs = plt.subplots(t.size, w.size, figsize=(4.135, 11.69))
+    plt.close('all')
+    plt.clf()
+    plt.cla()
+
+    fig, axs = plt.subplots(time_indice.size, wave_indice.size, figsize=(8.27, 11.69))
 
     # time_indice = [0, 100)
     # wave_indice = [0, 30)
     for index_t, t in enumerate(time_indice):
         for index_w, w in enumerate(wave_indice):
             dv = get_doppler_velocity_3950(wave_3933[w])
-            axs[index_t][index_w].imshow(whole_data[t, :, :, w])
+            axs[index_t][index_w].imshow(whole_data[t, :, :, w], cmap='gray', origin='lower')
+            # if index_t == 0:
+            #     axs[index_t][index_w].text(
+            #         0.3, 0.9, r'${}\;km/sec$'.format(dv),
+            #         transform=axs[index_t][index_w].transAxes,
+            #         color='white'
+            #     )
+            # if index_w == 0:
+            #     axs[index_t][index_w].text(
+            #         0.3, 0.7, r'${}\;s$'.format(time[t]),
+            #         transform=axs[index_t][index_w].transAxes,
+            #         color='white'
+            #     )
+            axs[index_t][index_w].set_xticklabels([])
+            axs[index_t][index_w].set_yticklabels([])
+
+    fig.tight_layout()
+
+    plt.savefig(
+        'fov_evolution_{}_{}_t_{}_w_{}.eps'.format(
+            x, y, '_'.join([str(a) for a in time_indice]), '_'.join([str(a) for a in wave_indice])
+        ),
+        dpi=300,
+        format='eps'
+    )
+
 # TODO:
 #
 # 1. Define fovs with timesteps such that 10 examples
