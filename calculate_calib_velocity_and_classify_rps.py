@@ -6,6 +6,7 @@ import numpy as np
 import h5py
 import sunpy.io
 from helita.io.lp import *
+import matplotlib.gridspec as gridspec
 
 
 base_path = Path('/home/harsh/OsloAnalysis')
@@ -576,6 +577,17 @@ def get_input_profiles(ref_x, ref_y):
     return whole_data
 
 
+def plot_profile(ref_x, ref_y, x, y, t):
+    whole_data = get_input_profiles(ref_x, ref_y)
+
+    plt.plot(
+        get_relative_velocity(wave_3933[:-1]),
+        whole_data[t, x, y, 0:29]
+    )
+
+    plt.show()
+
+
 def get_doppler_velocity(wavelength, center_wavelength):
     return (wavelength - center_wavelength) * 2.99792458e5 / center_wavelength
 
@@ -638,46 +650,141 @@ def plot_category(x, y, del_x, del_y):
     plt.show()
 
 
-def plot_evolution_diagram(x, y, time_indice, wave_indice):
+def get_rbe_rre_mask(x, y, t):
+    f = h5py.File(old_kmeans_file, 'r')
+    shocks_mask = get_shocks_mask(f['new_final_labels'][t, x:x + 50, y:y + 50])
+    reverse_shocks_mask = get_reverse_shocks_mask(f['new_final_labels'][t, x:x + 50, y:y + 50])
+    f.close()
+    new_shocks_mask = np.zeros(
+        (3, shocks_mask.shape[0], shocks_mask.shape[1])
+    )
+    new_reverse_shocks_mask = np.zeros(
+        (2, reverse_shocks_mask.shape[0], reverse_shocks_mask.shape[1])
+    )
+    new_shocks_mask[0][np.where(shocks_mask == 1)] = 1
+    new_shocks_mask[1][np.where(shocks_mask == 2)] = 1
+    new_shocks_mask[2][np.where(shocks_mask == 3)] = 1
+    new_reverse_shocks_mask[0][np.where(reverse_shocks_mask == 1)] = 1
+    new_reverse_shocks_mask[1][np.where(reverse_shocks_mask == 2)] = 1
+    return new_shocks_mask, new_reverse_shocks_mask
+
+
+def plot_evolution_diagram(x, y, time_indice, wave_indice, log_scale=False, exp_scale=False):
     whole_data = get_input_profiles(x, y)
     time = np.arange(0, 8.26 * 100, 8.26)
+    time = np.round(time, 2)
+
+    min_value = whole_data[time_indice][:, :, :, wave_indice].min()
+    max_value = whole_data[time_indice][:, :, :, wave_indice].max()
 
     plt.close('all')
     plt.clf()
     plt.cla()
 
-    fig, axs = plt.subplots(time_indice.size, wave_indice.size, figsize=(8.27, 11.69))
-
-    # time_indice = [0, 100)
-    # wave_indice = [0, 30)
+    fig = plt.figure(
+        figsize=(
+            4.135,
+            4.135 * time_indice.size / wave_indice.size
+        )
+    )
+    gs1 = gridspec.GridSpec(time_indice.size, wave_indice.size)
+    gs1.update(wspace=0.0, hspace=0.0)
+    k = 0
     for index_t, t in enumerate(time_indice):
         for index_w, w in enumerate(wave_indice):
-            dv = get_doppler_velocity_3950(wave_3933[w])
-            axs[index_t][index_w].imshow(whole_data[t, :, :, w], cmap='gray', origin='lower')
-            # if index_t == 0:
-            #     axs[index_t][index_w].text(
-            #         0.3, 0.9, r'${}\;km/sec$'.format(dv),
-            #         transform=axs[index_t][index_w].transAxes,
-            #         color='white'
-            #     )
-            # if index_w == 0:
-            #     axs[index_t][index_w].text(
-            #         0.3, 0.7, r'${}\;s$'.format(time[t]),
-            #         transform=axs[index_t][index_w].transAxes,
-            #         color='white'
-            #     )
-            axs[index_t][index_w].set_xticklabels([])
-            axs[index_t][index_w].set_yticklabels([])
+            dv = np.round(
+                get_doppler_velocity_3950(wave_3933[w]),
+                1
+            )
+            axs = plt.subplot(gs1[k])
+            if log_scale:
+                im = axs.imshow(
+                    np.log(whole_data[t, :, :, w]),
+                    cmap='gray',
+                    origin='lower'
+                )
+                im.set_clim(np.log(min_value), np.log(max_value))
+            elif exp_scale:
+                im = axs.imshow(
+                    np.exp(whole_data[t, :, :, w]),
+                    cmap='gray',
+                    origin='lower'
+                )
+                im.set_clim(np.exp(min_value), np.exp(max_value))
+            else:
+                im = axs.imshow(
+                    whole_data[t, :, :, w],
+                    cmap='gray',
+                    origin='lower'
+                )
+                im.set_clim(min_value, max_value)
+            if index_t == 0:
+                axs.text(
+                    0.1, 0.8, r'${}\;km/sec$'.format(dv),
+                    transform=axs.transAxes,
+                    color='white',
+                    fontsize='xx-small'
+                )
+            if index_w == 0:
+                axs.text(
+                    0.1, 0.6, r'${}\;s$'.format(time[t]),
+                    transform=axs.transAxes,
+                    color='white',
+                    fontsize='xx-small'
+                )
 
-    fig.tight_layout()
+            axs.set_xticklabels([])
+            axs.set_yticklabels([])
+            k += 1
 
-    plt.savefig(
+    # fig.tight_layout()
+    fig.savefig(
         'fov_evolution_{}_{}_t_{}_w_{}.eps'.format(
             x, y, '_'.join([str(a) for a in time_indice]), '_'.join([str(a) for a in wave_indice])
         ),
         dpi=300,
+        format='eps',
+        bbox_inches='tight'
+    )
+
+    plt.close('all')
+    plt.clf()
+    plt.cla()
+
+def plot_2_profiles(ref_x, ref_y, x1, y1, t1, x2, y2, t2):
+    whole_data = get_input_profiles(ref_x, ref_y)
+
+    plt.plot(
+        get_relative_velocity(wave_3933[:-1]),
+        whole_data[t1, x1, y1, 0:29], color='#FF4848'
+    )
+
+    plt.plot(
+        get_relative_velocity(wave_3933[:-1]), 
+        whole_data[t2, x2, y2, 0:29], color='#0F52BA'
+    )
+
+    plt.xlabel(r'$\lambda\;(\AA)$')
+
+    plt.ylabel(r'$I/I_{c}$')
+
+    fig = plt.gcf()
+
+    fig.set_size_inches(5.875, 4.125, forward=True)
+
+    fig.tight_layout()
+
+    fig.savefig(
+        'plot_profiles_ref_x_{}_ref_y_{}_x1_{}_y1_{}_t1_{}_x2_{}_y2_{}_t2_{}.eps'.format(
+            ref_x, ref_y, x1, y1, t1, x2, y2, t2
+        ),
+        dpi=300,
         format='eps'
     )
+
+    plt.close('all')
+    plt.clf()
+    plt.cla()
 
 # TODO:
 #
