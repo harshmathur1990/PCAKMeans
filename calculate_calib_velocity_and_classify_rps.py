@@ -867,85 +867,56 @@ def plot_2_profiles(ref_x, ref_y, x1, y1, t1, x2, y2, t2):
     plt.cla()
 
 
-def plot_1_profile_maps(ref_x, ref_y, x, y, t, nrow, ncol):
-
+def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, title):
     whole_data = get_input_profiles(ref_x, ref_y)
-    time = np.arange(0, 8.26 * 100, 8.26)
-    time = np.round(time, 2)
+    time = np.arange(0, 8.26*100, 8.26)
+
     plt.close('all')
     plt.clf()
     plt.cla()
 
-    fig = plt.figure(
-        figsize=(
-            4.135,
-            4.135 * nrow / ncol
+    fig, axs = plt.subplots(1, 1, figsize=(4.135, 5.845))
+
+    for t in time_indice:
+        axs.plot(
+            get_doppler_velocity_3950(wave_3933[:-1]),
+            whole_data[t, x, y, 0:29],
+            label=r'$t={}s$'.format(
+                time[t]
+            )
+        )
+
+    axs.legend(loc="upper right")
+
+    axs.set_xlabel(r'$\Delta\;(kms^{-1})$')
+
+    axs.set_ylabel(r'$I/I_{c}$')
+
+    axs.set_title(
+        '{}'.format(
+            title
         )
     )
-    gs1 = gridspec.GridSpec(nrow, ncol)
-    gs1.update(wspace=0.0, hspace=0.0)
 
-    k = 0
-    for index_t in range(nrow):
-        for index_w in range(ncol):
-            axs = plt.subplot(gs1[k])
-            im, = axs.plot(
-                get_doppler_velocity_3950(wave_3933[:-1]),
-                whole_data[t[k], x, y, 0:29]
-            )
-            if index_t == 0:
-                axs.text(
-                    0.1, 0.8, r'${}\;km/sec$'.format(dv),
-                    transform=axs.transAxes,
-                    color='white',
-                    fontsize='xx-small'
-                )
-            if index_w == 0:
-                axs.text(
-                    0.1, 0.6, r'${}\;s$'.format(time[t]),
-                    transform=axs.transAxes,
-                    color='white',
-                    fontsize='xx-small'
-                )
+    fig.tight_layout()
 
-            mask = None
-            color = None
-            if shocks_mask:
-                mask = get_shocks_mask(labels[t])
-                mask[np.where(mask >= 1)] = 1
-                color='#FF4848'
-                axs.contour(
-                    mask,
-                    origin='lower',
-                    colors=color,
-                    linewidths=0.2,
-                    alpha=0.2
-                )
-            if reverse_shocks_mask:
-                mask = get_reverse_shocks_mask(labels[t])
-                mask[np.where(mask >= 1)] = 1
-                color='#0F52BA'
-                axs.contour(
-                    mask,
-                    origin='lower',
-                    colors=color,
-                    linewidths=0.2,
-                    alpha=0.2
-                )
-
-            axs.set_xticklabels([])
-            axs.set_yticklabels([])
-            k += 1
-
-    # fig.tight_layout()
-    fig.savefig(
-        'fov_evolution_{}_{}_t_{}_w_{}.eps'.format(
-            x, y, '_'.join([str(a) for a in time_indice]), '_'.join([str(a) for a in wave_indice])
-        ),
-        dpi=300,
-        format='eps'#,
-        # bbox_inches='tight'
-    )
+    for out_format in ['eps', 'pdf']:
+        fig.savefig(
+            'fov_evolution_{}_{}_sp_{}_{}_t_{}.{}'.format(
+                ref_x,
+                ref_y,
+                x,
+                y,
+                '_'.join(
+                    [
+                        str(a) for a in time_indice
+                    ]
+                ),
+                out_format
+            ),
+            format=out_format,
+            dpi=300
+        )
 
     plt.close('all')
     plt.clf()
