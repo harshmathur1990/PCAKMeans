@@ -7,6 +7,7 @@ import h5py
 import sunpy.io
 from helita.io.lp import *
 import matplotlib.gridspec as gridspec
+from skimage.measure import regionprops
 
 
 base_path = Path('/home/harsh/OsloAnalysis')
@@ -524,7 +525,7 @@ def plot_reverse_mask(x, y, t):
     plt.show()
 
 
-def get_input_profiles(ref_x, ref_y):
+def get_input_profiles(ref_x, ref_y, get_6173=False, get_8542=False):
     whole_data = np.zeros((100, 50, 50, 64))
 
     data, header = sunpy.io.fits.read(input_file_3950, memmap=True)[0]
@@ -534,45 +535,47 @@ def get_input_profiles(ref_x, ref_y):
         axes=(0, 2, 3, 1)
     ) / cont[0]
 
-    sh, dt, header = getheader(input_file_6173)
-    data = np.memmap(
-        input_file_6173,
-        mode='r',
-        shape=sh,
-        dtype=dt,
-        order='F',
-        offset=512
-    )
+    if get_6173:
+        sh, dt, header = getheader(input_file_6173)
+        data = np.memmap(
+            input_file_6173,
+            mode='r',
+            shape=sh,
+            dtype=dt,
+            order='F',
+            offset=512
+        )
 
-    data = np.transpose(
-        data.reshape(1848, 1236, 100, 4, 14),
-        axes=(2, 3, 4, 1, 0)
-    )
+        data = np.transpose(
+            data.reshape(1848, 1236, 100, 4, 14),
+            axes=(2, 3, 4, 1, 0)
+        )
 
-    whole_data[:, :, :, 30:30 + 14] = np.transpose(
-        data[:, 0, :, ref_x: ref_x + 50, ref_y: ref_y + 50],
-        axes=(0, 2, 3, 1)
-    ) / cont[1]
+        whole_data[:, :, :, 30:30 + 14] = np.transpose(
+            data[:, 0, :, ref_x: ref_x + 50, ref_y: ref_y + 50],
+            axes=(0, 2, 3, 1)
+        ) / cont[1]
 
-    sh, dt, header = getheader(input_file_8542)
-    data = np.memmap(
-        input_file_8542,
-        mode='r',
-        shape=sh,
-        dtype=dt,
-        order='F',
-        offset=512
-    )
+    if get_8542:
+        sh, dt, header = getheader(input_file_8542)
+        data = np.memmap(
+            input_file_8542,
+            mode='r',
+            shape=sh,
+            dtype=dt,
+            order='F',
+            offset=512
+        )
 
-    data = np.transpose(
-        data.reshape(1848, 1236, 100, 4, 20),
-        axes=(2, 3, 4, 1, 0)
-    )
+        data = np.transpose(
+            data.reshape(1848, 1236, 100, 4, 20),
+            axes=(2, 3, 4, 1, 0)
+        )
 
-    whole_data[:, :, :, 30 + 14:30 + 14 + 20] = np.transpose(
-        data[:, 0, :, ref_x: ref_x + 50, ref_y: ref_y + 50],
-        axes=(0, 2, 3, 1)
-    ) / cont[2]
+        whole_data[:, :, :, 30 + 14:30 + 14 + 20] = np.transpose(
+            data[:, 0, :, ref_x: ref_x + 50, ref_y: ref_y + 50],
+            axes=(0, 2, 3, 1)
+        ) / cont[2]
 
     return whole_data
 
@@ -669,11 +672,35 @@ def get_rbe_rre_mask(x, y, t):
     return new_shocks_mask, new_reverse_shocks_mask
 
 
-def plot_evolution_diagram(x, y, time_indice, wave_indice, log_scale=False, exp_scale=False):
+# def get_max_area_region(mask):
+#     regionproperties = regionprops(mask)
+#     new_mask = np.zeros_like(mask)
+#     max_area = -1
+#     for a_regionprop in regionproperties:
+#         if a_regionprop.area > max_area:
+#             max_area = a_regionprop.area
+            
+
+
+def plot_evolution_diagram(
+    x,
+    y,
+    time_indice,
+    wave_indice,
+    letter=None,
+    log_scale=False,
+    exp_scale=False,
+    shocks_mask=False,
+    reverse_shocks_mask=False
+):
     whole_data = get_input_profiles(x, y)
     time = np.arange(0, 8.26 * 100, 8.26)
     time = np.round(time, 2)
-
+    labels = None
+    if shocks_mask or reverse_shocks_mask:
+        f = h5py.File(old_kmeans_file, 'r')
+        labels = f['new_final_labels'][time_indice][:, x:x + 50, y:y + 50]
+        f.close()
     min_value = whole_data[time_indice][:, :, :, wave_indice].min()
     max_value = whole_data[time_indice][:, :, :, wave_indice].max()
 
@@ -688,7 +715,7 @@ def plot_evolution_diagram(x, y, time_indice, wave_indice, log_scale=False, exp_
         )
     )
     gs1 = gridspec.GridSpec(time_indice.size, wave_indice.size)
-    gs1.update(wspace=0.0, hspace=0.0)
+    gs1.update(left=0, right=1, top=1, bottom=0, wspace=0.0, hspace=0.0)
     k = 0
     for index_t, t in enumerate(time_indice):
         for index_w, w in enumerate(wave_indice):
@@ -732,39 +759,92 @@ def plot_evolution_diagram(x, y, time_indice, wave_indice, log_scale=False, exp_
                     color='white',
                     fontsize='xx-small'
                 )
+            if index_t == 1 and index_w == wave_indice.size-1:
+                axs.text(
+                    0.1, 0.6, r'{}'.format(letter),
+                    transform=axs.transAxes,
+                    color='white',
+                    fontsize='xx-small'
+                )
+
+            axs.spines["top"].set_color("white")
+            axs.spines["left"].set_color("white")
+            axs.spines["bottom"].set_color("white")
+            axs.spines["right"].set_color("white")
+
+            axs.spines["top"].set_linewidth(0.1)
+            axs.spines["left"].set_linewidth(0.1)
+            axs.spines["bottom"].set_linewidth(0.1)
+            axs.spines["right"].set_linewidth(0.1)
+
+            axs.tick_params(axis='x', colors='white')
+            axs.tick_params(axis='y', colors='white')
+
+            mask = None
+            color = None
+            if shocks_mask:
+                mask = get_shocks_mask(labels[t])
+                mask[np.where(mask >= 1)] = 1
+                color='#FF4848'
+                axs.contour(
+                    mask,
+                    origin='lower',
+                    colors=color,
+                    linewidths=0.2,
+                    alpha=0.2
+                )
+            if reverse_shocks_mask:
+                mask = get_reverse_shocks_mask(labels[t])
+                mask[np.where(mask >= 1)] = 1
+                color='#0F52BA'
+                axs.contour(
+                    mask,
+                    origin='lower',
+                    colors=color,
+                    linewidths=0.2,
+                    alpha=0.2
+                )
 
             axs.set_xticklabels([])
             axs.set_yticklabels([])
             k += 1
 
     # fig.tight_layout()
+    # plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
     fig.savefig(
         'fov_evolution_{}_{}_t_{}_w_{}.eps'.format(
             x, y, '_'.join([str(a) for a in time_indice]), '_'.join([str(a) for a in wave_indice])
         ),
         dpi=300,
-        format='eps',
-        bbox_inches='tight'
+        format='eps'
+    )
+    fig.savefig(
+        'fov_evolution_{}_{}_t_{}_w_{}.pdf'.format(
+            x, y, '_'.join([str(a) for a in time_indice]), '_'.join([str(a) for a in wave_indice])
+        ),
+        dpi=300,
+        format='pdf'
     )
 
     plt.close('all')
     plt.clf()
     plt.cla()
 
+
 def plot_2_profiles(ref_x, ref_y, x1, y1, t1, x2, y2, t2):
     whole_data = get_input_profiles(ref_x, ref_y)
 
     plt.plot(
-        get_relative_velocity(wave_3933[:-1]),
+        get_doppler_velocity_3950(wave_3933[:-1]),
         whole_data[t1, x1, y1, 0:29], color='#FF4848'
     )
 
     plt.plot(
-        get_relative_velocity(wave_3933[:-1]), 
+        get_doppler_velocity_3950(wave_3933[:-1]), 
         whole_data[t2, x2, y2, 0:29], color='#0F52BA'
     )
 
-    plt.xlabel(r'$\lambda\;(\AA)$')
+    plt.xlabel(r'$\Delta\;(kms^{-1})$')
 
     plt.ylabel(r'$I/I_{c}$')
 
@@ -780,6 +860,91 @@ def plot_2_profiles(ref_x, ref_y, x1, y1, t1, x2, y2, t2):
         ),
         dpi=300,
         format='eps'
+    )
+
+    plt.close('all')
+    plt.clf()
+    plt.cla()
+
+
+def plot_1_profile_maps(ref_x, ref_y, x, y, t, nrow, ncol):
+
+    whole_data = get_input_profiles(ref_x, ref_y)
+    time = np.arange(0, 8.26 * 100, 8.26)
+    time = np.round(time, 2)
+    plt.close('all')
+    plt.clf()
+    plt.cla()
+
+    fig = plt.figure(
+        figsize=(
+            4.135,
+            4.135 * nrow / ncol
+        )
+    )
+    gs1 = gridspec.GridSpec(nrow, ncol)
+    gs1.update(wspace=0.0, hspace=0.0)
+
+    k = 0
+    for index_t in range(nrow):
+        for index_w in range(ncol):
+            axs = plt.subplot(gs1[k])
+            im, = axs.plot(
+                get_doppler_velocity_3950(wave_3933[:-1]),
+                whole_data[t[k], x, y, 0:29]
+            )
+            if index_t == 0:
+                axs.text(
+                    0.1, 0.8, r'${}\;km/sec$'.format(dv),
+                    transform=axs.transAxes,
+                    color='white',
+                    fontsize='xx-small'
+                )
+            if index_w == 0:
+                axs.text(
+                    0.1, 0.6, r'${}\;s$'.format(time[t]),
+                    transform=axs.transAxes,
+                    color='white',
+                    fontsize='xx-small'
+                )
+
+            mask = None
+            color = None
+            if shocks_mask:
+                mask = get_shocks_mask(labels[t])
+                mask[np.where(mask >= 1)] = 1
+                color='#FF4848'
+                axs.contour(
+                    mask,
+                    origin='lower',
+                    colors=color,
+                    linewidths=0.2,
+                    alpha=0.2
+                )
+            if reverse_shocks_mask:
+                mask = get_reverse_shocks_mask(labels[t])
+                mask[np.where(mask >= 1)] = 1
+                color='#0F52BA'
+                axs.contour(
+                    mask,
+                    origin='lower',
+                    colors=color,
+                    linewidths=0.2,
+                    alpha=0.2
+                )
+
+            axs.set_xticklabels([])
+            axs.set_yticklabels([])
+            k += 1
+
+    # fig.tight_layout()
+    fig.savefig(
+        'fov_evolution_{}_{}_t_{}_w_{}.eps'.format(
+            x, y, '_'.join([str(a) for a in time_indice]), '_'.join([str(a) for a in wave_indice])
+        ),
+        dpi=300,
+        format='eps'#,
+        # bbox_inches='tight'
     )
 
     plt.close('all')

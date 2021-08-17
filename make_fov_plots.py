@@ -113,6 +113,7 @@ def plot_fov_images():
     fov_3_mask = np.zeros((1236, 1848))
     fov_4_mask = np.zeros((1236, 1848))
     fov_5_mask = np.zeros((1236, 1848))
+    fov_6_mask = np.zeros((1236, 1848))
 
     #fov 1
     fov_1_mask[662:712, 708:758] = 1
@@ -128,6 +129,9 @@ def plot_fov_images():
 
     #fov 5
     fov_5_mask[486:536, 974:1024] = 1
+
+    #fov 6
+    fov_6_mask[582:632, 627:677] = 1
 
     axs[0][0].imshow(whole_data[0, 29, :, :], cmap='gray', origin='lower', extent=extent)
     axs[0][1].imshow(whole_data[0, 13, :, :], cmap='gray', origin='lower', extent=extent)
@@ -165,6 +169,11 @@ def plot_fov_images():
     axs[1][0].contour(fov_5_mask, levels=0, extent=extent, origin='lower', colors='pink')
     axs[1][1].contour(fov_5_mask, levels=0, extent=extent, origin='lower', colors='pink')
 
+    axs[0][0].contour(fov_6_mask, levels=0, extent=extent, origin='lower', colors='white')
+    axs[0][1].contour(fov_6_mask, levels=0, extent=extent, origin='lower', colors='white')
+    axs[1][0].contour(fov_6_mask, levels=0, extent=extent, origin='lower', colors='white')
+    axs[1][1].contour(fov_6_mask, levels=0, extent=extent, origin='lower', colors='white')
+
     axs[0][0].set_xticklabels([])
     axs[0][1].set_xticklabels([])
     axs[0][1].set_yticklabels([])
@@ -178,7 +187,7 @@ def plot_fov_images():
 
     fig.tight_layout()
     fig.savefig('FOV.eps', format='eps', dpi=300)
-    fig.savefig('FOV.png', format='png', dpi=300)
+    fig.savefig('FOV.pdf', format='pdf', dpi=300)
 
     plt.close('all')
     plt.clf()
