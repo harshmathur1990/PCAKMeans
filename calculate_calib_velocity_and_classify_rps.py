@@ -605,41 +605,6 @@ def get_relative_velocity(wavelength):
     return wavelength - 3933.682
 
 
-def plot_lambda_t_curve(ref_x, ref_y, x, y):
-    whole_data = get_input_profiles(ref_x, ref_y)
-    dv = get_relative_velocity(wave_3933)
-    time = np.arange(0, 8.26 * 100, 8.26)
-
-    plt.close('all')
-    plt.clf()
-    plt.cla()
-
-    X, Y = np.meshgrid(dv[:-1], time)
-    plt.pcolormesh(
-        X, Y,
-        whole_data[:, x, y, 0:29],
-        shading='nearest',
-        cmap='gray'
-    )
-
-    plt.xlabel(r'$\lambda\;(\AA)$')
-    plt.ylabel(r'$time\;(seconds)$')
-
-    fig = plt.gcf()
-
-    fig.set_size_inches(4.135, 4.135, forward=True)
-
-    fig.tight_layout()
-
-    plt.savefig(
-        'lambda_t_{}_{}_{}_{}.eps'.format(
-            ref_x, ref_y, x, y
-        ),
-        dpi=300,
-        format='eps'
-    )
-
-
 def plot_category(x, y, del_x, del_y):
 
     plt.close('all')
@@ -869,7 +834,10 @@ def plot_2_profiles(ref_x, ref_y, x1, y1, t1, x2, y2, t2):
 
 def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, title):
     whole_data = get_input_profiles(ref_x, ref_y)
-    time = np.arange(0, 8.26*100, 8.26)
+    time = np.round(
+        np.arange(0, 8.26*100, 8.26),
+        2
+    )
 
     plt.close('all')
     plt.clf()
@@ -922,8 +890,74 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, title):
     plt.clf()
     plt.cla()
 
-# TODO:
-#
-# 1. Define fovs with timesteps such that 10 examples
-#    of each type of shocks and reverse shocks
-# 2. Write Paper
+
+def make_lambda_t_curve(ref_x, ref_y, x, y, title):
+    whole_data = get_input_profiles(ref_x, ref_y)
+    dv = get_doppler_velocity_3950(wave_3933)
+
+    minima_args_wave = list()
+    minima_args_time = list()
+
+    for i in range(100):
+        rp = whole_data[i, x, y, 0:29]
+        minima_points = np.r_[True, rp[1:] < rp[:-1]] & np.r_[rp[:-1] < rp[1:], True]
+        minima_indices = np.where(minima_points == True)[0]
+        for m in minima_indices:
+            minima_args_wave.append(m)
+            minima_args_time.append(i)
+
+
+    time = np.arange(0, 8.26 * 100, 8.26)
+
+    plt.close('all')
+    plt.clf()
+    plt.cla()
+
+    size = plt.rcParams['lines.markersize']
+
+    fig, axs = plt.subplots(1, 1, figsize=(3, 6))
+
+    axs.imshow(
+        np.log(whole_data[:, x, y, 0:29]),
+        extent=[dv[0], dv[-2], 0, time[-1]],
+        cmap='gray',
+        origin='lower',
+        aspect='auto'
+    )
+
+    # axs.scatter(
+    #     dv[np.array(minima_args_wave)], time[np.array(minima_args_time)], color='white',
+    #     s=size/2
+    # )
+
+    axs.set_xlabel(r'$\Delta\;(kms^{-1})$')
+    axs.set_ylabel(r'$time\;(seconds)$')
+    axs.set_title(
+        '{}'.format(
+            title
+        )
+    )
+
+    fig.tight_layout()
+
+    fig.savefig(
+        'lambda_t_{}_{}_{}_{}.eps'.format(
+            ref_x, ref_y, x, y
+        ),
+        dpi=300,
+        format='eps',
+        # bbox_inches='tight'
+    )
+
+    fig.savefig(
+        'lambda_t_{}_{}_{}_{}.pdf'.format(
+            ref_x, ref_y, x, y
+        ),
+        dpi=300,
+        format='pdf',
+        # bbox_inches='tight'
+    )
+
+    plt.close('all')
+    plt.clf()
+    plt.cla()

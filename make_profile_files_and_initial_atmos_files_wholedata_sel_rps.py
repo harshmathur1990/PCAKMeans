@@ -313,7 +313,7 @@ def make_files():
 
     flag = 0
 
-    sel_profiles = [[78, 18]]
+    sel_profiles = [[32]]
 
     for profiles in sel_profiles:
 

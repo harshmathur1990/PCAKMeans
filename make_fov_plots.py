@@ -115,22 +115,22 @@ def plot_fov_images():
     fov_5_mask = np.zeros((1236, 1848))
     fov_6_mask = np.zeros((1236, 1848))
 
-    #fov 1
+    #fov A
     fov_1_mask[662:712, 708:758] = 1
 
-    #fov 2
+    #fov B
     fov_2_mask[520:570, 715:765] = 1
 
-    #fov 3
+    #fov C
     fov_3_mask[640:690, 1000:1050] = 1
 
-    #fov 4
+    #fov D
     fov_4_mask[915:965, 1072:1122] = 1
 
-    #fov 5
+    #fov E
     fov_5_mask[486:536, 974:1024] = 1
 
-    #fov 6
+    #fov F
     fov_6_mask[582:632, 627:677] = 1
 
     axs[0][0].imshow(whole_data[0, 29, :, :], cmap='gray', origin='lower', extent=extent)
