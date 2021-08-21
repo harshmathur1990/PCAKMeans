@@ -147,11 +147,15 @@ def actual_plotting(labels, rps, name='guess'):
 
         plt.cla()
 
-        fig, ax = plt.subplots(10, 5, figsize=(8.27, 11.69))
+        fig = plt.figure(figsize=(8.27, 11.69))
 
         for i in range(10):
 
             for j in range(5):
+
+                sys.stdout.write('{}\n'.format(k))
+
+                ax1 = Subplot(fig, 10, 5, k+1 if k < 50 else k-49, label='1')
 
                 a = np.where(labels == k)[0]
 
@@ -176,7 +180,7 @@ def actual_plotting(labels, rps, name='guess'):
                     bins=(wave_3933, in_bins_3950)
                 )
 
-                ax[i][j].plot(
+                ax1.plot(
                     wave_3933,
                     center[0:29],
                     color='#001E6C',
@@ -184,7 +188,7 @@ def actual_plotting(labels, rps, name='guess'):
                     linestyle='solid'
                 )
 
-                ax[i][j].plot(
+                ax1.plot(
                     wave_3933,
                     farthest_profile[0:29],
                     color='#001E6C',
@@ -195,31 +199,31 @@ def actual_plotting(labels, rps, name='guess'):
 
                 X1, Y1 = np.meshgrid(xedge1, yedge1)
 
-                ax[i][j].pcolormesh(X1, Y1, H1.T, cmap='Blues')
+                ax1.pcolormesh(X1, Y1, H1.T, cmap='Blues')
 
-                ax[i][j].set_ylim(min_3950, max_3950)
+                ax1.set_ylim(min_3950, max_3950)
 
-                ax[i][j].text(
+                ax1.text(
                     0.2,
                     0.6,
                     'n = {} %'.format(
                         np.round(a.size * 100 / labels.size, 4)
                     ),
-                    transform=ax[i][j].transAxes,
+                    transform=ax1.transAxes,
                     fontsize=8
                 )
 
-                ax[i][j].text(
+                ax1.text(
                     0.3,
                     0.8,
                     'RP {}'.format(k),
-                    transform=ax[i][j].transAxes,
+                    transform=ax1.transAxes,
                     fontsize=8
                 )
 
-                ax[i][j].set_xticklabels([])
-                ax[i][j].set_xticklabels([])
-                ax[i][j].set_xticklabels([])
+                ax1.set_xticklabels([])
+                ax1.set_xticklabels([])
+                ax1.set_xticklabels([])
 
                 ax2 = Subplot(fig, 10, 5, k+1 if k < 50 else k-49, label='2')
 
@@ -249,6 +253,8 @@ def actual_plotting(labels, rps, name='guess'):
 
                 k += 1
 
+        fig.tight_layout()
+
         fig.savefig(
             'RPs_{}.pdf'.format(k),
             format='pdf',
@@ -258,8 +264,6 @@ def actual_plotting(labels, rps, name='guess'):
 
 def plot_profiles():
     global whole_data
-
-    sys.stdout.write('Processing {}\n'.format(file))
 
     whole_data, n, o, p = get_data()
     # f = h5py.File(file, 'r')
