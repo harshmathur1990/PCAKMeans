@@ -184,14 +184,6 @@ def actual_plotting(labels, rps, name='guess'):
                     linestyle='solid'
                 )
 
-                ax[i][j][1].plot(
-                    wave_8542,
-                    center[30:30 + 20],
-                    color='',
-                    linewidth=0.5,
-                    linestyle='solid'
-                )
-
                 ax[i][j].plot(
                     wave_3933,
                     farthest_profile[0:29],
