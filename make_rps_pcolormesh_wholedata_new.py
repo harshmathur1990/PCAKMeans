@@ -155,7 +155,7 @@ def actual_plotting(labels, rps, name='guess'):
 
                 sys.stdout.write('{}\n'.format(k))
 
-                ax1 = Subplot(fig, 10, 5, k+1 if k < 50 else k-49, label='1')
+                ax1 = fig.add_subplot(10, 5, k+1 if k < 50 else k-49, label='1')
 
                 a = np.where(labels == k)[0]
 
@@ -225,7 +225,7 @@ def actual_plotting(labels, rps, name='guess'):
                 ax1.set_xticklabels([])
                 ax1.set_xticklabels([])
 
-                ax2 = Subplot(fig, 10, 5, k+1 if k < 50 else k-49, label='2')
+                ax2 = fig.add_subplot(10, 5, k+1 if k < 50 else k-49, label='2')
 
                 ax2.plot(
                     wave_8542,
@@ -238,7 +238,7 @@ def actual_plotting(labels, rps, name='guess'):
                 ax2.set_xticklabels([])
                 ax2.set_yticklabels([])
 
-                ax3 = Subplot(fig, 10, 5, k+1 if k < 50 else k-49, label='3')
+                ax3 = fig.add_subplot(10, 5, k+1 if k < 50 else k-49, label='3')
 
                 ax3.plot(
                     wave_6173,
