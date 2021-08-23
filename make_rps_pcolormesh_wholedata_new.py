@@ -221,8 +221,7 @@ def actual_plotting(labels, rps, name='guess'):
                     fontsize=8
                 )
 
-                ax1.set_xticklabels([])
-                ax1.set_xticklabels([])
+                ax1.set_xticks([3933.682])
                 ax1.set_xticklabels([])
 
                 ax2 = fig.add_subplot(10, 5, k+1 if k < 50 else k-49, label='2', frame_on=False)
@@ -235,8 +234,21 @@ def actual_plotting(labels, rps, name='guess'):
                     linestyle='solid'
                 )
 
-                ax2.set_xticklabels([])
-                ax2.set_yticklabels([])
+                ax2.tick_params(
+                    axis='x',          # changes apply to the x-axis
+                    which='both',      # both major and minor ticks are affected
+                    bottom=False,      # ticks along the bottom edge are off
+                    top=False,         # ticks along the top edge are off
+                    labelbottom=False
+                )
+
+                ax2.tick_params(
+                    axis='y',          # changes apply to the x-axis
+                    which='both',      # both major and minor ticks are affected
+                    bottom=False,      # ticks along the bottom edge are off
+                    top=False,         # ticks along the top edge are off
+                    labelbottom=False
+                )
 
                 ax3 = fig.add_subplot(10, 5, k+1 if k < 50 else k-49, label='3', frame_on=False)
 
@@ -248,8 +260,21 @@ def actual_plotting(labels, rps, name='guess'):
                     linestyle='solid'
                 )
 
-                ax3.set_xticklabels([])
-                ax3.set_yticklabels([])
+                ax3.tick_params(
+                    axis='x',          # changes apply to the x-axis
+                    which='both',      # both major and minor ticks are affected
+                    bottom=False,      # ticks along the bottom edge are off
+                    top=False,         # ticks along the top edge are off
+                    labelbottom=False
+                )
+
+                ax3.tick_params(
+                    axis='y',          # changes apply to the x-axis
+                    which='both',      # both major and minor ticks are affected
+                    bottom=False,      # ticks along the bottom edge are off
+                    top=False,         # ticks along the top edge are off
+                    labelbottom=False
+                )
 
                 k += 1
 
