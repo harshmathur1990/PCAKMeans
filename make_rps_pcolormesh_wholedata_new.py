@@ -57,6 +57,29 @@ cont_array[30:30 + 20] = cont_value[1]
 cont_array[30 + 20: 30 + 20 + 14] = cont_value[2]
 
 
+weak_shocks_profiles = np.array(
+    [
+        6, 57, 10, 80, 49, 56, 98, 96, 87, 9, 91, 23,  5, 12, 65, 67,
+        92
+    ]
+)
+
+medium_shocks_profiles = np.array(
+    [
+        1, 55, 39, 22, 94, 30, 54, 93, 17, 77, 26, 72, 52, 19, 79, 37, 4
+    ]
+)
+
+strong_shocks_profiles = np.array(
+    [
+        85, 36, 18, 78
+    ]
+)
+
+total_shock_profiles = np.array(
+    list(weak_shocks_profiles) + list(medium_shocks_profiles) + list(strong_shocks_profiles)
+)
+
 red = '#ec5858'
 brown = '#fd8c04'
 yellow = '#edf285'
@@ -153,6 +176,13 @@ def actual_plotting(labels, rps, name='guess'):
 
             for j in range(5):
 
+                if k in total_shock_profiles:
+                    color = '#001E6C'
+                    cm = 'Blues'
+                else:
+                    color = 'black'
+                    cm = 'Greys'
+
                 sys.stdout.write('{}\n'.format(k))
 
                 ax1 = fig.add_subplot(10, 5, k+1 if k < 50 else k-49, label='1')
@@ -183,7 +213,7 @@ def actual_plotting(labels, rps, name='guess'):
                 ax1.plot(
                     wave_3933,
                     center[0:29],
-                    color='#001E6C',
+                    color=color,
                     linewidth=0.5,
                     linestyle='solid'
                 )
@@ -191,7 +221,7 @@ def actual_plotting(labels, rps, name='guess'):
                 ax1.plot(
                     wave_3933,
                     farthest_profile[0:29],
-                    color='#001E6C',
+                    color=color,
                     linewidth=0.5,
                     linestyle='dotted'
                 )
@@ -199,7 +229,7 @@ def actual_plotting(labels, rps, name='guess'):
 
                 X1, Y1 = np.meshgrid(xedge1, yedge1)
 
-                ax1.pcolormesh(X1, Y1, H1.T, cmap='Blues')
+                ax1.pcolormesh(X1, Y1, H1.T, cmap=cm)
 
                 ax1.set_ylim(min_3950, max_3950)
 
