@@ -264,19 +264,8 @@ def actual_plotting(labels, rps, name='guess'):
                     linestyle='solid'
                 )
 
-                ax2.tick_params(
-                    axis='x',          # changes apply to the x-axis
-                    which='both',      # both major and minor ticks are affected
-                    bottom=False,      # ticks along the bottom edge are off
-                    top=False         # ticks along the top edge are off
-                )
-
-                ax2.tick_params(
-                    axis='y',          # changes apply to the x-axis
-                    which='both',      # both major and minor ticks are affected
-                    bottom=False,      # ticks along the bottom edge are off
-                    top=False         # ticks along the top edge are off
-                )
+                ax2.set_xticks([])
+                ax2.set_yticks([])
 
                 ax3 = fig.add_subplot(10, 5, k+1 if k < 50 else k-49, label='3', frame_on=False)
 
@@ -288,19 +277,8 @@ def actual_plotting(labels, rps, name='guess'):
                     linestyle='solid'
                 )
 
-                ax3.tick_params(
-                    axis='x',          # changes apply to the x-axis
-                    which='both',      # both major and minor ticks are affected
-                    bottom=False,      # ticks along the bottom edge are off
-                    top=False         # ticks along the top edge are off
-                )
-
-                ax3.tick_params(
-                    axis='y',          # changes apply to the x-axis
-                    which='both',      # both major and minor ticks are affected
-                    bottom=False,      # ticks along the bottom edge are off
-                    top=False         # ticks along the top edge are off
-                )
+                ax3.set_xticks([])
+                ax3.set_yticks([])
 
                 k += 1
 
