@@ -63,6 +63,9 @@ def do_work(index):
 
             maxima_indices = np.where(maxima_points == True)[0]
 
+            if maxima_indices.size <= 0:
+                continue
+
             maxima_indice = maxima_indices[
                 np.argmax(
                     profile_array[i][
