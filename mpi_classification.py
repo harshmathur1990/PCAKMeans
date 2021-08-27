@@ -2,7 +2,7 @@ import numpy as np
 import sunpy.io
 import h5py
 from mpi4py import MPI
-from apthlib import Path
+from pathlib import Path
 
 base_path = Path('/home/harsh/OsloAnalysis')
 new_kmeans = base_path / 'new_kmeans'
