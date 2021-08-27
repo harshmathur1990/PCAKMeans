@@ -52,7 +52,7 @@ def timeit(method):
 
 
 # @timeit
-def do_work(index):
+def do_work(i):
     i, j = np.unravel_index(index, (1236, 1848))
     profile_array = data[:, 0, 0:29, i, j]
     classify_array = f['new_final_labels'][:, i, j]
@@ -91,12 +91,16 @@ def do_work(index):
                 )
             ]
 
-            if maxima_indices.size >= 1 and maxima_indice <= 15:
-                minima_indice = minima_indices[
-                    np.where(
-                        minima_indices <= maxima_indice
-                    )[0][-1]
-                ]
+            mn = np.where(
+                minima_indices <= maxima_indice
+            )[0]
+
+            if mn.size <= 0:
+                continue
+
+            minima_indice = minima_indices[mn[-1]]
+
+            if minima_indice < maxima_indice and maxima_indice <= 15:
 
                 shock_intensity = (profile_array[i][maxima_indice] - profile_array[i][minima_indice]) / profile_array[i][minima_indice]
 
@@ -177,6 +181,8 @@ if __name__ == '__main__':
             dt = status_dict['data_t']
             de = status_dict['data_enhance']
 
+            write_to_file(f1, f2, dt, de)
+
             if len(waiting_queue) != 0:
                 new_item = waiting_queue.pop()
                 work_type = {
@@ -185,8 +191,6 @@ if __name__ == '__main__':
                 }
                 comm.send(work_type, dest=sender, tag=1)
                 running_queue.add(new_item)
-
-            write_to_file(f1, f2, dt, de)
 
         for worker in range(1, size):
             work_type = {
