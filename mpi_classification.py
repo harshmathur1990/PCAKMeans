@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 import sunpy.io
 import h5py
