@@ -51,7 +51,7 @@ def timeit(method):
     return timed
 
 
-@timeit
+# @timeit
 def do_work(index):
     i, j = np.unravel_index(index, (1236, 1848))
     profile_array = data[:, 0, 0:29, i, j]
@@ -116,7 +116,7 @@ def do_work(index):
     return data_t, data_intensity_enhancement
 
 
-@timeit
+# @timeit
 def write_to_file(f1, f2, dt, de):
     np.savetxt(f1, dt)
     np.savetxt(f2, de)
