@@ -113,8 +113,9 @@ if __name__ == '__main__':
         waiting_queue = set()
         running_queue = set()
         data_t = list()
-
         data_enhance = list()
+        f1 = open('data_t.txt', 'a')
+        f2 = open('data_enhance.txt', 'a')
 
         for i in range(1236 * 1848):
             waiting_queue.add(i)
@@ -153,8 +154,6 @@ if __name__ == '__main__':
             running_queue.discard(item)
             dt = status_dict['data_t']
             de = status_dict['data_enhance']
-            data_t += dt
-            data_enhance += de
 
             if len(waiting_queue) != 0:
                 new_item = waiting_queue.pop()
@@ -165,14 +164,17 @@ if __name__ == '__main__':
                 comm.send(work_type, dest=sender, tag=1)
                 running_queue.add(new_item)
 
+            np.savetxt(f1, dt)
+            np.savetxt(f2, de)
+
         for worker in range(1, size):
             work_type = {
                 'job': 'stopwork'
             }
             comm.send(work_type, dest=worker, tag=1)
 
-        np.savetxt('data_t.txt', data_t)
-        np.savetxt('data_enhance.txt', data_enhance)
+        f1.close()
+        f2.close()
     else:
         while 1:
             work_type = comm.recv(source=0, tag=1)
