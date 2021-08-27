@@ -63,13 +63,33 @@ def do_work(index):
 
             maxima_indices = np.where(maxima_points == True)[0]
 
-            if maxima_indices.size == 1 and minima_indices.size == 2 and maxima_indices[0] <= 15:
+            maxima_indice = maxima_indices[
+                np.argmax(
+                    profile_array[i][
+                        maxima_indices
+                    ]
+                )
+            ]
 
-                shock_intensity = (profile_array[i][maxima_indices[0]] - profile_array[i][minima_indices[0]]) / profile_array[i][minima_indices[0]]
+            if maxima_indices.size >= 1 and maxima_indice <= 15:
+                minima_indice = minima_indices[
+                    np.where(
+                        minima_indices <= maxima_indice
+                    )[0][-1]
+                ]
+
+                shock_intensity = (profile_array[i][maxima_indice] - profile_array[i][minima_indice]) / profile_array[i][minima_indice]
 
                 data_t.append(i - start_indice)
 
                 data_intensity_enhancement.append(shock_intensity)
+
+                # print (
+                #         '{}-{}'.format(
+                #             i, start_indice
+                #         )
+                #     )
+
         else:
             start = False
 
