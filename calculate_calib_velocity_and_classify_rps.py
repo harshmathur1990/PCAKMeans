@@ -7,11 +7,13 @@ import h5py
 import sunpy.io
 from helita.io.lp import *
 import matplotlib.gridspec as gridspec
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from skimage.measure import regionprops
 
 
 base_path = Path('/home/harsh/OsloAnalysis')
 new_kmeans = base_path / 'new_kmeans'
+response_functions_path = new_kmeans / 'Response Functions'
 all_data_inversion_rps = new_kmeans / 'all_data_inversion_rps'
 selected_frames = np.array([0, 11, 25, 36, 60, 78, 87])
 old_kmeans_file = new_kmeans / 'out_100_0.5_0.5_n_iter_10000_tol_1en5.h5'
@@ -19,7 +21,12 @@ mask_file_crisp = base_path / 'crisp_chromis_mask_2019-06-06.fits'
 input_file_3950 = '/home/harsh/OsloAnalysis/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits'
 input_file_8542 = '/home/harsh/OsloAnalysis/nb_8542_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
 input_file_6173 = '/home/harsh/OsloAnalysis/nb_6173_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
-
+input_87_17_14_file = response_functions_path / 'wholedata_rps_87_17_14.nc'
+response_87_17_14_file = response_functions_path / 'wholedata_rps_87_17_14_result_atmos_response.nc'
+output_atmos_87_17_14_file = response_functions_path / 'wholedata_rps_87_17_14_result_atmos.nc'
+input_78_18_file = response_functions_path / 'wholedata_rps_shocks_78_18_profile_rps_78_18.nc'
+response_78_18_file = response_functions_path / 'wholedata_rps_shocks_78_18_profile_rps_78_18_cycle_1_t_5_vl_5_vt_4_response.nc'
+output_atmos_78_18_file = response_functions_path / 'wholedata_rps_shocks_78_18_profile_rps_78_18_cycle_1_t_5_vl_5_vt_4_atmos.nc'
 
 new_quiet_profiles = np.array([0, 11, 14, 15, 20, 21, 24, 28, 31, 34, 40, 42, 43, 47, 48, 51, 60, 62, 69, 70, 73, 74, 75, 86, 89, 90, 84, 8, 44, 63])
 new_shock_profiles = np.array([2, 4, 10, 19, 26, 30, 37, 52, 79, 85, 94, 1, 22, 23, 53, 55, 56, 66, 67, 72, 77, 80, 81, 92, 87, 99, 36, 6, 49, 17, 96, 98])
@@ -207,6 +214,7 @@ def get_input_rps():
         f.close()
 
     return rps
+
 
 def get_mean_calib_velocity():
     _, vlos, _ = get_atmos_values_for_lables()
@@ -832,6 +840,38 @@ def plot_2_profiles(ref_x, ref_y, x1, y1, t1, x2, y2, t2):
     plt.cla()
 
 
+
+def plot_1_profiles(ref_x, ref_y, x1, y1, t1):
+    whole_data = get_input_profiles(ref_x, ref_y)
+
+    plt.plot(
+        get_doppler_velocity_3950(wave_3933[:-1]),
+        whole_data[t1, x1, y1, 0:29], color='#0F52BA'
+    )
+
+    plt.xlabel(r'$\Delta\;(kms^{-1})$')
+
+    plt.ylabel(r'$I/I_{c}$')
+
+    fig = plt.gcf()
+
+    fig.set_size_inches(5.875, 4.125, forward=True)
+
+    fig.tight_layout()
+
+    fig.savefig(
+        'plot_profiles_ref_x_{}_ref_y_{}_x1_{}_y1_{}_t1_{}.pdf'.format(
+            ref_x, ref_y, x1, y1, t1
+        ),
+        dpi=300,
+        format='pdf'
+    )
+
+    plt.close('all')
+    plt.clf()
+    plt.cla()
+
+
 def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, title):
     whole_data = get_input_profiles(ref_x, ref_y)
     time = np.round(
@@ -961,3 +1001,411 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, title):
     plt.close('all')
     plt.clf()
     plt.cla()
+
+
+def make_fov_contour():
+
+    f = h5py.File(old_kmeans_file, 'r')
+
+    labels0 = f['new_final_labels'][0]
+
+    f.close()
+
+    shock_profiles = list(weak_shocks_profiles) + list(medium_shocks_profiles) + list(strong_shocks_profiles)
+
+    reverse_shock_profiles = list(weak_reverse_shocks_profiles) + list(strong_reverese_shock_profiles)
+
+    quiet_profiles = list(set(range(100)) - set(shock_profiles) - set(reverse_shock_profiles))
+
+    shock_mask = np.zeros((1236, 1848), dtype=np.int64)
+
+    reverse_shock_mask = np.zeros((1236, 1848), dtype=np.int64)
+
+    quiet_mask = np.zeros((1236, 1848), dtype=np.int64)
+
+    for index, profile in enumerate(shock_profiles):
+        shock_mask[np.where(labels0 == profile)] = index + 1
+
+    for index, profile in enumerate(reverse_shock_profiles):
+        reverse_shock_mask[np.where(labels0 == profile)] = index + 1
+
+    for index, profile in enumerate(quiet_profiles):
+        quiet_mask[np.where(labels0 == profile)] = 1
+
+    shock_masked_array = np.ma.masked_array(shock_mask, shock_mask > 0)
+
+    reverse_shock_masked_array = np.ma.masked_array(reverse_shock_mask, reverse_shock_mask > 0)
+
+    quiet_masked_array = np.ma.masked_array(quiet_mask, quiet_mask > 0)
+
+    extent = [596.31, 666.312, -35.041, 11.765]
+
+    plt.close('all')
+
+    plt.clf()
+
+    plt.cla()
+
+    fig , ax = plt.subplots(1, 1, figsize=(4.135, 5.845))
+
+    ax.imshow(shock_masked_array, cmap='Blues', interpolation='nearest', origin='lower', extent=extent)
+
+    ax.imshow(reverse_shock_masked_array, cmap='Reds', interpolation='nearest', origin='lower', extent=extent)
+
+    ax.imshow(quiet_masked_array, cmap='gray', interpolation='nearest', origin='lower', extent=extent)
+
+    ax.set_xlabel('x[arcsec]')
+
+    ax.set_ylabel('y[arcsec]')
+
+    fig.tight_layout()
+
+    fig.savefig(
+        'FOV_RP_map.pdf',
+        format='pdf',
+        dpi=300
+    )
+
+    plt.close('all')
+
+    plt.clf()
+
+    plt.cla()
+
+
+def get_response_function_data():
+    inp_profiles = np.zeros((4, 29), dtype=np.float64)
+
+    syn_profiles = np.zeros((4, 29), dtype=np.float64)
+
+    response = np.zeros((4, 3, 150, 29), dtype=np.float64)
+
+    # 0: vlos, 1: vturb, 2: temp
+
+    atmos_param = np.zeros((4, 3, 150), dtype=np.float64)
+
+    f = h5py.File(input_87_17_14_file, 'r')
+
+    inp_profiles[0] = f['profiles'][()][0, 0, 2, 4:33, 0]
+    inp_profiles[1] = f['profiles'][()][0, 0, 0, 4:33, 0]
+    inp_profiles[2] = f['profiles'][()][0, 0, 1, 4:33, 0]
+
+    f.close()
+
+    f = h5py.File(input_78_18_file, 'r')
+
+    inp_profiles[3] = f['profiles'][()][0, 0, 0, 4:33, 0]
+
+    f.close()
+
+    f = h5py.File(response_87_17_14_file, 'r')
+
+    syn_profiles[0] = f['profiles'][()][0, 0, 2, 4:33, 0]
+    syn_profiles[1] = f['profiles'][()][0, 0, 0, 4:33, 0]
+    syn_profiles[2] = f['profiles'][()][0, 0, 1, 4:33, 0]
+
+    response[0, :] = f['derivatives'][()][0, 0, 2, np.array([1, 2, 0]), :, 4:33, 0]
+    response[1, :] = f['derivatives'][()][0, 0, 0, np.array([1, 2, 0]), :, 4:33, 0]
+    response[2, :] = f['derivatives'][()][0, 0, 1, np.array([1, 2, 0]), :, 4:33, 0]
+
+    f.close()
+
+    f = h5py.File(response_78_18_file, 'r')
+
+    syn_profiles[3] = f['profiles'][()][0, 0, 0, 4:33, 0]
+    response[3, :] = f['derivatives'][()][0, 0, 0, np.array([1, 2, 0]), :, 4:33, 0]
+
+    f.close()
+
+    f = h5py.File(output_atmos_87_17_14_file, 'r')
+
+    atmos_param[0, 0, :] = f['vlos'][0, 0, 2]
+    atmos_param[1, 0, :] = f['vlos'][0, 0, 0]
+    atmos_param[2, 0, :] = f['vlos'][0, 0, 1]
+
+    atmos_param[0, 1, :] = f['vturb'][0, 0, 2]
+    atmos_param[1, 1, :] = f['vturb'][0, 0, 0]
+    atmos_param[2, 1, :] = f['vturb'][0, 0, 1]
+
+    atmos_param[0, 2, :] = f['temp'][0, 0, 2]
+    atmos_param[1, 2, :] = f['temp'][0, 0, 0]
+    atmos_param[2, 2, :] = f['temp'][0, 0, 1]
+
+    f.close()
+
+    f = h5py.File(output_atmos_78_18_file, 'r')
+
+    atmos_param[3, 0, :] = f['vlos'][0, 0, 0]
+    atmos_param[3, 1, :] = f['vturb'][0, 0, 0]
+    atmos_param[3, 2, :] = f['temp'][0, 0, 0]
+
+    f.close()
+
+    atmos_param[:, 2] /= 1e3
+
+    atmos_param[:, 0] -= calib_velocity
+
+    atmos_param[:, 0:2] /= 1e5
+
+    response[:, 0] /= np.abs(response[:, 0]).max()
+
+    response[:, 1] /= np.abs(response[:, 1]).max()
+
+    response[:, 2] /= np.abs(response[:, 2]).max()
+
+    return inp_profiles, syn_profiles, response, atmos_param
+
+
+def plot_response_functions():
+
+    size = plt.rcParams['lines.markersize']
+
+    inp_profiles, syn_profiles, response, atmos_param = get_response_function_data()
+
+    plt.close('all')
+
+    plt.clf()
+
+    plt.cla()
+
+    fig = plt.figure(
+        figsize=(
+            6,
+            6
+        )
+    )
+    gs = gridspec.GridSpec(3, 3)
+
+    gs.update(wspace=0.0, hspace=0.0)
+
+    doppler_wave = get_doppler_velocity_3950(wave_3933[:-1])
+
+    X, Y = np.meshgrid(doppler_wave, ltau)
+
+    k = 0
+
+    for i in range(3):
+        for j in range(3):
+            axs = plt.subplot(gs[k])
+
+            if j == 2:
+                vmin = 0
+                vmax = 1
+                cmap = 'Greys'
+            else:
+                vmin = -1
+                vmax = 1
+                cmap='RdGy'
+
+            if i == 0:
+                rp = 87
+            elif i == 1:
+                rp = 17
+            else:
+                rp = 78
+
+            im = axs.pcolormesh(
+                X,
+                Y,
+                response[i + 1, j], cmap=cmap,
+                shading='nearest',
+                vmin=vmin,
+                vmax=vmax
+            )
+
+            axs.invert_yaxis()
+
+            axs.set_xticklabels([])
+
+            axs.set_yticklabels([])
+
+            axs2 = axs.twiny()
+
+            axs2.plot(atmos_param[i+1, j], ltau, color='red')
+
+            axs2.plot(atmos_param[0, j], ltau, color='gray')
+
+            axs2.set_xticks([])
+
+            axs2.set_xticklabels([])
+
+            axs2.set_yticklabels([])
+
+            axs.set_yticks([0,  -1, -2, -3, -4, -5, -6, -7])
+                
+            if i == 2:
+                axs.set_xlabel(r'$\Delta\;(kms^{-1})$')
+
+                axs.set_xticks([-50, -25, 0, 25, 50])
+                axs.set_xticklabels([-50, -25, 0, 25, 50])
+
+                cbaxes = inset_axes(axs, width="30%", height="3%", loc=3)
+                cbar = fig.colorbar(
+                    im,
+                    cax=cbaxes,
+                    ticks=[vmin, vmax],
+                    orientation='horizontal'
+                )
+                cbar.ax.xaxis.set_ticks_position('top')
+
+            if j == 0:
+
+                axs.set_ylabel(r'$log(\tau_{500})$')
+                axs.set_yticklabels([0, -1, -2, -3, -4, -5, -6, -7])
+
+                axs.text(
+                    0.7, 0.05, 'RP {}'.format(rp),
+                    transform=axs.transAxes,
+                    color='black'#,
+                    #fontsize='xx-small'
+                )
+
+                axs2.set_xlim(-8, 8)
+                
+                if i == 0:
+                    axs2.set_xticks([-5, 0, 5])
+                    axs2.set_xlabel(r'$V_{LOS}[kms^{-1}]$')
+                    axs2.set_xticklabels([-5, 0, 5])
+
+            if j == 1:
+                
+                axs2.set_xlim(0, 5)
+
+                if i == 0:
+                    axs2.set_xticks([0, 1, 2, 3, 4, 5, 6])
+                    axs2.set_xlabel(r'$V_{turb}[kms^{-1}]$')
+                    axs2.set_xticklabels([0, 1, 2, 3, 4, 5, 6])
+                    
+            if j == 2:
+
+                axs2.set_xlim(3.5, 10)
+                
+                if i == 0:
+                    axs2.set_xticks([4, 5, 6, 7, 8, 9, 10])
+                    axs2.set_xlabel(r'$T[kK]$')
+                    axs2.set_xticklabels([4, 5, 6, 7, 8, 9, 10])
+
+                axs3 = axs.twinx()
+
+                axs3.scatter(doppler_wave, inp_profiles[i+1, :], s=size/4, color='red')
+
+                axs3.plot(doppler_wave, syn_profiles[i+1, :], '--', linewidth=0.5, color='red')
+
+                axs3.scatter(doppler_wave, inp_profiles[0, :],  s=size/4, color='gray')
+
+                axs3.plot(doppler_wave, syn_profiles[0, :], '--', linewidth=0.5, color='gray')
+
+                axs3.set_ylim(0, 0.4)
+
+                axs3.set_ylabel(r'$I/I_{c\;4000\;\AA}$')
+                axs3.set_yticks([0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4])
+                axs3.set_yticklabels([0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4])
+
+                max_indice_ltau, max_indice_wave = np.unravel_index(
+                    np.argmax(
+                        response[i+1, j, :, 10:20]
+                    ),
+                    response[i+1, j, :, 10:20].shape
+                )
+
+                max_sf_tau = ltau[max_indice_ltau]
+
+                max_sf_wave = doppler_wave[max_indice_wave + 10]
+                
+                axs.plot(doppler_wave, np.ones_like(doppler_wave) * max_sf_tau, color='gray')
+                axs.axvline(x=max_sf_wave, color='gray')
+
+            k += 1
+
+    fig.savefig(
+        'Response_Functions.pdf',
+        format='pdf',
+        dpi=300,
+        bbox_inches='tight'
+    )
+
+    plt.close('all')
+
+    plt.clf()
+
+    plt.cla()
+
+
+def get_data_for_intensity_enhancement_time_evolution(profile_array, classify_array):
+
+    profile_array = profile_array[:, :-1]
+
+    all_shock_profiles = list(weak_shocks_profiles) + list(medium_shocks_profiles) + list(strong_shocks_profiles)
+
+    data_t = list()
+
+    data_intensity_enhancement = list()
+
+    start = False
+    start_indice = -1
+    for i in range(100):
+        if classify_array[i] in quiet_profiles:
+            start = True
+            start_indice = i
+            continue
+        if classify_array[i] in all_shock_profiles:
+
+            minima_points = np.r_[True, profile_array[i][1:] < profile_array[i][:-1]] & np.r_[profile_array[i][:-1] < profile_array[i][1:], True]
+
+            maxima_points = np.r_[False, profile_array[i][1:] > profile_array[i][:-1]] & np.r_[profile_array[i][:-1] > profile_array[i][1:], False]
+
+            minima_indices = np.where(minima_points == True)[0]
+
+            maxima_indices = np.where(maxima_points == True)[0]
+
+            if maxima_indices.size == 1 and minima_indices.size == 2 and maxima_indices[0] <= 15:
+
+                shock_intensity = (profile_array[i][maxima_indices[0]] - profile_array[i][minima_indices[0]]) / profile_array[i][minima_indices[0]]
+
+                data_t.append(i - start_indice)
+
+                data_intensity_enhancement.append(shock_intensity)
+
+    return np.array(data_t), np.array(data_intensity_enhancement)
+
+
+def get_kmeans_classification(ref_x, ref_y):
+    f = h5py.File(old_kmeans_file, 'r')
+
+    labels =  f['new_final_labels'][:, ref_x:ref_x+50, ref_y:ref_y+50]
+
+    f.close()
+
+    return labels
+
+
+def get_all_profile_enhancement_data():
+    data_t = list()
+
+    data_intensity_enhancement = list()
+
+    data, header = sunpy.io.fits.read(input_file_3950, memmap=True)[0]
+    f = h5py.File(old_kmeans_file, 'r')
+    labels =  f['new_final_labels']
+
+    total = 1236 * 1848
+
+    last_progress = 0
+    k = 0
+    for i in range(1236):
+        for j in range(1848):
+            dt, de = get_data_for_intensity_enhancement_time_evolution(
+                data[:, 0, 0:29, i, j], labels[:, i, j]
+            )
+            data_t += dt
+            data_intensity_enhancement += de
+            k += 1
+            if k * 100 // total > last_progress:
+                last_progress = k * 100 // total
+                sys.stdout.write(
+                    'Progress {}%'.format(
+                        last_progress
+                    )
+                )
+
+    return data_t, data_intensity_enhancement
