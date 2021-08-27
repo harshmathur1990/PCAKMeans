@@ -35,6 +35,22 @@ quiet_profiles = np.array(
     ]
 )
 
+
+def timeit(method):
+    def timed(*args, **kw):
+        ts = time.time()
+        result = method(*args, **kw)
+        te = time.time()
+        sys.stdout.write(
+            '{} : {} ms\n'.format(
+                method.__name__, (te - ts) * 1000
+            )
+        )
+        return result
+    return timed
+
+
+@timeit
 def do_work(index):
     i, j = np.unravel_index(index, (1236, 1848))
     profile_array = data[:, 0, 0:29, i, j]
@@ -98,6 +114,11 @@ def do_work(index):
 
     return data_t, data_intensity_enhancement
 
+
+@timeit
+def write_to_file(f1, f2, dt, de):
+    np.savetxt(f1, dt)
+    np.savetxt(f2, de)
 
 if __name__ == '__main__':
     comm = MPI.COMM_WORLD
@@ -164,8 +185,7 @@ if __name__ == '__main__':
                 comm.send(work_type, dest=sender, tag=1)
                 running_queue.add(new_item)
 
-            np.savetxt(f1, dt)
-            np.savetxt(f2, de)
+            write_to_file(f1, f2, dt, de)
 
         for worker in range(1, size):
             work_type = {
