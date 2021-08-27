@@ -29,6 +29,11 @@ strong_shocks_profiles = np.array(
     ]
 )
 
+quiet_profiles = np.array(
+    [
+        0, 8, 11, 14, 15, 20, 21, 24, 28, 29, 31, 34, 42, 43, 44, 47, 48, 51, 58, 60, 61, 62, 63, 66, 69, 70, 73, 74, 75, 82, 84, 86, 89, 90, 99
+    ]
+)
 
 def do_work(index):
     i, j = np.unravel_index(index, (1236, 1848))
