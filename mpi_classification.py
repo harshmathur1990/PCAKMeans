@@ -3,7 +3,9 @@ import sunpy.io
 import h5py
 from mpi4py import MPI
 
-input_file_3950 = '/home/harsh/OsloAnalysis/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits'
+base_path = Path('/home/harsh/OsloAnalysis')
+new_kmeans = base_path / 'new_kmeans'
+input_file_3950 = base_path / 'nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits'
 old_kmeans_file = new_kmeans / 'out_100_0.5_0.5_n_iter_10000_tol_1en5.h5'
 
 weak_shocks_profiles = np.array(
