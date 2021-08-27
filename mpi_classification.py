@@ -52,7 +52,7 @@ def timeit(method):
 
 
 # @timeit
-def do_work(i):
+def do_work(index):
     i, j = np.unravel_index(index, (1236, 1848))
     profile_array = data[:, 0, 0:29, i, j]
     classify_array = f['new_final_labels'][:, i, j]
