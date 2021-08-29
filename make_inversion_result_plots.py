@@ -67,8 +67,11 @@ def get_relative_velocity(wavelength):
 
 
 def plot_fov_results_for_a_pixel(
-    x, y, ref_x, ref_y, t, fovName
+    xs, ys, ref_x, ref_y, t, fovName
 ):
+
+    x = [xs, xs + 50]
+    y = [ys, ys + 50]
 
     out_file = '/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/fov_{}_{}_{}_{}/plots/consolidated_results_velocity_calibrated_fov_{}_{}_{}_{}.h5'.format(
         x[0], x[1], y[0], y[1], x[0], x[1], y[0], y[1]
