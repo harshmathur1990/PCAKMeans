@@ -1303,9 +1303,9 @@ def plot_response_functions():
 
                 max_indice_ltau, max_indice_wave = np.unravel_index(
                     np.argmax(
-                        response[i+1, j, :, 10:20]
+                        response[i+1, j, :, 10:17]
                     ),
-                    response[i+1, j, :, 10:20].shape
+                    response[i+1, j, :, 10:17].shape
                 )
 
                 max_sf_tau = ltau[max_indice_ltau]
@@ -1333,7 +1333,6 @@ def plot_response_functions():
 
 def get_data_for_intensity_enhancement_time_evolution(profile_array, classify_array):
 
-    profile_array = profile_array[:, :-1]
 
     all_shock_profiles = list(weak_shocks_profiles) + list(medium_shocks_profiles) + list(strong_shocks_profiles)
 
