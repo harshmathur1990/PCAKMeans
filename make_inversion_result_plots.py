@@ -5,12 +5,6 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
 
-out_file = '/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/fov_662_712_708_758/plots/consolidated_results_velocity_calibrates.h5'
-
-x = [662, 712]
-y = [708, 758]
-
-
 wave_3933 = np.array(
     [
         3932.78952, 3932.85488, 3932.92024, 3932.9856 , 3933.05096,
@@ -73,8 +67,12 @@ def get_relative_velocity(wavelength):
 
 
 def plot_fov_results_for_a_pixel(
-    ref_x, ref_y, t
+    x, y, ref_x, ref_y, t, fovName
 ):
+
+    out_file = '/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/fov_{}_{}_{}_{}/plots/consolidated_results_velocity_calibrated_fov_{}_{}_{}_{}.h5'.format(
+        x[0], x[1], y[0], y[1], x[0], x[1], y[0], y[1]
+    )
 
     time = np.round(
         np.arange(0, 8.26 * 100, 8.26),
@@ -82,8 +80,6 @@ def plot_fov_results_for_a_pixel(
     )
 
     size = plt.rcParams['lines.markersize']
-
-    global x, y
 
     rela_wave = get_relative_velocity(wave_3933[:-1])
 
@@ -139,8 +135,8 @@ def plot_fov_results_for_a_pixel(
     axs.set_ylim(0, 0.4)
 
     axs.text(
-        0.05, 0.8, r'FoV A'.format(
-            time[t]
+        0.05, 0.8, r'FoV {}'.format(
+            time[t], fovName
         ),
         transform=axs.transAxes,
         color='black',
@@ -180,8 +176,8 @@ def plot_fov_results_for_a_pixel(
     axs.set_xlim(-7, 0)
 
     axs.text(
-        0.05, 0.8, r'FoV A'.format(
-            time[t]
+        0.05, 0.8, r'FoV {}'.format(
+            time[t], fovName
         ),
         transform=axs.transAxes,
         color='black',
@@ -221,8 +217,8 @@ def plot_fov_results_for_a_pixel(
     axs.set_xlim(-7, 0)
 
     axs.text(
-        0.05, 0.8, r'FoV A'.format(
-            time[t]
+        0.05, 0.8, r'FoV {}'.format(
+            time[t], fovName
         ),
         transform=axs.transAxes,
         color='black',
@@ -262,8 +258,8 @@ def plot_fov_results_for_a_pixel(
     axs.set_xlim(-7, 0)
 
     axs.text(
-        0.05, 0.8, r'FoV A'.format(
-            time[t]
+        0.05, 0.8, r'FoV {}'.format(
+            time[t], fovName
         ),
         transform=axs.transAxes,
         color='black',
@@ -284,8 +280,8 @@ def plot_fov_results_for_a_pixel(
     fig.tight_layout()
 
     fig.savefig(
-        'fov_662_712_708_758_t_{}_x_{}_y_{}.pdf'.format(
-            t, ref_x, ref_y
+        'fov_{}_{}_{}_{}_t_{}_x_{}_y_{}.pdf'.format(
+            x[0], x[1], y[0], y[1], t, ref_x, ref_y
         ),
         format='pdf',
         dpi=300,
@@ -303,4 +299,6 @@ def plot_fov_results_for_a_pixel(
 
 if __name__ == '__main__':
 
-    pass
+    x = [662, 712]
+    y = [708, 758]
+
