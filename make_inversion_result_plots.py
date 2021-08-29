@@ -139,7 +139,7 @@ def plot_fov_results_for_a_pixel(
 
     axs.text(
         0.05, 0.8, r'FoV {}'.format(
-            time[t], fovName
+            fovName
         ),
         transform=axs.transAxes,
         color='black',
@@ -180,7 +180,7 @@ def plot_fov_results_for_a_pixel(
 
     axs.text(
         0.05, 0.8, r'FoV {}'.format(
-            time[t], fovName
+            fovName
         ),
         transform=axs.transAxes,
         color='black',
@@ -221,7 +221,7 @@ def plot_fov_results_for_a_pixel(
 
     axs.text(
         0.05, 0.8, r'FoV {}'.format(
-            time[t], fovName
+            fovName
         ),
         transform=axs.transAxes,
         color='black',
@@ -262,7 +262,7 @@ def plot_fov_results_for_a_pixel(
 
     axs.text(
         0.05, 0.8, r'FoV {}'.format(
-            time[t], fovName
+            fovName
         ),
         transform=axs.transAxes,
         color='black',
