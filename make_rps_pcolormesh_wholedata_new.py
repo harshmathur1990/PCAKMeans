@@ -273,7 +273,7 @@ def actual_plotting(labels, rps, name='guess'):
                 ax1.set_yticks(y_ticks)
                 ax1.set_yticklabels(y_ticks)
 
-                ax1.tick_params(axis="y",direction="in", pad=-22)
+                ax1.tick_params(axis="y",direction="in", pad=-30)
 
                 ax2 = fig.add_subplot(
                     gs[k if k < 50 else k-50], label='2', frame_on=False
