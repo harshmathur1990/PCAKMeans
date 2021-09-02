@@ -171,7 +171,7 @@ def actual_plotting(labels, rps, name='guess'):
 
         plt.cla()
 
-        fig = plt.figure(figsize=(4.135, 5.845))
+        fig = plt.figure(figsize=(8.27, 11.69))
 
         gs = gridspec.GridSpec(10, 5)
 
@@ -242,7 +242,7 @@ def actual_plotting(labels, rps, name='guess'):
                     0.2,
                     0.6,
                     'n = {} %'.format(
-                        np.round(a.size * 100 / labels.size, 4)
+                        np.round(a.size * 100 / labels.size, 2)
                     ),
                     transform=ax1.transAxes,
                     fontsize=8
