@@ -291,8 +291,6 @@ def actual_plotting(labels, rps, name='guess'):
 
                 k += 1
 
-        fig.tight_layout()
-
         fig.savefig(
             'RPs_{}.pdf'.format(k),
             format='pdf',
