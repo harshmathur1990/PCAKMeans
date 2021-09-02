@@ -5,6 +5,7 @@ import sunpy.io
 import matplotlib.pyplot as plt
 from helita.io.lp import *
 from mpl_toolkits.axisartist.axislines import Subplot
+import matplotlib.gridspec as gridspec
 
 file = '/data/harsh/sub_fov_result_kmeans_whole_data_inertia_inverted_weights.h5'
 
@@ -172,6 +173,10 @@ def actual_plotting(labels, rps, name='guess'):
 
         fig = plt.figure(figsize=(8.27, 11.69))
 
+        gs = gridspec.GridSpec(10, 5)
+
+        gs.update(left=0, right=1, top=1, bottom=0, wspace=0.0, hspace=0.0)
+
         for i in range(10):
 
             for j in range(5):
@@ -185,7 +190,7 @@ def actual_plotting(labels, rps, name='guess'):
 
                 sys.stdout.write('{}\n'.format(k))
 
-                ax1 = fig.add_subplot(10, 5, k+1 if k < 50 else k-49, label='1')
+                ax1 = fig.add_subplot(gs[k if k < 50 else k-50], label='1')
 
                 a = np.where(labels == k)[0]
 
@@ -254,7 +259,9 @@ def actual_plotting(labels, rps, name='guess'):
                 ax1.set_xticks([3933.682])
                 ax1.set_xticklabels([])
 
-                ax2 = fig.add_subplot(10, 5, k+1 if k < 50 else k-49, label='2', frame_on=False)
+                ax2 = fig.add_subplot(
+                    gs[k if k < 50 else k-50], label='2', frame_on=False
+                )
 
                 ax2.plot(
                     wave_8542,
@@ -267,7 +274,9 @@ def actual_plotting(labels, rps, name='guess'):
                 ax2.set_xticks([])
                 ax2.set_yticks([])
 
-                ax3 = fig.add_subplot(10, 5, k+1 if k < 50 else k-49, label='3', frame_on=False)
+                ax3 = fig.add_subplot(
+                    gs[k if k < 50 else k-50], label='3', frame_on=False
+                )
 
                 ax3.plot(
                     wave_6173,

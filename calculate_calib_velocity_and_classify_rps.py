@@ -26,6 +26,7 @@ response_87_17_14_file = response_functions_path / 'wholedata_rps_87_17_14_resul
 output_atmos_87_17_14_file = response_functions_path / 'wholedata_rps_87_17_14_result_atmos.nc'
 input_78_18_file = response_functions_path / 'wholedata_rps_shocks_78_18_profile_rps_78_18.nc'
 response_78_18_file = response_functions_path / 'wholedata_rps_shocks_78_18_profile_rps_78_18_cycle_1_t_5_vl_5_vt_4_response.nc'
+response_662_file = new_kmeans / 'wholedata_inversions/fov_662_712_708_758/plots/wholedata_x_662_712_y_708_758_ref_x_25_ref_y_18_t_4_11_output_model_response.nc'
 output_atmos_78_18_file = response_functions_path / 'wholedata_rps_shocks_78_18_profile_rps_78_18_cycle_1_t_5_vl_5_vt_4_atmos.nc'
 
 new_quiet_profiles = np.array([0, 11, 14, 15, 20, 21, 24, 28, 31, 34, 40, 42, 43, 47, 48, 51, 60, 62, 69, 70, 73, 74, 75, 86, 89, 90, 84, 8, 44, 63])
@@ -272,6 +273,26 @@ def classify_rps_in_shocks():
                 shock_list.append((index, shock_intensity))
 
     return shock_list
+
+
+def reclassify_rps_in_shocks():
+    candidate_shock_rps = list(emerging_shock_profiles) + list(weak_shocks_profiles) + list(medium_shocks_profiles) + list(strong_shocks_profiles)
+
+    temp, vlos, vturb = get_atmos_values_for_lables()
+
+    vlos -= calib_velocity
+
+    vlos /= 1e5
+
+    vturb /= 1e5
+
+    new_shock_rps = list()
+
+    for cp in candidate_shock_rps:
+        if vlos[cp, 112] < 0:
+            new_shock_rps.append(cp)
+
+    return new_shock_rps
 
 
 def classify_rps_in_reverse_shocks():
@@ -734,7 +755,7 @@ def plot_evolution_diagram(
                 )
             if index_t == 1 and index_w == wave_indice.size-1:
                 axs.text(
-                    0.1, 0.6, r'{}'.format(letter),
+                    0.1, 0.6, '{}'.format(letter),
                     transform=axs.transAxes,
                     color='white',
                     fontsize='xx-small'
@@ -1084,68 +1105,83 @@ def get_response_function_data():
 
     atmos_param = np.zeros((4, 3, 150), dtype=np.float64)
 
-    f = h5py.File(input_87_17_14_file, 'r')
+    x = [662, 662 + 50]
+    y = [708, 708 + 50]
 
-    inp_profiles[0] = f['profiles'][()][0, 0, 2, 4:33, 0]
-    inp_profiles[1] = f['profiles'][()][0, 0, 0, 4:33, 0]
-    inp_profiles[2] = f['profiles'][()][0, 0, 1, 4:33, 0]
+    out_file = '/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/fov_{}_{}_{}_{}/plots/consolidated_results_velocity_calibrated_fov_{}_{}_{}_{}.h5'.format(
+        x[0], x[1], y[0], y[1], x[0], x[1], y[0], y[1]
+    )
+    f = h5py.File(out_file, 'r')
+
+    inp_profiles[1] = f['all_profiles'][4, 25, 18, 0:29]
+    inp_profiles[2] = f['all_profiles'][5, 25, 18, 0:29]
+    inp_profiles[3] = f['all_profiles'][6, 25, 18, 0:29]
 
     f.close()
 
-    f = h5py.File(input_78_18_file, 'r')
+    f = h5py.File(input_87_17_14_file, 'r')
 
-    inp_profiles[3] = f['profiles'][()][0, 0, 0, 4:33, 0]
+    inp_profiles[0] = f['profiles'][()][0, 0, 2, 4:33, 0]
+
+    f.close()
+
+    f = h5py.File(response_662_file, 'r')
+
+    syn_profiles[1] = f['profiles'][()][0, 0, 0, 4:33, 0]
+    syn_profiles[2] = f['profiles'][()][0, 0, 1, 4:33, 0]
+    syn_profiles[3] = f['profiles'][()][0, 0, 2, 4:33, 0]
 
     f.close()
 
     f = h5py.File(response_87_17_14_file, 'r')
 
     syn_profiles[0] = f['profiles'][()][0, 0, 2, 4:33, 0]
-    syn_profiles[1] = f['profiles'][()][0, 0, 0, 4:33, 0]
-    syn_profiles[2] = f['profiles'][()][0, 0, 1, 4:33, 0]
-
-    response[0, :] = f['derivatives'][()][0, 0, 2, np.array([1, 2, 0]), :, 4:33, 0]
-    response[1, :] = f['derivatives'][()][0, 0, 0, np.array([1, 2, 0]), :, 4:33, 0]
-    response[2, :] = f['derivatives'][()][0, 0, 1, np.array([1, 2, 0]), :, 4:33, 0]
 
     f.close()
 
-    f = h5py.File(response_78_18_file, 'r')
+    f = h5py.File(response_662_file, 'r')
 
-    syn_profiles[3] = f['profiles'][()][0, 0, 0, 4:33, 0]
-    response[3, :] = f['derivatives'][()][0, 0, 0, np.array([1, 2, 0]), :, 4:33, 0]
+    response[1, :] = f['derivatives'][()][0, 0, 0, np.array([1, 2, 0]), :, 4:33, 0]
+    response[2, :] = f['derivatives'][()][0, 0, 1, np.array([1, 2, 0]), :, 4:33, 0]
+    response[3, :] = f['derivatives'][()][0, 0, 2, np.array([1, 2, 0]), :, 4:33, 0]
+
+    f.close()
+
+    f = h5py.File(response_87_17_14_file, 'r')
+
+    response[0, :] = f['derivatives'][()][0, 0, 2, np.array([1, 2, 0]), :, 4:33, 0]
+
+    f.close()
+
+    f = h5py.File(out_file, 'r')
+
+    atmos_param[1, 0, :] = f['all_vlos'][4, 25, 18]
+    atmos_param[2, 0, :] = f['all_vlos'][5, 25, 18]
+    atmos_param[3, 0, :] = f['all_vlos'][6, 25, 18]
+
+    atmos_param[1, 1, :] = f['all_vturb'][4, 25, 18]
+    atmos_param[2, 1, :] = f['all_vturb'][5, 25, 18]
+    atmos_param[3, 1, :] = f['all_vturb'][6, 25, 18]
+
+    atmos_param[1, 2, :] = f['all_temp'][4, 25, 18]
+    atmos_param[2, 2, :] = f['all_temp'][5, 25, 18]
+    atmos_param[3, 2, :] = f['all_temp'][6, 25, 18]
 
     f.close()
 
     f = h5py.File(output_atmos_87_17_14_file, 'r')
 
     atmos_param[0, 0, :] = f['vlos'][0, 0, 2]
-    atmos_param[1, 0, :] = f['vlos'][0, 0, 0]
-    atmos_param[2, 0, :] = f['vlos'][0, 0, 1]
-
     atmos_param[0, 1, :] = f['vturb'][0, 0, 2]
-    atmos_param[1, 1, :] = f['vturb'][0, 0, 0]
-    atmos_param[2, 1, :] = f['vturb'][0, 0, 1]
-
     atmos_param[0, 2, :] = f['temp'][0, 0, 2]
-    atmos_param[1, 2, :] = f['temp'][0, 0, 0]
-    atmos_param[2, 2, :] = f['temp'][0, 0, 1]
-
-    f.close()
-
-    f = h5py.File(output_atmos_78_18_file, 'r')
-
-    atmos_param[3, 0, :] = f['vlos'][0, 0, 0]
-    atmos_param[3, 1, :] = f['vturb'][0, 0, 0]
-    atmos_param[3, 2, :] = f['temp'][0, 0, 0]
 
     f.close()
 
     atmos_param[:, 2] /= 1e3
 
-    atmos_param[:, 0] -= calib_velocity
+    atmos_param[0, 0] -= calib_velocity
 
-    atmos_param[:, 0:2] /= 1e5
+    atmos_param[0, 0:2] /= 1e5
 
     response[:, 0] /= np.abs(response[:, 0]).max()
 
@@ -1157,6 +1193,11 @@ def get_response_function_data():
 
 
 def plot_response_functions():
+
+    time = np.round(
+        np.arange(0, 8.26 * 100, 8.26),
+        2
+    )
 
     size = plt.rcParams['lines.markersize']
 
@@ -1178,9 +1219,9 @@ def plot_response_functions():
 
     gs.update(wspace=0.0, hspace=0.0)
 
-    doppler_wave = get_doppler_velocity_3950(wave_3933[:-1])
+    relative_wave = get_relative_velocity(wave_3933[:-1])
 
-    X, Y = np.meshgrid(doppler_wave, ltau)
+    X, Y = np.meshgrid(relative_wave, ltau)
 
     k = 0
 
@@ -1198,11 +1239,11 @@ def plot_response_functions():
                 cmap='RdGy'
 
             if i == 0:
-                rp = 87
+                tind = 4
             elif i == 1:
-                rp = 17
+                tind = 5
             else:
-                rp = 78
+                tind = 6
 
             im = axs.pcolormesh(
                 X,
@@ -1232,12 +1273,12 @@ def plot_response_functions():
             axs2.set_yticklabels([])
 
             axs.set_yticks([0,  -1, -2, -3, -4, -5, -6, -7])
-                
-            if i == 2:
-                axs.set_xlabel(r'$\Delta\;(kms^{-1})$')
 
-                axs.set_xticks([-50, -25, 0, 25, 50])
-                axs.set_xticklabels([-50, -25, 0, 25, 50])
+            if i == 2:
+                axs.set_xlabel(r'$\lambda\;(\AA)$')
+
+                axs.set_xticks([-0.5, 0, 0.5])
+                axs.set_xticklabels([-0.5, 0, 0.5])
 
                 cbaxes = inset_axes(axs, width="30%", height="3%", loc=3)
                 cbar = fig.colorbar(
@@ -1254,7 +1295,7 @@ def plot_response_functions():
                 axs.set_yticklabels([0, -1, -2, -3, -4, -5, -6, -7])
 
                 axs.text(
-                    0.7, 0.05, 'RP {}'.format(rp),
+                    0.55, 0.05, 't={}s'.format(time[tind]),
                     transform=axs.transAxes,
                     color='black'#,
                     #fontsize='xx-small'
@@ -1263,6 +1304,12 @@ def plot_response_functions():
                 axs2.set_xlim(-8, 8)
                 
                 if i == 0:
+                    axs.text(
+                        0.05, 0.9, 'FoV A',
+                        transform=axs.transAxes,
+                        color='black'#,
+                        #fontsize='xx-small'
+                    )
                     axs2.set_xticks([-5, 0, 5])
                     axs2.set_xlabel(r'$V_{LOS}[kms^{-1}]$')
                     axs2.set_xticklabels([-5, 0, 5])
@@ -1287,13 +1334,13 @@ def plot_response_functions():
 
                 axs3 = axs.twinx()
 
-                axs3.scatter(doppler_wave, inp_profiles[i+1, :], s=size/4, color='red')
+                axs3.scatter(relative_wave, inp_profiles[i+1, :], s=size/4, color='red')
 
-                axs3.plot(doppler_wave, syn_profiles[i+1, :], '--', linewidth=0.5, color='red')
+                axs3.plot(relative_wave, syn_profiles[i+1, :], '--', linewidth=0.5, color='red')
 
-                axs3.scatter(doppler_wave, inp_profiles[0, :],  s=size/4, color='gray')
+                axs3.scatter(relative_wave, inp_profiles[0, :],  s=size/4, color='gray')
 
-                axs3.plot(doppler_wave, syn_profiles[0, :], '--', linewidth=0.5, color='gray')
+                axs3.plot(relative_wave, syn_profiles[0, :], '--', linewidth=0.5, color='gray')
 
                 axs3.set_ylim(0, 0.4)
 
@@ -1310,9 +1357,9 @@ def plot_response_functions():
 
                 max_sf_tau = ltau[max_indice_ltau]
 
-                max_sf_wave = doppler_wave[max_indice_wave + 10]
+                max_sf_wave = relative_wave[max_indice_wave + 10]
                 
-                axs.plot(doppler_wave, np.ones_like(doppler_wave) * max_sf_tau, color='gray')
+                axs.plot(relative_wave, np.ones_like(relative_wave) * max_sf_tau, color='gray')
                 axs.axvline(x=max_sf_wave, color='gray')
 
             k += 1
