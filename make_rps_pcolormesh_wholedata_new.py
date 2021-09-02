@@ -310,7 +310,7 @@ def actual_plotting(labels, rps, name='guess'):
         fig.savefig(
             'RPs_{}.pdf'.format(k),
             format='pdf',
-            dpi=300
+            dpi=100
         )
 
 
