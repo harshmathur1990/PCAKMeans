@@ -258,8 +258,8 @@ def actual_plotting(labels, rps, name='guess'):
 
                 ax1.set_xticks([3933.682])
                 ax1.set_xticklabels([])
-                ax1.set_yticks([(e+b)/2, b])
-                ax1.set_yticklabels([(e+b)/2, b])
+                ax1.set_yticks([(min_3950+max_3950)/3, 2 * (min_3950+max_3950)/3])
+                ax1.set_yticklabels([(min_3950+max_3950)/3, 2 * (min_3950+max_3950)/3])
 
                 ax1.tick_params(axis="y",direction="in", pad=-22)
 
