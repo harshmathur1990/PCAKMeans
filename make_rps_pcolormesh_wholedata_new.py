@@ -77,9 +77,7 @@ strong_shocks_profiles = np.array(
     ]
 )
 
-total_shock_profiles = np.array(
-    list(weak_shocks_profiles) + list(medium_shocks_profiles) + list(strong_shocks_profiles)
-)
+total_shock_profiles = strong_shocks_profiles
 
 red = '#ec5858'
 brown = '#fd8c04'
