@@ -437,7 +437,6 @@ other_emission_profiles = np.array(
     ]
 )
 
-
 def categorize_pixels(ref_x, ref_y, del_x, del_y):
     f = h5py.File(old_kmeans_file, 'r')
 

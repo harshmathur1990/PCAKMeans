@@ -80,6 +80,7 @@ strong_shocks_profiles = np.array(
     ]
 )
 
+
 def get_doppler_velocity(wavelength, center_wavelength):
     return (wavelength - center_wavelength) * 2.99792458e5 / center_wavelength
 
@@ -365,9 +366,9 @@ def get_params_for_fov_maps(f, time_start, wave_indice, tau_min, tau_max):
     return all_params
 
 
-def make_fov_maps(xs, ys, time_start, fovName, wave_indice, tau_min, tau_max, std_limit=10, vlos_min=None, vlos_max=None, wave_name=None):
+def make_fov_maps(xs, ys, time_start, fovName, wave_indice, tau_min, tau_max, std_limit=10, vlos_min=None, vlos_max=None, wave_name=None, line_cut_x=None, line_cut_t=None):
 
-    shock_proiles = list(medium_shocks_profiles) + list(strong_shocks_profiles)
+    shock_proiles = list(strong_shocks_profiles)
 
     x = [xs, xs + 50]
     y = [ys, ys + 50]
@@ -482,6 +483,15 @@ def make_fov_maps(xs, ys, time_start, fovName, wave_indice, tau_min, tau_max, st
 
             axs.set_xticklabels([])
             axs.set_yticklabels([])
+
+            if line_cut_x is not None and line_cut_t is not None:
+                if t in list(line_cut_t):
+                    axs.plot(
+                        range(50),
+                        np.ones(50) * line_cut_x,
+                        '--',
+                        linewidth=0.5
+                    )
 
             if i == 1 and j == 4:
                 axs.text(
@@ -616,7 +626,7 @@ def generate_files_for_response_function(xs, ys, time_start, ref_x, ref_y):
 
 def make_line_cut_plots(xs, ys, ref_x, time_array, fovName):
 
-    shock_proiles = list(medium_shocks_profiles) + list(strong_shocks_profiles)
+    shock_proiles = list(strong_shocks_profiles)
 
     x = [xs, xs + 50]
     y = [ys, ys + 50]
@@ -724,7 +734,7 @@ def make_line_cut_plots(xs, ys, ref_x, time_array, fovName):
             else:
                 cmap='copper'
 
-            axs.pcolormesh(
+            im = axs.pcolormesh(
                 X, Y,
                 all_params[i, j],
                 cmap=cmap,
@@ -733,12 +743,14 @@ def make_line_cut_plots(xs, ys, ref_x, time_array, fovName):
                 shading='gouraud'
             )
 
+            axs.tick_params(labelsize=6, colors='black')
+
             axs.invert_yaxis()
 
             axs.contour(
                 X, Y,
                 labels_mask[i],
-                levels=1,
+                levels=0,
                 cmap='gray'
             )
 
@@ -748,9 +760,26 @@ def make_line_cut_plots(xs, ys, ref_x, time_array, fovName):
             axs.set_xticklabels([])
             axs.set_yticklabels([])
 
+
+            if i == 0:
+
+                cbaxes = inset_axes(
+                    axs,
+                    width="80%",
+                    height="3%",
+                    loc='upper center',
+                    borderpad=-1
+                )
+                cbar = fig.colorbar(
+                    im,
+                    cax=cbaxes,
+                    ticks=[all_vmin[j], all_vmax[j]],
+                    orientation='horizontal'
+                )
+                cbar.ax.xaxis.set_ticks_position('top')
+                cbar.ax.tick_params(labelsize=6, colors='black')
+
             if j == 0:
-                axs.set_yticks([-7, -6, -5, -4, -3, -2, -1, 0])
-                axs.set_yticklabels([-7, -6, -5, -4, -3, -2, -1, 0])
 
                 axs.text(
                     0.05, 0.05, r't={}s'.format(
@@ -760,6 +789,10 @@ def make_line_cut_plots(xs, ys, ref_x, time_array, fovName):
                     color='white',
                     fontsize='small'
                 )
+
+                axs.set_yticks([-7, -6, -5, -4, -3, -2, -1, 0])
+                axs.set_yticklabels([-7, -6, -5, -4, -3, -2, -1, 0])
+
                 if i == 0:
                     axs.text(
                         0.05, 0.8, r'FoV {}'.format(
