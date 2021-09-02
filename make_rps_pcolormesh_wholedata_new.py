@@ -171,7 +171,7 @@ def actual_plotting(labels, rps, name='guess'):
 
         plt.cla()
 
-        fig = plt.figure(figsize=(8.27, 11.69))
+        fig = plt.figure(figsize=(4.135, 5.845))
 
         gs = gridspec.GridSpec(10, 5)
 
@@ -310,7 +310,7 @@ def actual_plotting(labels, rps, name='guess'):
         fig.savefig(
             'RPs_{}.pdf'.format(k),
             format='pdf',
-            dpi=100
+            dpi=300
         )
 
 
