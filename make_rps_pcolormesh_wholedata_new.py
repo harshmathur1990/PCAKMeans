@@ -262,11 +262,11 @@ def actual_plotting(labels, rps, name='guess'):
                 y_ticks = [
                     np.round(
                         (min_3950 + max_3950) / 3,
-                        1
+                        2
                     ),
                     np.round(
                         2 * (min_3950 + max_3950) / 3,
-                        1
+                        2
                     )
                 ]
 
