@@ -1048,6 +1048,5 @@ def make_inversion_density_plots():
 
 if __name__ == '__main__':
 
-    x = [662, 712]
-    y = [708, 758]
+    make_inversion_density_plots()
 
