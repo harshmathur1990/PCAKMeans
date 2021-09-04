@@ -981,7 +981,7 @@ def make_inversion_density_plots():
                 max_t = 6
                 x_bin = ltau
 
-            axs = fig.add_subplot(gs[k], label='1', frame_on=False)
+            axs = fig.add_subplot(gs[k]) #, label='1', frame_on=False)
 
             center = np.mean(param[ind_shock], 0)
 
@@ -995,7 +995,7 @@ def make_inversion_density_plots():
 
             X1, Y1 = np.meshgrid(xedge1, yedge1)
 
-            axs.pcolormesh(X1, Y1, H1.T, cmap='Blues')
+            axs.pcolormesh(X1, Y1, H1.T, cmap='Blues', alpha=1)
 
             axs.plot(
                 x_bin,
@@ -1004,8 +1004,6 @@ def make_inversion_density_plots():
                 linewidth=0.5,
                 linestyle='solid'
             )
-
-            axs = fig.add_subplot(gs[k], label='2', frame_on=False)
 
             center = np.mean(param[ind_non_shock], 0)
 
@@ -1017,7 +1015,7 @@ def make_inversion_density_plots():
 
             X1, Y1 = np.meshgrid(xedge1, yedge1)
 
-            axs.pcolormesh(X1, Y1, H1.T, cmap='Reds')
+            axs.pcolormesh(X1, Y1, H1.T, cmap='Reds', alpha=0.5)
 
             axs.plot(
                 x_bin,
