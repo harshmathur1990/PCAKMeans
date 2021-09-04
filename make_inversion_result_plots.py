@@ -624,6 +624,41 @@ def generate_files_for_response_function(xs, ys, time_start, ref_x, ref_y):
     )
 
 
+def generate_files_for_response_function_for_line_cuts(xs, ys, time, ref_x):
+
+    calib_velocity = -94841.87483891034
+
+    x = [xs, xs + 50]
+    y = [ys, ys + 50]
+
+    out_file = '/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/fov_{}_{}_{}_{}/plots/consolidated_results_velocity_calibrated_fov_{}_{}_{}_{}.h5'.format(
+        x[0], x[1], y[0], y[1], x[0], x[1], y[0], y[1]
+    )
+
+    f = h5py.File(out_file, 'r')
+
+    m = sp.model(nx=50, ny=1, nt=1, ndep=150)
+
+    m.ltau[:, :, :] = ltau
+
+    m.pgas[:, :, :] = 0.3
+
+    m.temp[0, 0, :] = f['all_temp'][time, ref_x]
+
+    m.vlos[0, 0, :] = (f['all_vlos'][time, ref_x] * 1e5) + calib_velocity
+
+    m.vturb[0, 0, :] = f['all_vturb'][time, ref_x] * 1e5
+
+    f.close()
+
+    m.write(
+        'wholedata_x_{}_{}_y_{}_{}_ref_x_{}_t_{}_output_model.nc'.format(
+            x[0], x[1], y[0], y[1], ref_x, time
+        )
+    )
+
+
+
 def make_line_cut_plots(xs, ys, ref_x, time_array, fovName):
 
     shock_proiles = list(strong_shocks_profiles)
@@ -823,6 +858,192 @@ def make_line_cut_plots(xs, ys, ref_x, time_array, fovName):
 
     plt.cla()
 
+
+def get_data_for_inversion_density_plots(type='shock'):
+
+    labels = np.zeros(2 * 100 * 50 * 50, dtype=np.int64)
+    temp = np.zeros((2 * 100 * 50 * 50, 150), dtype=np.float64)
+    vlos = np.zeros((2 * 100 * 50 * 50, 150), dtype=np.float64)
+    vturb = np.zeros((2 * 100 * 50 * 50, 150), dtype=np.float64)
+    profiles = np.zeros((2 * 100 * 50 * 50, 29), dtype=np.float64)
+
+    xs = 662
+
+    ys = 708
+
+    x = [xs, xs + 50]
+    y = [ys, ys + 50]
+
+    out_file = '/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/fov_{}_{}_{}_{}/plots/consolidated_results_velocity_calibrated_fov_{}_{}_{}_{}.h5'.format(
+        x[0], x[1], y[0], y[1], x[0], x[1], y[0], y[1]
+    )
+
+    f = h5py.File(old_kmeans_file, 'r')
+
+    labels_f =  f['new_final_labels'][:, x[0]:x[1], y[0]:y[1]]
+
+    f.close()
+
+    labels[0:100 * 50 * 50] = labels_f.reshape(100 * 50 * 50)
+
+    f = h5py.File(out_file, 'r')
+
+
+    temp[0:100 * 50 * 50] = f['all_temp'][()].reshape(100 * 50 * 50, 150) / 1e3
+    vlos[0:100 * 50 * 50] = f['all_vlos'][()].reshape(100 * 50 * 50, 150)
+    vturb[0:100 * 50 * 50] = f['all_vturb'][()].reshape(100 * 50 * 50, 150)
+    profiles[0:100 * 50 * 50] = f['all_profiles'][:, :, :, 0:29].reshape(100 * 50 * 50, 29)
+
+    f.close()
+
+    xs = 520
+
+    ys = 715
+
+    x = [xs, xs + 50]
+    y = [ys, ys + 50]
+
+    out_file = '/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/fov_{}_{}_{}_{}/plots/consolidated_results_velocity_calibrated_fov_{}_{}_{}_{}.h5'.format(
+        x[0], x[1], y[0], y[1], x[0], x[1], y[0], y[1]
+    )
+
+    f = h5py.File(old_kmeans_file, 'r')
+
+    labels_f =  f['new_final_labels'][:, x[0]:x[1], y[0]:y[1]]
+
+    f.close()
+
+    labels[100 * 50 * 50:] = labels_f.reshape(100 * 50 * 50)
+
+    f = h5py.File(out_file, 'r')
+
+    temp[100 * 50 * 50:] = f['all_temp'][()].reshape(100 * 50 * 50, 150) / 1e3
+    vlos[100 * 50 * 50:] = f['all_vlos'][()].reshape(100 * 50 * 50, 150)
+    vturb[100 * 50 * 50:] = f['all_vturb'][()].reshape(100 * 50 * 50, 150)
+    profiles[100 * 50 * 50:] = f['all_profiles'][:, :, :, 0:29].reshape(100 * 50 * 50, 29)
+
+    f.close()
+
+    return profiles, temp, vlos, vturb, labels
+
+
+def make_inversion_density_plots():
+
+    rela_wave = get_relative_velocity(wave_3933[:-1])
+
+    profiles, temp, vlos, vturb, labels = get_data_for_inversion_density_plots()
+
+    plt.close('all')
+
+    plt.clf()
+
+    plt.cla()
+
+    fig = plt.figure(figsize=(4, 4))
+
+    k = 0
+
+    gs = gridspec.GridSpec(2, 2)
+
+    gs.update(wspace=0.0, hspace=0.0)
+
+    ind_shock = list()
+
+    for profile in list(strong_shocks_profiles):
+        ind_shock = np.array(list(ind_shock) + list(np.where(labels == profile)[0]))
+
+    ind_non_shock = np.array(list(set(range(2 * 100 * 50 * 50)) - set(ind_shock)))
+
+    k = 0
+
+    for i in range(2):
+        for j in range(2):
+            print ('{}-{}'.format(i, j))
+
+            if k == 0:
+                param = profiles
+                min_t = 0
+                max_t = 0.5
+                x_bin = rela_wave
+            elif k == 1:
+                param = temp
+                min_t = 3
+                max_t = 12
+                x_bin = ltau
+            elif k == 2:
+                param = vlos
+                min_t = -8
+                max_t = 8
+                x_bin = ltau
+            else:
+                param = vturb
+                min_t = 0
+                max_t = 6
+                x_bin = ltau
+
+            axs = fig.add_subplot(gs[k])
+
+            center = np.mean(param[ind_shock], 0)
+
+            in_bins_t = np.linspace(min_t, max_t, 1000)
+
+            H1, xedge1, yedge1 = np.histogram2d(
+                np.tile(x_bin, ind_shock.shape[0]),
+                param[ind_shock].flatten(),
+                bins=(x_bin, in_bins_t)
+            )
+
+            X1, Y1 = np.meshgrid(xedge1, yedge1)
+
+            axs.pcolormesh(X1, Y1, H1.T, cmap='Blues')
+
+            axs.plot(
+                x_bin,
+                center,
+                color='blue',
+                linewidth=0.5,
+                linestyle='solid'
+            )
+
+            center = np.mean(param[ind_non_shock], 0)
+
+            H1, xedge1, yedge1 = np.histogram2d(
+                np.tile(x_bin, ind_non_shock.shape[0]),
+                param[ind_non_shock].flatten(),
+                bins=(x_bin, in_bins_t)
+            )
+
+            X1, Y1 = np.meshgrid(xedge1, yedge1)
+
+            axs.pcolormesh(X1, Y1, H1.T, cmap='Reds')
+
+            axs.plot(
+                x_bin,
+                center,
+                color='red',
+                linewidth=0.5,
+                linestyle='solid'
+            )
+
+            k += 1
+
+    fig.savefig(
+        'InversionDensityPlots.pdf',
+        format='pdf',
+        dpi=300
+    )
+
+    fig.savefig(
+        'InversionDensityPlots.png',
+        format='png',
+        dpi=300
+    )
+
+    plt.close('all')
+
+    plt.clf()
+
+    plt.cla()
 
 
 if __name__ == '__main__':
