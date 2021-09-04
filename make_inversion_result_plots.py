@@ -981,7 +981,7 @@ def make_inversion_density_plots():
                 max_t = 6
                 x_bin = ltau
 
-            axs = fig.add_subplot(gs[k])
+            axs = fig.add_subplot(gs[k], label='1', frame_on=False)
 
             center = np.mean(param[ind_shock], 0)
 
@@ -1004,6 +1004,8 @@ def make_inversion_density_plots():
                 linewidth=0.5,
                 linestyle='solid'
             )
+
+            axs = fig.add_subplot(gs[k], label='2', frame_on=False)
 
             center = np.mean(param[ind_non_shock], 0)
 
