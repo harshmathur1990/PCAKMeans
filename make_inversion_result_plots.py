@@ -983,6 +983,26 @@ def make_inversion_density_plots():
 
             axs = fig.add_subplot(gs[k]) #, label='1', frame_on=False)
 
+            center = np.mean(param[ind_non_shock], 0)
+
+            H1, xedge1, yedge1 = np.histogram2d(
+                np.tile(x_bin, ind_non_shock.shape[0]),
+                param[ind_non_shock].flatten(),
+                bins=(x_bin, in_bins_t)
+            )
+
+            X1, Y1 = np.meshgrid(xedge1, yedge1)
+
+            axs.pcolormesh(X1, Y1, H1.T / np.abs(H1).max(), cmap='Reds')
+
+            axs.plot(
+                x_bin,
+                center,
+                color='red',
+                linewidth=0.5,
+                linestyle='solid'
+            )
+
             center = np.mean(param[ind_shock], 0)
 
             in_bins_t = np.linspace(min_t, max_t, 1000)
@@ -1001,26 +1021,6 @@ def make_inversion_density_plots():
                 x_bin,
                 center,
                 color='blue',
-                linewidth=0.5,
-                linestyle='solid'
-            )
-
-            center = np.mean(param[ind_non_shock], 0)
-
-            H1, xedge1, yedge1 = np.histogram2d(
-                np.tile(x_bin, ind_non_shock.shape[0]),
-                param[ind_non_shock].flatten(),
-                bins=(x_bin, in_bins_t)
-            )
-
-            X1, Y1 = np.meshgrid(xedge1, yedge1)
-
-            axs.pcolormesh(X1, Y1, H1.T / np.abs(H1).max(), cmap='Reds')
-
-            axs.plot(
-                x_bin,
-                center,
-                color='red',
                 linewidth=0.5,
                 linestyle='solid'
             )
