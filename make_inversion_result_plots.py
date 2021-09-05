@@ -939,7 +939,7 @@ def make_inversion_density_plots():
 
     plt.cla()
 
-    fig = plt.figure(figsize=(4, 4))
+    fig = plt.figure(figsize=(4, 4), frameon=False)
 
     k = 0
 
@@ -995,8 +995,9 @@ def make_inversion_density_plots():
 
             X1, Y1 = np.meshgrid(xedge1, yedge1)
 
-            imred = axs.pcolormesh(
-                X1, Y1, H1.T / np.abs(H1).max()
+            axs.pcolormesh(
+                X1, Y1, H1.T / np.abs(H1).max(),
+                cmap='Reds'
             )
 
             axs.plot(
@@ -1017,8 +1018,9 @@ def make_inversion_density_plots():
 
             X1, Y1 = np.meshgrid(xedge1, yedge1)
 
-            imblue = axs.pcolormesh(
-                X1, Y1, H1.T / np.abs(H1).max()
+            axs.pcolormesh(
+                X1, Y1, H1.T / np.abs(H1).max(),
+                cmap='Blues'
             )
 
             axs.plot(
@@ -1028,9 +1030,6 @@ def make_inversion_density_plots():
                 linewidth=0.5,
                 linestyle='solid'
             )
-
-            imred.set_cmap('Reds')
-            imblue.set_cmap('Blues')
 
             k += 1
 
