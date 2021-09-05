@@ -983,6 +983,8 @@ def make_inversion_density_plots():
 
             axs = fig.add_subplot(gs[k]) #, label='1', frame_on=False)
 
+            in_bins_t = np.linspace(min_t, max_t, 1000)
+
             center = np.mean(param[ind_non_shock], 0)
 
             H1, xedge1, yedge1 = np.histogram2d(
@@ -1004,8 +1006,6 @@ def make_inversion_density_plots():
             )
 
             center = np.mean(param[ind_shock], 0)
-
-            in_bins_t = np.linspace(min_t, max_t, 1000)
 
             H1, xedge1, yedge1 = np.histogram2d(
                 np.tile(x_bin, ind_shock.shape[0]),
