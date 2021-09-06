@@ -945,7 +945,7 @@ def make_inversion_density_plots():
 
     gs = gridspec.GridSpec(2, 2)
 
-    gs.update(wspace=0.0, hspace=0.0)
+    # gs.update(wspace=0.0, hspace=0.0)
 
     ind_shock = list()
 
@@ -1063,10 +1063,12 @@ def make_inversion_density_plots():
                 linestyle='solid'
             )
 
-            axs.tick_params(axis="y",direction="in", pad=-30)
-            axs.tick_params(axis="x",direction="in", pad=-30)
+            # axs.tick_params(axis="y",direction="in", pad=-30)
+            # axs.tick_params(axis="x",direction="in", pad=-30)
 
             k += 1
+
+    fig.tight_layout()
 
     fig.savefig(
         'InversionDensityPlots.pdf',
