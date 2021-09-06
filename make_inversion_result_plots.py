@@ -960,6 +960,8 @@ def make_inversion_density_plots():
         for j in range(2):
             print ('{}-{}'.format(i, j))
 
+            axs = fig.add_subplot(gs[k]) #, label='1', frame_on=False)
+
             if k == 0:
                 param = profiles
                 min_t = 0
@@ -981,7 +983,7 @@ def make_inversion_density_plots():
                 max_t = 6
                 x_bin = ltau
 
-            axs = fig.add_subplot(gs[k]) #, label='1', frame_on=False)
+            axs.set_ylim(min_t, max_t)
 
             in_bins_t = np.linspace(min_t, max_t, 1000)
 
@@ -1021,7 +1023,7 @@ def make_inversion_density_plots():
             axs.pcolormesh(
                 X1, Y1, H1.T / np.abs(H1).max(),
                 cmap='Blues',
-                alpha=.3
+                alpha=.4
             )
 
             axs.plot(
