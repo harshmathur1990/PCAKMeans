@@ -1000,7 +1000,7 @@ def make_inversion_density_plots():
                 x_ticks = [-5, -4, -3, -2, -1]
 
             axs.set_ylim(min_t, max_t)
-            axs.set_xlim(min_x, max_X)
+            axs.set_xlim(min_x, max_x)
 
             axs.set_xticks(x_ticks)
             axs.set_yticks(y_ticks)
