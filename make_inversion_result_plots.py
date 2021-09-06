@@ -1000,7 +1000,8 @@ def make_inversion_density_plots():
             X1, Y1 = np.meshgrid(xedge1, yedge1)
 
             axs.pcolormesh(
-                X1, Y1, H1.T / np.abs(H1).max(),
+                X1, Y1, H1.T / np.nanmax(np.abs(H1)),
+                vmin=0,vmax=1,
                 cmap='Reds'
             )
 
@@ -1028,9 +1029,10 @@ def make_inversion_density_plots():
             X1, Y1 = np.meshgrid(xedge1, yedge1)
 
             axs.pcolormesh(
-                X1, Y1, H1.T / np.abs(H1).max(),
+                X1, Y1, H1.T / np.nanmax(np.abs(H1)),
                 cmap='Blues',
-                # alpha=.9
+                vmin=0,vmax=1,
+                alpha=.5
             )
 
             axs.plot(
