@@ -1002,8 +1002,6 @@ def make_inversion_density_plots():
                 cmap='Reds'
             )
 
-            np.savetxt('non_shock_hist_{}.txt'.format(k), H1.T)
-
             axs.plot(
                 x_bin,
                 center,
@@ -1011,6 +1009,9 @@ def make_inversion_density_plots():
                 linewidth=0.5,
                 linestyle='solid'
             )
+
+            np.savetxt('non_shock_center_{}.txt'.format(k), center)
+            np.savetxt('non_shock_hist_{}.txt'.format(k), H1.T)
 
             center = np.mean(param[ind_shock], 0)
 
@@ -1028,8 +1029,6 @@ def make_inversion_density_plots():
                 alpha=.9
             )
 
-            np.savetxt('shock_hist_{}.txt'.format(k), H1.T)
-
             axs.plot(
                 x_bin,
                 center,
@@ -1037,6 +1036,9 @@ def make_inversion_density_plots():
                 linewidth=0.5,
                 linestyle='solid'
             )
+
+            np.savetxt('shock_center_{}.txt'.format(k), center)
+            np.savetxt('shock_hist_{}.txt'.format(k), H1.T)
 
             k += 1
 
