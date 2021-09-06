@@ -967,23 +967,46 @@ def make_inversion_density_plots():
                 min_t = 0
                 max_t = 0.5
                 x_bin = rela_wave
+                min_x = rela_wave[0]
+                max_x = rela_wave[-1]
+                y_ticks = [0.1, 0.2, 0.3, 0.4]
+                x_ticks = [0]
             elif k == 1:
                 param = temp
                 min_t = 3
                 max_t = 12
                 x_bin = ltau
+                min_x = -6
+                max_x = 0
+                y_ticks = [4, 6, 8, 10]
+                x_ticks = [-5, -4, -3, -2, -1]
             elif k == 2:
                 param = vlos
-                min_t = -8
-                max_t = 8
+                min_t = -9
+                max_t = 9
                 x_bin = ltau
+                min_x = -6
+                max_x = 0
+                y_ticks = [-6, -3, 0, 3, 6]
+                x_ticks = [-5, -4, -3, -2, -1]
             else:
                 param = vturb
                 min_t = 0
                 max_t = 6
                 x_bin = ltau
+                min_x = -6
+                max_x = 0
+                y_ticks = [1, 3, 5]
+                x_ticks = [-5, -4, -3, -2, -1]
 
             axs.set_ylim(min_t, max_t)
+            axs.set_xlim(min_x, max_X)
+
+            axs.set_xticks(x_ticks)
+            axs.set_yticks(y_ticks)
+
+            axs.set_xticklabels(x_ticks)
+            axs.set_yticklabels(y_ticks)
 
             in_bins_t = np.linspace(min_t, max_t, 1000)
 
@@ -1013,9 +1036,6 @@ def make_inversion_density_plots():
                 linestyle='solid'
             )
 
-            np.savetxt('non_shock_center_{}.txt'.format(k), center)
-            np.savetxt('non_shock_hist_{}.txt'.format(k), H1.T)
-
             center = np.mean(param[ind_shock], 0)
 
             H1, xedge1, yedge1 = np.histogram2d(
@@ -1032,7 +1052,7 @@ def make_inversion_density_plots():
                 X1, Y1, H1.T / np.nanmax(np.abs(H1)),
                 cmap='Blues',
                 vmin=0,vmax=1,
-                alpha=.5
+                alpha=.7
             )
 
             axs.plot(
@@ -1043,8 +1063,8 @@ def make_inversion_density_plots():
                 linestyle='solid'
             )
 
-            np.savetxt('shock_center_{}.txt'.format(k), center)
-            np.savetxt('shock_hist_{}.txt'.format(k), H1.T)
+            axs.tick_params(axis="y",direction="in", pad=-30)
+            xs.tick_params(axis="x",direction="in", pad=-30)
 
             k += 1
 
