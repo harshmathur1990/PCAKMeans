@@ -1002,6 +1002,8 @@ def make_inversion_density_plots():
                 cmap='Reds'
             )
 
+            np.savetxt('non_shock_hist.txt', H1.T)
+
             axs.plot(
                 x_bin,
                 center,
@@ -1023,8 +1025,10 @@ def make_inversion_density_plots():
             axs.pcolormesh(
                 X1, Y1, H1.T / np.abs(H1).max(),
                 cmap='Blues',
-                alpha=.7
+                alpha=.9
             )
+
+            np.savetxt('shock_hist.txt', H1.T)
 
             axs.plot(
                 x_bin,
