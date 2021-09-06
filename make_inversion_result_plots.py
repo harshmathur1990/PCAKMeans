@@ -999,7 +999,7 @@ def make_inversion_density_plots():
 
             axs.pcolormesh(
                 X1, Y1, H1.T / np.abs(H1).max(),
-                cmap='autumn'
+                cmap='Reds'
             )
 
             axs.plot(
@@ -1023,7 +1023,7 @@ def make_inversion_density_plots():
             axs.pcolormesh(
                 X1, Y1, H1.T / np.abs(H1).max(),
                 cmap='Blues',
-                alpha=.4
+                alpha=.7
             )
 
             axs.plot(
