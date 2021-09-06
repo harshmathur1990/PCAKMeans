@@ -1064,7 +1064,7 @@ def make_inversion_density_plots():
             )
 
             axs.tick_params(axis="y",direction="in", pad=-30)
-            xs.tick_params(axis="x",direction="in", pad=-30)
+            axs.tick_params(axis="x",direction="in", pad=-30)
 
             k += 1
 
