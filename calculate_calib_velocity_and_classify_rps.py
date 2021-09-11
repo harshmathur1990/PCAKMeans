@@ -9,6 +9,7 @@ from helita.io.lp import *
 import matplotlib.gridspec as gridspec
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from skimage.measure import regionprops
+from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 
 
 base_path = Path('/home/harsh/OsloAnalysis')
@@ -407,6 +408,12 @@ strong_shocks_profiles = np.array(
     ]
 )
 
+very_strong_shocks_profiles = np.array(
+    [
+        18, 78
+    ]
+)
+
 emerging_reverse_shock_profiles = np.array(
     [
         41, 83, 64, 33, 3
@@ -471,14 +478,18 @@ def get_shocks_mask(arr):
 
     mask = np.zeros_like(arr)
 
-    for i in list(weak_shocks_profiles):
+    for i in list(strong_shocks_profiles):
         mask[np.where(arr == i)] = 1
 
-    for i in list(medium_shocks_profiles):
-        mask[np.where(arr == i)] = 2
+    return mask
 
-    for i in list(strong_shocks_profiles):
-        mask[np.where(arr == i)] = 3
+
+def get_very_strong_shocks_mask(arr):
+
+    mask = np.zeros_like(arr)
+
+    for i in list(very_strong_shocks_profiles):
+        mask[np.where(arr == i)] = 1
 
     return mask
 
@@ -506,16 +517,48 @@ def plot_mask(x, y, t):
 
     shocks_mask = get_shocks_mask(f['new_final_labels'][t, x:x + 50, y:y + 50])
 
-    plt.imshow(shocks_mask * mask[t, x:x + 50, y:y + 50], cmap='gray', origin='lower')
+    plt.imshow(
+        np.multiply(
+            shocks_mask,
+            mask[t, x:x + 50, y:y + 50]
+        ),
+        cmap='gray',
+        origin='lower'
+    )
 
-    plt.clim(0, 3)
+    plt.clim(0, 1)
 
     plt.colorbar()
 
     plt.show()
 
 
-def plot_mask_whole(t):
+def plot_very_strong_mask(x, y, t):
+
+    plt.close('all')
+    plt.clf()
+    plt.cla()
+
+    f = h5py.File(old_kmeans_file, 'r')
+
+    shocks_mask = get_very_strong_shocks_mask(f['new_final_labels'][t, x:x + 50, y:y + 50])
+
+    plt.imshow(
+        np.multiply(
+            shocks_mask,
+            mask[t, x:x + 50, y:y + 50]
+        ),
+        cmap='gray',
+        origin='lower'
+    )
+
+    plt.clim(0, 1)
+
+    plt.colorbar()
+
+    plt.show()
+
+def plot_mask_all(t):
 
     plt.close('all')
     plt.clf()
@@ -525,9 +568,9 @@ def plot_mask_whole(t):
 
     shocks_mask = get_shocks_mask(f['new_final_labels'][t])
 
-    plt.imshow(shocks_mask * mask[t], cmap='gray', origin='lower')
+    plt.imshow(np.multiply(shocks_mask, mask[t]), cmap='gray', origin='lower')
 
-    plt.clim(0, 3)
+    plt.clim(0, 1)
 
     plt.colorbar()
 
@@ -684,7 +727,8 @@ def plot_evolution_diagram(
     log_scale=False,
     exp_scale=False,
     shocks_mask=False,
-    reverse_shocks_mask=False
+    reverse_shocks_mask=False,
+    mark_x=None, mark_y=None, mark_t=None
 ):
     whole_data = get_input_profiles(x, y)
     time = np.arange(0, 8.26 * 100, 8.26)
@@ -713,8 +757,8 @@ def plot_evolution_diagram(
     for index_t, t in enumerate(time_indice):
         for index_w, w in enumerate(wave_indice):
             dv = np.round(
-                get_doppler_velocity_3950(wave_3933[w]),
-                1
+                get_relative_velocity(wave_3933[w]),
+                2
             )
             axs = plt.subplot(gs1[k])
             if log_scale:
@@ -738,9 +782,15 @@ def plot_evolution_diagram(
                     origin='lower'
                 )
                 im.set_clim(min_value, max_value)
+            if mark_t == t and index_w == 2:
+                axs.scatter(
+                    mark_y, mark_x,
+                    marker='+',
+                    color='blue'
+                )
             if index_t == 0:
                 axs.text(
-                    0.1, 0.8, r'${}\;km/sec$'.format(dv),
+                    0.1, 0.8, r'${}\;\AA$'.format(dv),
                     transform=axs.transAxes,
                     color='white',
                     fontsize='xx-small'
@@ -776,9 +826,9 @@ def plot_evolution_diagram(
             mask = None
             color = None
             if shocks_mask:
-                mask = get_shocks_mask(labels[t])
+                mask = get_shocks_mask(labels[index_t])
                 mask[np.where(mask >= 1)] = 1
-                color='#FF4848'
+                color='blue'
                 axs.contour(
                     mask,
                     origin='lower',
@@ -787,9 +837,9 @@ def plot_evolution_diagram(
                     alpha=0.2
                 )
             if reverse_shocks_mask:
-                mask = get_reverse_shocks_mask(labels[t])
+                mask = get_reverse_shocks_mask(labels[index_t])
                 mask[np.where(mask >= 1)] = 1
-                color='#0F52BA'
+                color='red'
                 axs.contour(
                     mask,
                     origin='lower',
@@ -802,15 +852,6 @@ def plot_evolution_diagram(
             axs.set_yticklabels([])
             k += 1
 
-    # fig.tight_layout()
-    # plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
-    fig.savefig(
-        'fov_evolution_{}_{}_t_{}_w_{}.eps'.format(
-            x, y, '_'.join([str(a) for a in time_indice]), '_'.join([str(a) for a in wave_indice])
-        ),
-        dpi=300,
-        format='eps'
-    )
     fig.savefig(
         'fov_evolution_{}_{}_t_{}_w_{}.pdf'.format(
             x, y, '_'.join([str(a) for a in time_indice]), '_'.join([str(a) for a in wave_indice])
@@ -903,11 +944,11 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, title):
     plt.clf()
     plt.cla()
 
-    fig, axs = plt.subplots(1, 1, figsize=(4.135, 5.845))
+    fig, axs = plt.subplots(1, 1, figsize=(5.845, 4.135))
 
     for t in time_indice:
         axs.plot(
-            get_doppler_velocity_3950(wave_3933[:-1]),
+            get_relative_velocity(wave_3933[:-1]),
             whole_data[t, x, y, 0:29],
             label=r'$t={}s$'.format(
                 time[t]
@@ -916,7 +957,7 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, title):
 
     axs.legend(loc="upper right")
 
-    axs.set_xlabel(r'$\Delta\;(kms^{-1})$')
+    axs.set_xlabel(r'$\lambda\;(\AA)$')
 
     axs.set_ylabel(r'$I/I_{c}$')
 
@@ -953,19 +994,7 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, title):
 
 def make_lambda_t_curve(ref_x, ref_y, x, y, title):
     whole_data = get_input_profiles(ref_x, ref_y)
-    dv = get_doppler_velocity_3950(wave_3933)
-
-    minima_args_wave = list()
-    minima_args_time = list()
-
-    for i in range(100):
-        rp = whole_data[i, x, y, 0:29]
-        minima_points = np.r_[True, rp[1:] < rp[:-1]] & np.r_[rp[:-1] < rp[1:], True]
-        minima_indices = np.where(minima_points == True)[0]
-        for m in minima_indices:
-            minima_args_wave.append(m)
-            minima_args_time.append(i)
-
+    dv = get_relative_velocity(wave_3933)
 
     time = np.arange(0, 8.26 * 100, 8.26)
 
@@ -973,24 +1002,18 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, title):
     plt.clf()
     plt.cla()
 
-    size = plt.rcParams['lines.markersize']
-
     fig, axs = plt.subplots(1, 1, figsize=(3, 6))
 
     axs.imshow(
-        np.log(whole_data[:, x, y, 0:29]),
+        whole_data[:, x, y, 0:29],
         extent=[dv[0], dv[-2], 0, time[-1]],
         cmap='gray',
         origin='lower',
         aspect='auto'
     )
 
-    # axs.scatter(
-    #     dv[np.array(minima_args_wave)], time[np.array(minima_args_time)], color='white',
-    #     s=size/2
-    # )
-
-    axs.set_xlabel(r'$\Delta\;(kms^{-1})$')
+    axs.yaxis.set_minor_locator(MultipleLocator(8.26))
+    axs.set_xlabel(r'$\lambda\;(\AA)$')
     axs.set_ylabel(r'$time\;(seconds)$')
     axs.set_title(
         '{}'.format(
@@ -999,15 +1022,6 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, title):
     )
 
     fig.tight_layout()
-
-    fig.savefig(
-        'lambda_t_{}_{}_{}_{}.eps'.format(
-            ref_x, ref_y, x, y
-        ),
-        dpi=300,
-        format='eps',
-        # bbox_inches='tight'
-    )
 
     fig.savefig(
         'lambda_t_{}_{}_{}_{}.pdf'.format(
@@ -1415,6 +1429,7 @@ def get_data_for_intensity_enhancement_time_evolution(profile_array, classify_ar
 
 
 def get_kmeans_classification(ref_x, ref_y):
+
     f = h5py.File(old_kmeans_file, 'r')
 
     labels =  f['new_final_labels'][:, ref_x:ref_x+50, ref_y:ref_y+50]

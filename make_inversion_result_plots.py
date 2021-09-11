@@ -7,6 +7,7 @@ import matplotlib.gridspec as gridspec
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pathlib import Path
 from prepare_data import *
+from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 
 
 base_path = Path('/home/harsh/OsloAnalysis')
@@ -1089,7 +1090,169 @@ def make_inversion_density_plots():
     plt.cla()
 
 
+def get_time_evolution_plotdata(
+    xs, ys, ref_x, ref_y,
+    log_t_values
+):
+
+    x = [xs, xs + 50]
+    y = [ys, ys + 50]
+
+    out_file = '/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/fov_{}_{}_{}_{}/plots/consolidated_results_velocity_calibrated_fov_{}_{}_{}_{}.h5'.format(
+        x[0], x[1], y[0], y[1], x[0], x[1], y[0], y[1]
+    )
+
+    f = h5py.File(old_kmeans_file, 'r')
+
+    labels_f =  f['new_final_labels'][:, x[0]+ref_x, y[0]+ref_y]
+
+    f.close()
+
+    mask_shock = np.zeros(100, dtype=np.int64)
+
+    for profile in strong_shocks_profiles:
+        mask_shock[np.where(labels_f == profile)] = 1
+
+    f = h5py.File(out_file, 'r')
+
+    params = np.zeros((2, log_t_values.size, 100))
+
+    ind_lt = list()
+
+    for log_t in log_t_values:
+        ind = np.argmin(np.abs(ltau-log_t))
+        ind_lt.append(ind)
+
+    ind_lt = np.array(ind_lt)
+
+    params[0] = np.transpose(
+        f['all_temp'][:, ref_x, ref_y, ind_lt],
+        axes=(1, 0)
+    ) / 1e3
+    params[1] = np.transpose(
+        f['all_vlos'][:, ref_x, ref_y, ind_lt],
+        axes=(1, 0)
+    )
+
+    params[0] -= np.mean(params[0], 1)[:, np.newaxis]
+
+    f.close()
+
+    return params, mask_shock
+
+
+def make_time_evolution_plots_per_pixel(
+    xs, ys, ref_x, ref_y,
+    log_t_values,
+    vmin=-6, vmax=6, tmin=-1.5, tmax=2.5
+):
+    params, mask_shock = get_time_evolution_plotdata(
+        xs, ys, ref_x, ref_y,
+        log_t_values
+    )
+
+    time = np.arange(0, 8.26 * 100, 8.26)
+
+    plt.close('all')
+
+    plt.clf()
+
+    plt.cla()
+
+    fig = plt.figure(figsize=(5.845, 4.135))
+
+    k = 0
+
+    gs = gridspec.GridSpec(2, 1)
+
+    # gs.update(wspace=0.0, hspace=0.0)
+
+    for i in range(2):
+        axs = fig.add_subplot(gs[k])
+
+        for index, (log_t, color) in enumerate(
+            zip(
+                log_t_values,
+                ['blue', 'green', 'orange']
+            )
+        ):
+
+            if k == 0:
+                axs.plot(
+                    time,
+                    params[k, index],
+                    color=color,
+                    label=r'$\log (\tau_{{500}})={}$'.format(
+                        log_t
+                    )
+                )
+                handles, labels = axs.get_legend_handles_labels()
+
+                plt.legend(
+                    handles,
+                    labels,
+                    ncol=3,
+                    bbox_to_anchor=(0., 1.02, 1., .102),
+                    loc='lower left',
+                    mode="expand",
+                    borderaxespad=0.
+                )
+
+                axs.set_ylim(tmin, tmax)
+                axs.set_yticks(np.arange(tmin+0.5, tmax, 0.5))
+                axs.set_yticklabels(np.arange(tmin+0.5, tmax, 0.5))
+                axs.set_ylabel(r'$\delta T[kK]$')
+                axs.yaxis.set_minor_locator(MultipleLocator(0.1))
+            else:
+                axs.plot(
+                    time,
+                    params[k, index],
+                    color=color
+                )
+
+                axs.set_ylim(vmin, vmax)
+                axs.set_yticks(np.arange(vmin+2, vmax, 2))
+                axs.set_yticklabels(np.arange(vmin+2, vmax, 2))
+                axs.set_ylabel(r'$V_{LOS}[kms^{-1}]$')
+                axs.set_xlabel(r'$Time\;(s)$')
+                axs.yaxis.set_minor_locator(MultipleLocator(0.5))
+
+            axs.grid(True, ls='--', alpha=0.5)
+            axs.xaxis.set_minor_locator(MultipleLocator(10))
+            axs.tick_params(direction='in', which='both')
+
+        ind_shocks =  np.where(mask_shock == 1)[0]
+
+        for ind in ind_shocks:
+            axs.axvline(
+                time[ind],
+                linestyle='--',
+                linewidth=0.5,
+                color='black'
+            )
+
+        k += 1
+
+    fig.tight_layout()
+
+    fig.savefig(
+        'TimeVariation_xs_{}_ys_{}_ref_x_{}_ref_y_{}_logt_{}.pdf'.format(
+            xs, ys, ref_x, ref_y, '_'.join([str(k) for k in log_t_values])
+        ),
+        format='pdf',
+        dpi=300
+    )
+
+    plt.close('all')
+
+    plt.clf()
+
+    plt.cla()
+
+
 if __name__ == '__main__':
 
-    make_inversion_density_plots()
+    # make_inversion_density_plots()
+
+    pass
 

@@ -31,7 +31,7 @@ def plot_inertia():
     plt.clf()
     plt.cla()
 
-    fig, axs = plt.subplots(1, 1, figsize=(4.135, 4.135,))
+    fig, axs = plt.subplots(1, 1, figsize=(5.845, 4.135,))
 
     axs.plot(k, inertia / 1e5, color='#364f6B')
 
@@ -59,4 +59,4 @@ def plot_inertia():
 
     fig.tight_layout()
 
-    fig.savefig('KMeansInertia.eps', format='eps', dpi=300)
+    fig.savefig('KMeansInertia.pdf', format='pdf', dpi=300)
