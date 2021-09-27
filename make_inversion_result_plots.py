@@ -367,7 +367,12 @@ def get_params_for_fov_maps(f, time_start, wave_indice, tau_min, tau_max):
     return all_params
 
 
-def make_fov_maps(xs, ys, time_start, fovName, wave_indice, tau_min, tau_max, std_limit=10, vlos_min=None, vlos_max=None, wave_name=None, line_cut_x=None, line_cut_t=None):
+def make_fov_maps(
+        xs, ys, time_start, fovName, wave_indice,
+        tau_min, tau_max, std_limit=10, vlos_min=None,
+        vlos_max=None, wave_name=None, line_cut_x=None,
+        line_cut_t=None
+):
 
     shock_proiles = list(strong_shocks_profiles)
 
@@ -1249,6 +1254,617 @@ def make_time_evolution_plots_per_pixel(
 
     plt.cla()
 
+
+def get_data_for_pre_shock_peak_shock_temp_scatter_plot(xs, ys, start_t, interesting_t):
+
+    #ltau = -5, -3, -1
+    interesting_tau_indice = np.array(
+        [102, 116, 131]
+    )
+
+    x = [xs, xs + 50]
+    y = [ys, ys + 50]
+
+    out_file = '/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/fov_{}_{}_{}_{}/plots/consolidated_results_velocity_calibrated_fov_{}_{}_{}_{}.h5'.format(
+        x[0], x[1], y[0], y[1], x[0], x[1], y[0], y[1]
+    )
+
+    f = h5py.File(old_kmeans_file, 'r')
+
+    labels_f =  f['new_final_labels'][interesting_t][x[0]:x[1], y[0]:y[1]]
+
+    f.close()
+
+    mask_shock = np.zeros((50, 50), dtype=np.int64)
+
+    for profile in strong_shocks_profiles:
+        mask_shock[np.where(labels_f == profile)] = 1
+
+    f = h5py.File(out_file, 'r')
+
+    all_temp = f['all_temp'][np.array([start_t, interesting_t])][:, :, :, interesting_tau_indice]
+
+    a, b = np.where(mask_shock == 1)
+
+    pre_temp = all_temp[0, a, b]
+
+    peak_temp_delta_t = np.subtract(
+        all_temp[1, a, b],
+        all_temp[0, a, b]
+    )
+
+    return pre_temp, peak_temp_delta_t
+
+
+def get_consolidated_data_shock_temp_scatter_plot(combo_list):
+    
+    pre_temp = None
+    peak_temp_delta_t = None
+
+    for combo in combo_list:
+        if pre_temp is None:
+            pre_temp, peak_temp_delta_t = get_data_for_pre_shock_peak_shock_temp_scatter_plot(*combo)
+        else:
+            a, b = get_data_for_pre_shock_peak_shock_temp_scatter_plot(*combo)
+            pre_temp = np.vstack([pre_temp, a])
+            peak_temp_delta_t = np.vstack([peak_temp_delta_t, b])
+
+    return pre_temp, peak_temp_delta_t
+
+
+def make_pre_shock_peak_shock_temp_scatter_plot():
+
+    size = plt.rcParams['lines.markersize']
+
+    pre_temp, peak_temp_delta_t = get_consolidated_data_shock_temp_scatter_plot(
+        [
+            [662, 708, 4, 6],
+            [520, 715, 9, 12]
+        ]
+    )
+    
+    plt.close('all')
+
+    plt.clf()
+
+    plt.cla()
+
+    plt.scatter(pre_temp[:, 0] / 1e3, peak_temp_delta_t[:, 0] / 1e3, color='blue', label=r'$log(\tau_{500}) = -4.2$', s=size/4)
+
+    plt.scatter(pre_temp[:, 1] / 1e3, peak_temp_delta_t[:, 1] / 1e3, color='green', label=r'$log(\tau_{500}) = -3$', s=size/4)
+
+    plt.scatter(pre_temp[:, 2] / 1e3, peak_temp_delta_t[:, 2] / 1e3, color='brown', label=r'$log(\tau_{500}) = -1$', s=size/4)
+
+    plt.xlabel(r'$Pre\;Shock\;T\;(kK)$')
+
+    plt.ylabel(r'$Peak\;Shock\;\Delta T\;(kK)$')
+
+    plt.legend()
+
+    fig = plt.gcf()
+
+    fig.set_size_inches(6, 4, forward=True)
+
+    fig.tight_layout()
+
+    fig.savefig('PreShockPeakShockTemp.pdf', format='pdf', dpi=300)
+
+    plt.close('all')
+
+    plt.clf()
+
+    plt.cla()
+
+
+def get_data_for_velocity_temp_scatter_plot(xs, ys, start_t, end_t, ltau_int):
+
+    interesting_tau_indice = list()
+
+    for lt in ltau_int:
+        interesting_tau_indice.append(
+            np.argmin(np.abs(ltau - lt))
+        )
+
+    interesting_tau_indice = np.array(interesting_tau_indice)
+
+    x = [xs, xs + 50]
+    y = [ys, ys + 50]
+
+    out_file = '/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/fov_{}_{}_{}_{}/plots/consolidated_results_velocity_calibrated_fov_{}_{}_{}_{}.h5'.format(
+        x[0], x[1], y[0], y[1], x[0], x[1], y[0], y[1]
+    )
+
+    f = h5py.File(old_kmeans_file, 'r')
+
+    labels_f =  f['new_final_labels'][np.array(range(start_t, end_t))][:, x[0]:x[1], y[0]:y[1]]
+
+    f.close()
+
+    mask_shock = np.zeros((7, 50, 50), dtype=np.int64)
+
+    for profile in strong_shocks_profiles:
+        mask_shock[np.where(labels_f == profile)] = 1
+
+    f = h5py.File(out_file, 'r')
+
+    all_temp = f['all_temp'][np.arange(start_t, end_t)][:, :, :, interesting_tau_indice]
+
+    all_vlos = f['all_vlos'][np.arange(start_t, end_t)][:, :, :, interesting_tau_indice]
+
+    a, b, c = np.where(mask_shock == 1)
+
+    vlos_shock = all_vlos[a, b, c]
+
+    temp_shock = all_temp[a, b, c]
+
+    a, b, c = np.where(mask_shock == 0)
+
+    vlos_non_shock = all_vlos[a, b, c]
+
+    temp_non_shock = all_temp[a, b, c]
+
+    return vlos_shock, temp_shock, vlos_non_shock, temp_non_shock
+
+
+def get_consolidated_data_vlos_temp_scatter_plot(combo_list, ltau_int):
+    
+    vlos_shock = None
+    temp_shock = None
+    vlos_non_shock = None
+    temp_non_shock = None
+
+    for combo in combo_list:
+        if vlos_shock is None:
+            vlos_shock, temp_shock, vlos_non_shock, temp_non_shock = get_data_for_velocity_temp_scatter_plot(
+                *combo, **{'ltau_int': ltau_int}
+            )
+        else:
+            a, b, c, d = get_data_for_velocity_temp_scatter_plot(
+                *combo, **{'ltau_int': ltau_int}
+            )
+            vlos_shock = np.vstack([vlos_shock, a])
+            temp_shock = np.vstack([temp_shock, b])
+            vlos_non_shock = np.vstack([vlos_non_shock, c])
+            temp_non_shock = np.vstack([temp_non_shock, d])
+
+    return vlos_shock, temp_shock, vlos_non_shock, temp_non_shock
+
+
+def make_vlos_temp_scatter_plot():
+
+    size = plt.rcParams['lines.markersize']
+
+    ltau_int = [-4.2, -3, -1]
+
+    vlos_shock, temp_shock, vlos_non_shock, temp_non_shock = get_consolidated_data_vlos_temp_scatter_plot(
+        [
+            [662, 708, 4, 11],
+            [520, 715, 9, 16]
+        ],
+        ltau_int
+    )
+    
+    for index, lt in enumerate(ltau_int):
+        plt.close('all')
+
+        plt.clf()
+
+        plt.cla()
+
+        plt.scatter(
+            vlos_shock[:, index],
+            temp_shock[:, index] / 1e3,
+            color='blue',
+            label=r'$Shock\;log(\tau_{{500}}) = {}$'.format(
+                lt
+            ),
+            s=size/16,
+            marker='1'
+        )
+
+        plt.scatter(
+            vlos_non_shock[:, index],
+            temp_non_shock[:, index] / 1e3,
+            color='red',
+            label=r'$Non Shock\;log(\tau_{{500}}) = {}$'.format(
+                lt
+            ),
+            s=size/16,
+            marker='2',
+            alpha=0.01
+        )
+
+        plt.xlim(-8, 8)
+
+        plt.ylim(3, 12)
+
+        plt.xlabel(r'$V_{LOS}[kms^{-1}]$')
+
+        plt.ylabel(r'$T[kK]$')
+
+        plt.legend()
+
+        fig = plt.gcf()
+
+        fig.set_size_inches(6, 4, forward=True)
+
+        fig.tight_layout()
+
+        fig.savefig(
+            'VelocityTempScatter_{}.pdf'.format(
+                lt
+            ),
+            format='pdf',
+            dpi=300
+        )
+
+        plt.close('all')
+
+        plt.clf()
+
+        plt.cla()
+
+
+def get_params_for_fov_rest_8_maps(f, wave_indice, tau_min, tau_max):
+
+    ind = np.where((ltau >= tau_min) & (ltau <= tau_max))[0]
+
+    all_params = np.zeros(
+        (56, 5, 50, 50),
+        dtype=np.float64
+    )
+
+    all_params[:, 0] = f['all_profiles'][:, :, :, wave_indice]
+    all_params[:, 1] = f['syn_profiles'][:, :, :, wave_indice]
+    all_params[:, 2] = np.mean(
+        f['all_temp'][:, :, :, ind],
+        3
+    ) / 1e3
+    all_params[:, 3] = np.mean(
+        f['all_vlos'][:, :, :, ind],
+        3
+    )
+    all_params[:, 4] = np.mean(
+        f['all_vturb'][:, :, :, ind],
+        3
+    )
+
+    return all_params
+
+
+def make_fov_maps_rest_8_fov(
+    xs_array, ys_array, time_start_array, fovName_array, wave_indice,
+    tau_min, tau_max, std_limit=10, vlos_min=None,
+    vlos_max=None, wave_name=None, line_cut_x_array=None,
+    line_cut_t_array=None
+):
+
+    shock_proiles = list(strong_shocks_profiles)
+
+    out_file = '/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/fov_rest_8/plots/consolidated_results_velocity_calibrated_fov_rest_8.h5'
+
+    time = np.round(
+        np.arange(0, 8.26 * 100, 8.26),
+        2
+    )
+
+    f = h5py.File(out_file, 'r')
+
+    all_params = get_params_for_fov_rest_8_maps(f, wave_indice, tau_min, tau_max)
+
+    # set limits vmin and vmax for all parameters in plotting
+    all_vmin = np.zeros(5)
+    all_vmax = np.zeros(5)
+
+    all_vmin[0] = np.round(all_params[:, 0].min(), 2)
+    all_vmin[1] = np.round(all_params[:, 1].min(), 2)
+    all_vmin[2] = np.round(all_params[:, 2].min(), 2)
+    all_vmin[3] = -8 if vlos_min is None else vlos_min
+    all_vmin[4] = 0
+
+    all_vmax[0] = np.round(all_params[:, 0].max(), 2)
+    all_vmax[1] = np.round(all_params[:, 1].max(), 2)
+    if std_limit > 0:
+        all_vmax[2] = np.round(all_params[:, 2].mean() + 10 * all_params[:, 2].std(), 0)
+    else:
+        all_vmax[2] = np.round(all_params[:, 2].max(), 2)
+    all_vmax[3] = 8 if vlos_max is None else vlos_max
+    all_vmax[4] = 6
+
+    labels = f['all_labels'][()]
+
+    f.close()
+
+    contour_mask = np.zeros_like(labels, dtype=np.int64)
+
+    for profile in shock_proiles:
+        contour_mask[np.where(labels == profile)] = 1
+
+    X, Y = np.meshgrid(range(50), range(50))
+
+    for case in range(8):
+
+        xs = xs_array[case]
+
+        ys = ys_array[case]
+
+        x = [xs, xs + 50]
+        y = [ys, ys + 50]
+
+        time_start = time_start_array[case]
+
+        line_cut_t = line_cut_t_array[case]
+
+        line_cut_x = line_cut_x_array[case]
+
+        fovName = fovName_array[case]
+
+        plt.close('all')
+
+        plt.clf()
+
+        plt.cla()
+
+        fig = plt.figure(
+            figsize=(
+                5, 7
+            )
+        )
+
+        gs = gridspec.GridSpec(7, 5)
+
+        gs.update(left=0, right=1, top=1, bottom=0, wspace=0.0, hspace=0.0)
+
+        k = 0
+
+        doppler_wave = np.round(
+            get_doppler_velocity_3950(wave_3933),
+            2
+        )
+
+        for i, t in enumerate(range(time_start, time_start + 7)):
+            for j in range(5):
+                vmin = all_vmin[j]
+                vmax = all_vmax[j]
+
+                if j == 0:
+                    cmap='gray'
+                elif j == 1:
+                    cmap = 'gray'
+                elif j == 2:
+                    cmap='hot'
+                elif j == 3:
+                    cmap='bwr'
+                else:
+                    cmap='copper'
+
+                axs = fig.add_subplot(gs[k])
+
+                if j in [0, 1]:
+                    im = axs.imshow(
+                        all_params[case * 7 + i, j],
+                        cmap=cmap,
+                        origin='lower',
+                        # vmin=vmin,
+                        # vmax=vmax
+                    )
+                else:
+                    im = axs.imshow(
+                        all_params[case * 7 + i, j],
+                        cmap=cmap,
+                        origin='lower',
+                        vmin=vmin,
+                        vmax=vmax
+                    )
+
+                axs.contour(
+                    X, Y,
+                    contour_mask[case * 7 + i],
+                    levels=1,
+                    cmap='gray'
+                )
+
+                axs.spines["top"].set_color("white")
+                axs.spines["left"].set_color("white")
+                axs.spines["bottom"].set_color("white")
+                axs.spines["right"].set_color("white")
+
+                axs.spines["top"].set_linewidth(0.1)
+                axs.spines["left"].set_linewidth(0.1)
+                axs.spines["bottom"].set_linewidth(0.1)
+                axs.spines["right"].set_linewidth(0.1)
+
+                axs.set_xticklabels([])
+                axs.set_yticklabels([])
+
+                if line_cut_x is not None and line_cut_t is not None:
+                    if t in list(line_cut_t):
+                        axs.plot(
+                            range(50),
+                            np.ones(50) * line_cut_x,
+                            '--',
+                            linewidth=0.5
+                        )
+
+                if i == 1 and j == 4:
+                    axs.text(
+                        0.1, 0.6, 'FoV {}'.format(fovName),
+                        transform=axs.transAxes,
+                        color='white',
+                        fontsize='x-small'
+                    )
+
+                if i == 0:
+                    if j == 0:
+                        axs.text(
+                            0.1, 0.8, r'${}\;Kms^{{-1}}$'.format(
+                                doppler_wave[wave_indice]
+                            ) if wave_name is None else wave_name,
+                            transform=axs.transAxes,
+                            color='white',
+                            fontsize='x-small'
+                        )
+                    elif j == 1:
+                        axs.text(
+                            0.1, 0.8, r'${}\;Kms^{{-1}}$'.format(
+                                doppler_wave[wave_indice]
+                            ) if wave_name is None else wave_name,
+                            transform=axs.transAxes,
+                            color='white',
+                            fontsize='x-small'
+                        )
+                    elif j == 2:
+                        axs.text(
+                            0.05, 0.8, r'${}<\log (\tau_{{500}})<{}$'.format(
+                                tau_min, tau_max
+                            ),
+                            transform=axs.transAxes,
+                            color='white',
+                            fontsize='xx-small'
+                        )
+                    elif j == 3:
+                        axs.text(
+                            0.05, 0.8, r'${}<\log (\tau_{{500}})<{}$'.format(
+                                tau_min, tau_max
+                            ),
+                            transform=axs.transAxes,
+                            color='black',
+                            fontsize='xx-small'
+                        )
+                    elif j == 4:
+                        axs.text(
+                            0.05, 0.8, r'${}<\log (\tau_{{500}})<{}$'.format(
+                                tau_min, tau_max
+                            ),
+                            transform=axs.transAxes,
+                            color='white',
+                            fontsize='xx-small'
+                        )
+                    cbaxes = inset_axes(
+                        axs,
+                        width="30%",
+                        height="3%",
+                        loc=3,
+                        # borderpad=5
+                    )
+                    cbar = fig.colorbar(
+                        im,
+                        cax=cbaxes,
+                        ticks=[vmin, vmax],
+                        orientation='horizontal'
+                    )
+                    cbar.ax.xaxis.set_ticks_position('top')
+                    if j == 3:
+                        cbar.ax.tick_params(labelsize=6, colors='black')
+                    else:
+                        cbar.ax.tick_params(labelsize=6, colors='white')
+                if j == 0:
+                    axs.text(
+                        0.1, 0.6, r'${}\;s$'.format(time[t]),
+                        transform=axs.transAxes,
+                        color='white',
+                        fontsize='x-small'
+                    )
+
+                k += 1
+
+        fig.savefig(
+            'results_fov_map_{}_{}_{}_{}_t_{}_{}_wave_indice_{}_tau_{}_{}.pdf'.format(
+                x[0], x[1], y[0], y[1], time_start, time_start + 7, wave_indice, tau_min, tau_max
+            ),
+            format='pdf',
+            dpi=300
+        )
+
+        plt.close('all')
+
+        plt.clf()
+
+        plt.cla()
+
+
+def do_everything_fov_rest_8():
+    xs_array = [
+        915,
+        486,
+        582,
+        810,
+        455,
+        95,
+        315,
+        600
+    ]
+
+    ys_array = [
+        1072,
+        974,
+        627,
+        335,
+        940,
+        600,
+        855,
+        1280
+    ]
+
+    time_start_array = [
+        14,
+        17,
+        32,
+        12,
+        57,
+        93,
+        7,
+        8
+    ]
+
+    fovName_array = [
+        'B',
+        'C',
+        'D',
+        'E',
+        'F',
+        'G',
+        'H',
+        'I'
+    ]
+
+    wave_indice_array = [13, 29]
+    wave_name_array = [None, r'$4000\;\AA$']
+    tau_min_array = [-4.5, -0.04]
+    tau_max_array = [-3.5, 0.01]
+    std_limit = -1
+    vlos_min_array = [-8, -5]
+    vlos_max_array = [8, 5]
+    line_cut_x_array = [
+        28,
+        22,
+        25,
+        23,
+        30,
+        26,
+        19,
+        25
+    ]
+    line_cut_t_array = [
+        [16],
+        [20],
+        [35],
+        [15],
+        [59],
+        [97],
+        [11],
+        [11]
+    ]
+
+    for wave_indice, tau_min, tau_max, vlos_min, vlos_max, wave_name in zip(
+        wave_indice_array, tau_min_array, tau_max_array, vlos_min_array, vlos_max_array, wave_name_array
+    ):
+        make_fov_maps_rest_8_fov(
+            xs_array, ys_array, time_start_array, fovName_array, wave_indice,
+            tau_min, tau_max, std_limit=std_limit, vlos_min=vlos_min,
+            vlos_max=vlos_max, wave_name=wave_name, line_cut_x_array=line_cut_x_array,
+            line_cut_t_array=line_cut_t_array
+        )
 
 if __name__ == '__main__':
 
