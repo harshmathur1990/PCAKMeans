@@ -275,7 +275,7 @@ def get_name_string(fov_list):
 
     # return '_'.join(str_list)
 
-    return 'rest_8_fov'
+    return 'rest_8_retry_fov'
 
 
 def get_data_for_inversions(fov_list):
@@ -382,15 +382,15 @@ def make_files(fov_list, frs):
             ca_k.wav[0:-1] = wck[:]
             ca_k.wav[-1]    = wave_3933[-1]
 
-            ca_k.dat[0, 0, :, ick, 0] = input_profiles[a_final, b_final, c_final, 0:29].T / cont[0]
+            ca_k.dat[0, 0, :, ick, 0] = input_profiles[frame[0]:frame[1]][a_final, b_final, c_final, 0:29].T / cont[0]
 
-            ca_k.dat[0, 0, :, -1, 0] = input_profiles[a_final, b_final, c_final, 29].T / cont[0]
+            ca_k.dat[0, 0, :, -1, 0] = input_profiles[frame[0]:frame[1]][a_final, b_final, c_final, 29].T / cont[0]
 
-            fe_1.dat[0, 0, :, ife, 0] = input_profiles[a_final, b_final, c_final, 30:30 + 14].T * 1e3 / cont[1]
+            fe_1.dat[0, 0, :, ife, 0] = input_profiles[frame[0]:frame[1]][a_final, b_final, c_final, 30:30 + 14].T * 1e3 / cont[1]
 
             fe_1.dat[0, 0, :, ife, 0] *= correction_factor[1]
 
-            ca_8.dat[0,0,:,ic8, 0] = input_profiles[a_final, b_final, c_final, 30 + 14:30 + 14 + 20].T * 1e3 / cont[2]
+            ca_8.dat[0,0,:,ic8, 0] = input_profiles[frame[0]:frame[1]][a_final, b_final, c_final, 30 + 14:30 + 14 + 20].T * 1e3 / cont[2]
 
             ca_8.dat[0, 0, :, ic8, 0] *= correction_factor[0]
 
@@ -455,7 +455,7 @@ if __name__ == '__main__':
         ([600, 650], [1280, 1330], [8, 15])
     ]
 
-    write_path = base_path / 'new_kmeans/wholedata_inversions/fov_rest_8/'
+    write_path = base_path / 'new_kmeans/wholedata_inversions/fov_rest_8_retry/'
 
     quiet_frames_list = [[0, 56]]
     shock_reverse_other_frames_list = [[0, 18], [18, 37], [37, 56]]

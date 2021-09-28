@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from dateutil import parser
+from make_profile_files_and_initial_atmos_files_wholedata_multiple_fovs import get_data_for_inversions, cont
 
 
 label_file = Path(
@@ -127,7 +128,7 @@ def get_fov():
     quiet_frames_list = [[0, 56]]
     shock_reverse_other_frames_list = [[0, 18], [18, 37], [37, 56]]
     shocks_78_18_frames_list = [[0, 56]]
-    
+
     frs = (
         quiet_frames_list,
         shock_reverse_other_frames_list,
@@ -171,6 +172,21 @@ def get_fov():
         (56, 50, 50),
         dtype=np.int64
     )
+
+    fov_list = [
+        ([915, 965], [1072, 1122], [14, 21]),
+        ([486, 536], [974, 1024], [17, 24]),
+        ([582, 632], [627, 677], [32, 39]),
+        ([810, 860], [335, 385], [12, 19]),
+        ([455, 505], [940, 990], [57, 64]),
+        ([95, 145], [600, 650], [93, 100]),
+        ([315, 365], [855, 905], [7, 14]),
+        ([600, 650], [1280, 1330], [8, 15])
+    ]
+
+    input_profiles, input_labels = get_data_for_inversions(fov_list)
+
+    input_profiles /= cont[0]
 
     for frames, name in zip(frs, frs_names):
 
@@ -230,6 +246,24 @@ def get_fov():
             all_vturb[frame[0]:frame[1]][a1, b1, c1] = foutput_atmos['vturb'][0, 0]
 
             all_labels[frame[0]:frame[1]][a1, b1, c1] = profile_types
+
+            for i in range(56):
+                mask = np.zeros_like(all_profiles[i, :, :, 13])
+                mask[np.where(all_profiles[i, :, :, 13] > 0)] = 1
+
+                status = np.array_equal(
+                    input_profiles[i, :, :, 13] * mask,
+                    all_profiles[i, :, :, 13]
+                )
+
+                status_labels = np.array_equal(
+                    input_labels[i, :, :] * mask,
+                    all_labels[i, :, :]
+                )
+
+                if not status or not status_labels:
+                    import ipdb;ipdb.set_trace()
+
 
             fpixel.close()
 
@@ -861,6 +895,6 @@ if __name__ == '__main__':
         (ltau <= tau_indices_list[2][1])
     )[0]
 
-    plot_fov_parameter_variation(
-        animation_path='inversion_map_fov_rest_8.mp4'
-    )
+    # plot_fov_parameter_variation(
+    #     animation_path='inversion_map_fov_rest_8.mp4'
+    # )
