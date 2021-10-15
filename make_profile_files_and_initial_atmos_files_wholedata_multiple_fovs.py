@@ -258,24 +258,24 @@ def get_filepath_and_content_list(rp):
 
 def get_name_string(fov_list):
 
-    # str_list = list()
+    str_list = list()
 
-    # for fov in fov_list:
-    #     x = fov[0]
+    for fov in fov_list:
+        x = fov[0]
 
-    #     y = fov[1]
+        y = fov[1]
 
-    #     t = fov[2]
+        t = fov[2]
 
-    #     strs = 'x_{}_{}_y_{}_{}_frame_{}_{}'.format(
-    #         x[0], x[1], y[0], y[1], t[0], t[1]
-    #     )
+        strs = 'x_{}_{}_y_{}_{}_frame_{}_{}'.format(
+            x[0], x[1], y[0], y[1], t[0], t[1]
+        )
 
-    #     str_list.append(strs)
+        str_list.append(strs)
 
-    # return '_'.join(str_list)
+    return '_'.join(str_list)
 
-    return 'rest_8_retry_fov'
+    # return 'rest_8_retry_fov'
 
 
 def get_data_for_inversions(fov_list):
@@ -444,22 +444,26 @@ def make_files(fov_list, frs):
 
 if __name__ == '__main__':
 
+    # fov_list = [
+    #     ([915, 965], [1072, 1122], [14, 21]),
+    #     ([486, 536], [974, 1024], [17, 24]),
+    #     ([582, 632], [627, 677], [32, 39]),
+    #     ([810, 860], [335, 385], [12, 19]),
+    #     ([455, 505], [940, 990], [57, 64]),
+    #     ([95, 145], [600, 650], [93, 100]),
+    #     ([315, 365], [855, 905], [7, 14]),
+    #     ([600, 650], [1280, 1330], [8, 15])
+    # ]
+
     fov_list = [
-        ([915, 965], [1072, 1122], [14, 21]),
-        ([486, 536], [974, 1024], [17, 24]),
-        ([582, 632], [627, 677], [32, 39]),
-        ([810, 860], [335, 385], [12, 19]),
-        ([455, 505], [940, 990], [57, 64]),
-        ([95, 145], [600, 650], [93, 100]),
-        ([315, 365], [855, 905], [7, 14]),
-        ([600, 650], [1280, 1330], [8, 15])
+        ([535, 585], [715, 765], [9, 16]),
     ]
 
-    write_path = base_path / 'new_kmeans/wholedata_inversions/fov_rest_8_retry/'
+    write_path = base_path / 'new_kmeans/wholedata_inversions/fov_535_585_715_765/'
 
-    quiet_frames_list = [[0, 56]]
-    shock_reverse_other_frames_list = [[0, 18], [18, 37], [37, 56]]
-    shocks_78_18_frames_list = [[0, 56]]
+    quiet_frames_list = [[0, 7]]
+    shock_reverse_other_frames_list = [[0, 7]]
+    shocks_78_18_frames_list = [[0, 7]]
     make_files(
         fov_list,
         frs=(

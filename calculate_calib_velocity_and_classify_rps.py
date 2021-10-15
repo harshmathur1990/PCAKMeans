@@ -22,6 +22,8 @@ mask_file_crisp = base_path / 'crisp_chromis_mask_2019-06-06.fits'
 input_file_3950 = '/home/harsh/OsloAnalysis/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits'
 input_file_8542 = '/home/harsh/OsloAnalysis/nb_8542_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
 input_file_6173 = '/home/harsh/OsloAnalysis/nb_6173_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
+input_file_6173_blos = Path('/home/harsh/OsloAnalysis/Blos.6173_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube')
+input_file_hmi_blos = Path('/home/harsh/OsloAnalysis/hmimag_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.icube')
 input_87_17_14_file = response_functions_path / 'wholedata_rps_87_17_14.nc'
 response_87_17_14_file = response_functions_path / 'wholedata_rps_87_17_14_result_atmos_response.nc'
 output_atmos_87_17_14_file = response_functions_path / 'wholedata_rps_87_17_14_result_atmos.nc'
@@ -596,13 +598,17 @@ def plot_reverse_mask(x, y, t):
     plt.show()
 
 
-def get_input_profiles(ref_x, ref_y, get_6173=False, get_8542=False):
+def get_input_profiles(ref_x, ref_y, get_6173=False, get_8542=False, get_6173_blos=False, time_step=None):
+
+    if time_step is None:
+        time_step = np.arange(100)
+
     whole_data = np.zeros((100, 50, 50, 64))
 
     data, header = sunpy.io.fits.read(input_file_3950, memmap=True)[0]
 
-    whole_data[:, :, :, 0:30] = np.transpose(
-        data[:, 0, :, ref_x: ref_x + 50, ref_y: ref_y + 50],
+    whole_data[time_step, :, :, 0:30] = np.transpose(
+        data[time_step, 0, :, ref_x: ref_x + 50, ref_y: ref_y + 50],
         axes=(0, 2, 3, 1)
     ) / cont[0]
 
@@ -622,8 +628,8 @@ def get_input_profiles(ref_x, ref_y, get_6173=False, get_8542=False):
             axes=(2, 3, 4, 1, 0)
         )
 
-        whole_data[:, :, :, 30:30 + 14] = np.transpose(
-            data[:, 0, :, ref_x: ref_x + 50, ref_y: ref_y + 50],
+        whole_data[time_step, :, :, 30:30 + 14] = np.transpose(
+            data[time_step, 0, :, ref_x: ref_x + 50, ref_y: ref_y + 50],
             axes=(0, 2, 3, 1)
         ) / cont[1]
 
@@ -643,13 +649,299 @@ def get_input_profiles(ref_x, ref_y, get_6173=False, get_8542=False):
             axes=(2, 3, 4, 1, 0)
         )
 
-        whole_data[:, :, :, 30 + 14:30 + 14 + 20] = np.transpose(
-            data[:, 0, :, ref_x: ref_x + 50, ref_y: ref_y + 50],
+        whole_data[time_step, :, :, 30 + 14:30 + 14 + 20] = np.transpose(
+            data[time_step, 0, :, ref_x: ref_x + 50, ref_y: ref_y + 50],
             axes=(0, 2, 3, 1)
         ) / cont[2]
 
+    if get_6173_blos:
+
+        sh, dt, header = getheader(input_file_6173_blos)
+
+        data = np.memmap(
+            input_file_6173_blos,
+            mode='r',
+            shape=sh,
+            dtype=dt,
+            order='F',
+            offset=512
+        )
+
+        blos_6173 = np.transpose(
+            data,
+            axes=(2, 1, 0)
+        )
+
+        return whole_data, blos_6173[:, ref_x:ref_x + 50, ref_y:ref_y + 50]
+
     return whole_data
 
+
+def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mark_x, mark_y, letter, blos_lim=30):
+    whole_data, blos_6173 = get_input_profiles(ref_x, ref_y, get_6173_blos=True, time_step=time_step)
+
+    whole_data = whole_data[time_step]
+    blos_6173 = blos_6173[time_step]
+
+    f = h5py.File(old_kmeans_file, 'r')
+    labels = f['new_final_labels'][time_step][:, ref_x:ref_x + 50, ref_y:ref_y + 50]
+    f.close()
+
+    time_arr = np.arange(0, 826, 8.26)
+
+    plt.close('all')
+
+    plt.clf()
+
+    plt.cla()
+
+    fig = plt.figure(figsize=(3.5, 7 * 3.5 / 5))
+
+    gs = gridspec.GridSpec(7, 5)
+
+    gs.update(left=0, right=1, top=1, bottom=0, wspace=0.0, hspace=0.0)
+
+    axs = list()
+
+    k = 0
+
+    wb_vmin = whole_data[:, :, :, 29].min()
+    wb_vmax = whole_data[:, :, :, 29].max()
+
+    blos_vmin = -1 * blos_lim
+    blos_vmax =  blos_lim
+
+    im_vmin = whole_data[:, :, :, wave_indice].min()
+    im_vmax = whole_data[:, :, :, wave_indice].max()
+
+    for i in range(7):
+        axsi = list()
+        for j in range(5):
+            axsi.append(fig.add_subplot(gs[k]))
+
+            k += 1
+        axs.append(axsi)
+
+    for i in range(7):
+        for j in range(5):
+            if j == 0:
+                axs[i][j].imshow(
+                    whole_data[i, :, :, 29],
+                    cmap='gray',
+                    origin='lower',
+                    vmin=wb_vmin,
+                    vmax=wb_vmax
+                )
+                if i == 0:
+                    axs[i][j].text(
+                        0.3, 0.8,
+                        r'$4000\;\AA$',
+                        transform=axs[i][j].transAxes,
+                        color='white',
+                        fontsize='xx-small'
+                    )
+                    axs[i][j].text(
+                        0.05, 0.9,
+                        r'$(a)$',
+                        transform=axs[i][j].transAxes,
+                        color='white',
+                        fontsize='xx-small'
+                    )
+                axs[i][j].text(
+                        0.2, 0.6,
+                        r'$t={}s$'.format(
+                            time_arr[time_step[i]]
+                        ),
+                        transform=axs[i][j].transAxes,
+                        color='white',
+                        fontsize='xx-small'
+                    )
+            elif j == 1:
+                im = axs[i][j].imshow(
+                    blos_6173[i, :, :],
+                    cmap='gray',
+                    origin='lower',
+                    vmin=blos_vmin,
+                    vmax=blos_vmax
+                )
+
+                if i == 0:
+                    axs[i][j].text(
+                        0.3, 0.8,
+                        r'$B_{LOS}$',
+                        transform=axs[i][j].transAxes,
+                        color='white',
+                        fontsize='xx-small'
+                    )
+
+                    cbaxes = inset_axes(
+                        axs[i][j],
+                        width="30%",
+                        height="3%",
+                        loc=3,
+                        # borderpad=5
+                    )
+                    cbar = fig.colorbar(
+                        im,
+                        cax=cbaxes,
+                        ticks=[blos_vmin, blos_vmax],
+                        orientation='horizontal'
+                    )
+
+                    cbar.ax.xaxis.set_ticks_position('top')
+                    cbar.ax.tick_params(labelsize=6, colors='white')
+            else:
+                axs[i][j].imshow(
+                    whole_data[i, :, :, wave_indice[j - 2]],
+                    cmap='gray',
+                    origin='lower',
+                    vmin=im_vmin,
+                    vmax=im_vmax
+                )
+                if i == 0:
+                    axs[i][j].text(
+                        0.05, 0.8,
+                        r'$Ca\;II\;K\;{}\;\AA$'.format(
+                            np.round(
+                                get_relative_velocity(
+                                    wave_3933[wave_indice[j - 2]]
+                                ),
+                                2
+                            )
+                        ),
+                        transform=axs[i][j].transAxes,
+                        color='white',
+                        fontsize='xx-small'
+                    )
+                if i == 1:
+                    if j == 4:
+                        axs[i][j].text(
+                            0.2, 0.6,
+                            r'$FOV\;{}$'.format(
+                                letter
+                            ),
+                            transform=axs[i][j].transAxes,
+                            color='white',
+                            fontsize='xx-small'
+                        )
+
+            if mark_t == time_step[i] and j == 3:
+                axs[i][j].scatter(
+                    mark_y, mark_x,
+                    marker='+',
+                    color='blue'
+                )
+
+            mask = get_shocks_mask(labels[i])
+            mask[np.where(mask >= 1)] = 1
+            color='blue'
+            axs[i][j].contour(
+                mask,
+                origin='lower',
+                colors=color,
+                linewidths=0.2,
+                alpha=0.2
+            )
+            axs[i][j].set_xticklabels([])
+            axs[i][j].set_yticklabels([])
+
+    fig.savefig(
+        'FoV_{}.pdf'.format(
+            letter
+        ),
+        dpi=300,
+        format='pdf'
+    )
+    plt.close('all')
+
+    plt.clf()
+
+    plt.cla()
+
+
+def make_nb_image(ref_x, ref_y, time_step, wave_indice, mark_x, mark_y, letter):
+    whole_data = get_input_profiles(ref_x, ref_y)
+
+    whole_data = whole_data[time_step]
+
+    f = h5py.File(old_kmeans_file, 'r')
+    labels = f['new_final_labels'][time_step][ref_x:ref_x + 50, ref_y:ref_y + 50]
+    f.close()
+
+    time_arr = np.arange(0, 826, 8.26)
+
+    plt.close('all')
+
+    plt.clf()
+
+    plt.cla()
+
+    fig = plt.figure(figsize=(1.75, 1.75))
+
+    gs = gridspec.GridSpec(1, 1)
+
+    gs.update(left=0, right=1, top=1, bottom=0, wspace=0.0, hspace=0.0)
+
+    axs = fig.add_subplot(gs[0])
+
+    axs.imshow(whole_data[:, :, wave_indice], cmap='gray', origin='lower')
+
+    axs.text(
+        0.05, 0.8,
+        r'$Ca\;II\;K\;{}\;\AA$'.format(
+            np.round(
+                get_relative_velocity(
+                    wave_3933[wave_indice]
+                ),
+                2
+            )
+        ),
+        transform=axs.transAxes,
+        color='white',
+        fontsize='xx-small'
+    )
+
+    axs.text(
+        0.05, 0.6,
+        r'FoV {}'.format(
+            letter
+        ),
+        transform=axs.transAxes,
+        color='white',
+        fontsize='xx-small'
+    )
+
+    axs.scatter(
+        mark_y, mark_x,
+        marker='+',
+        color='blue'
+    )
+
+    mask = get_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    color='blue'
+    axs.contour(
+        mask,
+        origin='lower',
+        colors=color,
+        linewidths=0.2,
+        alpha=0.2
+    )
+    axs.set_xticklabels([])
+    axs.set_yticklabels([])
+
+    fig.savefig(
+        'FoV_one_t_step_{}.pdf'.format(
+            letter
+        ),
+        dpi=300,
+        format='pdf'
+    )
+    plt.close('all')
+
+    plt.clf()
+
+    plt.cla()
 
 def plot_profile(ref_x, ref_y, x, y, t):
     whole_data = get_input_profiles(ref_x, ref_y)
@@ -674,6 +966,11 @@ def get_doppler_velocity_3950(wavelength):
 @np.vectorize
 def get_relative_velocity(wavelength):
     return wavelength - 3933.682
+
+
+@np.vectorize
+def get_relative_velocity_8542(wavelength):
+    return wavelength - 8542.09
 
 
 def plot_category(x, y, del_x, del_y):
@@ -933,8 +1230,8 @@ def plot_1_profiles(ref_x, ref_y, x1, y1, t1):
     plt.cla()
 
 
-def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, title):
-    whole_data = get_input_profiles(ref_x, ref_y)
+def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, letter, color_list=None):
+    whole_data = get_input_profiles(ref_x, ref_y, get_8542=True, time_step=time_indice)
     time = np.round(
         np.arange(0, 8.26*100, 8.26),
         2
@@ -944,88 +1241,164 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, title):
     plt.clf()
     plt.cla()
 
-    fig, axs = plt.subplots(1, 1, figsize=(5.845, 4.135))
+    fig, axs = plt.subplots(1, 1, figsize=(4.0, 3.5))
 
-    for t in time_indice:
-        axs.plot(
-            get_relative_velocity(wave_3933[:-1]),
-            whole_data[t, x, y, 0:29],
-            label=r'$t={}s$'.format(
-                time[t]
+    for index, t in enumerate(time_indice):
+        if color_list is not None:
+            axs.plot(
+                get_relative_velocity(wave_3933[:-1]),
+                whole_data[t, x, y, 0:29],
+                color=color_list[index]
             )
-        )
+        else:
+            axs.plot(
+                get_relative_velocity(wave_3933[:-1]),
+                whole_data[t, x, y, 0:29],
+                label=r'$t={}s$'.format(
+                    time[t]
+                )
+            )
 
-    axs.legend(loc="upper right")
+    if color_list is None:
+        axs.legend(loc="upper right")
 
-    axs.set_xlabel(r'$\lambda\;(\AA)$')
+    axs.text(
+        0.05, 0.9,
+        r'$(d)$',
+        transform=axs.transAxes,
+        color='black',
+        fontsize='xx-large'
+    )
+    axs.set_xticks([-0.5, 0, 0.5])
+
+    axs.set_xticklabels([-0.5, 0, 0.5])
+
+    axs.set_xlabel(r'$\Delta \lambda\;(\AA)$')
 
     axs.set_ylabel(r'$I/I_{c}$')
 
-    axs.set_title(
-        '{}'.format(
-            title
-        )
-    )
+    # axs.set_title(
+    #     'FoV {}'.format(
+    #         letter
+    #     )
+    # )
 
     fig.tight_layout()
 
-    for out_format in ['eps', 'pdf']:
-        fig.savefig(
-            'fov_evolution_{}_{}_sp_{}_{}_t_{}.{}'.format(
-                ref_x,
-                ref_y,
-                x,
-                y,
-                '_'.join(
-                    [
-                        str(a) for a in time_indice
-                    ]
-                ),
-                out_format
-            ),
-            format=out_format,
-            dpi=300
-        )
+    fig.savefig(
+        'pixel_evolution_CaK_{}.pdf'.format(
+            letter
+        ),
+        format='pdf',
+        dpi=300
+    )
+
+    plt.close('all')
+    plt.clf()
+    plt.cla()
+
+    fig, axs = plt.subplots(1, 1, figsize=(4.0, 3.5))
+
+    for index, t in enumerate(time_indice):
+        if color_list is not None:
+            axs.plot(
+                get_relative_velocity_8542(wave_8542),
+                whole_data[t, x, y, 30 + 14:30 + 14 + 20],
+                color=color_list[index]
+            )
+        else:
+            axs.plot(
+                get_relative_velocity_8542(wave_8542),
+                whole_data[t, x, y, 30 + 14:30 + 14 + 20],
+                label=r'$t={}s$'.format(
+                    time[t]
+                )
+            )
+
+    if color_list is None:
+        axs.legend(loc="upper right")
+
+    axs.text(
+        0.05, 0.9,
+        r'$(e)$',
+        transform=axs.transAxes,
+        color='black',
+        fontsize='xx-large'
+    )
+
+    axs.set_xticks([-1, 0, 1])
+
+    axs.set_xticklabels([-1, 0, 1])
+
+    axs.set_xlabel(r'$\Delta \lambda\;(\AA)$')
+
+    axs.set_ylabel(r'$I/I_{c}$')
+
+    # axs.set_title(
+    #     'FoV {}'.format(
+    #         letter
+    #     )
+    # )
+
+    fig.tight_layout()
+
+    fig.savefig(
+        'pixel_evolution_CaIR_{}.pdf'.format(
+            letter
+        ),
+        format='pdf',
+        dpi=300
+    )
 
     plt.close('all')
     plt.clf()
     plt.cla()
 
 
-def make_lambda_t_curve(ref_x, ref_y, x, y, title):
-    whole_data = get_input_profiles(ref_x, ref_y)
+def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t, color_list, letter):
+    whole_data = get_input_profiles(ref_x, ref_y, get_8542=True, time_step=time_step)
     dv = get_relative_velocity(wave_3933)
+    dv8542 = get_relative_velocity_8542(wave_8542)
 
-    time = np.arange(0, 8.26 * 100, 8.26)
+    time = np.arange(0, 826, 8.26)
 
     plt.close('all')
     plt.clf()
     plt.cla()
 
-    fig, axs = plt.subplots(1, 1, figsize=(3, 6))
+    fig, axs = plt.subplots(1, 1, figsize=(1.75, 3.5))
 
     axs.imshow(
-        whole_data[:, x, y, 0:29],
-        extent=[dv[0], dv[-2], 0, time[-1]],
+        whole_data[time_step, x, y, 0:29],
+        extent=[dv[0], dv[-2], time[time_step[0]], time[time_step[-1]]],
         cmap='gray',
         origin='lower',
         aspect='auto'
     )
 
-    axs.yaxis.set_minor_locator(MultipleLocator(8.26))
-    axs.set_xlabel(r'$\lambda\;(\AA)$')
+    for i, tt in enumerate(mark_t):
+        axs.scatter([0], [time[tt]], color=color_list[i], marker='+')
+
+    axs.text(
+        0.05, 0.9,
+        r'$(b)$',
+        transform=axs.transAxes,
+        color='white',
+        fontsize='small'
+    )
+    axs.set_xticks([-0.5, 0, 0.5])
+    axs.set_xticklabels([-0.5, 0, 0.5])
+    axs.set_xlabel(r'$\Delta \lambda\;(\AA)$')
     axs.set_ylabel(r'$time\;(seconds)$')
     axs.set_title(
-        '{}'.format(
-            title
-        )
+        r'$Ca\;II\;K$'
     )
 
     fig.tight_layout()
 
     fig.savefig(
-        'lambda_t_{}_{}_{}_{}.pdf'.format(
-            ref_x, ref_y, x, y
+        'lambda_t_FoV_CaK_{}.pdf'.format(
+            letter
         ),
         dpi=300,
         format='pdf',
@@ -1035,6 +1408,145 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, title):
     plt.close('all')
     plt.clf()
     plt.cla()
+
+    fig, axs = plt.subplots(1, 1, figsize=(1.75, 3.5))
+
+    axs.imshow(
+        whole_data[time_step, x, y, 30 + 14:30 + 14 + 20],
+        extent=[dv8542[0], dv8542[-1], time[time_step[0]], time[time_step[-1]]],
+        cmap='gray',
+        origin='lower',
+        aspect='auto'
+    )
+
+    for i, tt in enumerate(mark_t):
+        axs.scatter([0], [time[tt]], color=color_list[i], marker='+')
+
+    axs.text(
+        0.05, 0.9,
+        r'$(c)$',
+        transform=axs.transAxes,
+        color='white',
+        fontsize='small'
+    )
+    axs.set_xticks([-1, 0, 1])
+    axs.set_xticklabels([-1, 0, 1])
+    axs.set_xlabel(r'$\Delta \lambda\;(\AA)$')
+    axs.set_ylabel(r'$time\;(seconds)$')
+    axs.set_title(
+        r'$Ca\;II\;8542$'
+    )
+
+    fig.tight_layout()
+
+    fig.savefig(
+        'lambda_t_FoV_CaIR_{}.pdf'.format(
+            letter
+        ),
+        dpi=300,
+        format='pdf',
+        # bbox_inches='tight'
+    )
+
+    plt.close('all')
+    plt.clf()
+    plt.cla()
+
+
+def make_shock_evolution_plots():
+    ref_x_list = [662, 915, 486, 582, 810, 455, 95, 315, 600, 535]
+
+    ref_y_list = [708, 1072, 974, 627, 335, 940, 600, 855, 1280, 715]
+
+    time_step_list = [
+        np.arange(4, 11),
+        np.arange(14, 21),
+        np.arange(17, 24),
+        np.arange(32, 39),
+        np.arange(12, 19),
+        np.arange(57, 64),
+        np.arange(93, 100),
+        np.arange(7, 14),
+        np.arange(8, 15),
+        np.arange(9, 16)
+    ]
+
+    mark_list = [
+        [6 , 25, 18],
+        [16, 28, 24],
+        [20, 22, 26],
+        [35, 25, 25],
+        [15, 23, 25],
+        [59, 30, 29],
+        [97, 26, 21],
+        [11, 19, 17],
+        [11, 25, 18],
+        [12, 26, 26]
+    ]
+
+    FoV_letter_list = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+
+    wave_indice = np.array([11, 13, 16])
+
+    blos_lim = 100
+
+    color_list = ['blue', 'orange', 'red']
+
+    for i in range(10):
+        # plot_new_evolution_diagram(
+        #     ref_x_list[i],
+        #     ref_y_list[i],
+        #     time_step_list[i],
+        #     wave_indice,
+        #     mark_list[i][0],
+        #     mark_list[i][1],
+        #     mark_list[i][2],
+        #     FoV_letter_list[i],
+        #     blos_lim
+        # )
+
+        make_evolution_single_pixel_plot(
+            ref_x_list[i],
+            ref_y_list[i],
+            mark_list[i][1],
+            mark_list[i][2],
+            np.array(
+                [
+                    mark_list[i][0] - 1,
+                    mark_list[i][0],
+                    mark_list[i][0] + 1
+                ]
+            ),
+            FoV_letter_list[i],
+            color_list
+        )
+
+        # make_lambda_t_curve(
+        #     ref_x_list[i],
+        #     ref_y_list[i],
+        #     mark_list[i][1],
+        #     mark_list[i][2],
+        #     time_step_list[i],
+        #     np.array(
+        #         [
+        #             mark_list[i][0] - 1,
+        #             mark_list[i][0],
+        #             mark_list[i][0] + 1
+        #         ]
+        #     ),
+        #     color_list,
+        #     FoV_letter_list[i]
+        # )
+
+        # make_nb_image(
+        #     ref_x_list[i],
+        #     ref_y_list[i],
+        #     mark_list[i][0],
+        #     wave_indice[1],
+        #     mark_list[i][1],
+        #     mark_list[i][2],
+        #     FoV_letter_list[i]
+        # )
 
 
 def make_fov_contour():

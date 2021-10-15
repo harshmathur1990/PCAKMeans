@@ -5,14 +5,17 @@ import h5py
 import sunpy.io
 from helita.io.lp import *
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 
 # mask_file_crisp = Path('/home/harsh/OsloAnalysis/crisp_chromis_mask_2019-06-06.fits')
 input_file_3950 = Path('/home/harsh/OsloAnalysis/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits')
 input_file_8542 = Path('/home/harsh/OsloAnalysis/nb_8542_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube')
 input_file_6173 = Path('/home/harsh/OsloAnalysis/nb_6173_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube')
-
+input_file_6173_blos = Path('/home/harsh/OsloAnalysis/Blos.6173_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube')
+input_file_hmi_blos = Path('/home/harsh/OsloAnalysis/hmimag_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.icube')
 
 # mask, _  = sunpy.io.fits.read(mask_file_crisp, memmap=True)[0]
 
@@ -98,17 +101,65 @@ def get_data():
 
     whole_data[0, 30 + 14:30 + 14 + 20] = data[0, 0]
 
-    return whole_data
+    sh, dt, header = getheader(input_file_6173_blos)
+
+    data = np.memmap(
+        input_file_6173_blos,
+        mode='r',
+        shape=sh,
+        dtype=dt,
+        order='F',
+        offset=512
+    )
+
+    b6173 = np.transpose(
+        data,
+        axes=(2, 1, 0)
+    )
+
+    sh, dt, header = getheader(input_file_hmi_blos)
+
+    data = np.memmap(
+        input_file_hmi_blos,
+        mode='r',
+        shape=sh,
+        dtype=dt,
+        order='F',
+        offset=512
+    )
+
+    hmi_mag = np.transpose(
+        data,
+        axes=(2, 1, 0)
+    )
+    return whole_data, b6173, hmi_mag
 
 
 def plot_fov_images():
-    whole_data = get_data()
+    whole_data, b6173, hmi_mag = get_data()
 
     plt.close('all')
     plt.clf()
     plt.cla()
 
-    fig, axs = plt.subplots(2, 2, figsize=(8.27, 5.845))
+    fig = plt.figure(figsize=(7.08, 7.08))
+
+    gs = gridspec.GridSpec(3, 2)
+
+    gs.update(left=0, right=1, top=1, bottom=0, wspace=0.0, hspace=0.0)
+
+    axs = list()
+
+    k = 0
+
+    for i in range(3):
+        axsi = list()
+        for j in range(2):
+            axsi.append(fig.add_subplot(gs[k]))
+
+            k += 1
+        axs.append(axsi)
+
 
     extent = [596.31, 666.312, -35.041, 11.765]
 
@@ -151,120 +202,160 @@ def plot_fov_images():
     fov_9_mask[600:650, 1280:1330] = 1
 
     #fov J
-    fov_10_mask[520:570, 715:765] = 1
+    fov_10_mask[535:585, 715:765] = 1
 
     axs[0][0].imshow(whole_data[0, 29, :, :], cmap='gray', origin='lower', extent=extent)
-    axs[0][1].imshow(whole_data[0, 13, :, :], cmap='gray', origin='lower', extent=extent)
+    im = axs[0][1].imshow(b6173[0], cmap='gray', origin='lower', extent=extent, vmin=-500, vmax=500)
 
     axs[1][0].imshow(whole_data[0, 15, :, :], cmap='gray', origin='lower', extent=extent)
-    axs[1][1].imshow(whole_data[0, 30 + 14 + 9, :, :], cmap='gray', origin='lower', extent=extent)
+    axs[1][1].imshow(whole_data[0, 13, :, :], cmap='gray', origin='lower', extent=extent)
+
+    axs[2][0].imshow(whole_data[0, 30 + 14 + 10, :, :], cmap='gray', origin='lower', extent=extent)
+    axs[2][1].imshow(whole_data[0, 30 + 14 + 9, :, :], cmap='gray', origin='lower', extent=extent)
 
     axs[0][0].text(0.0, 0.1, r'(a) Continuum 4000 $\AA$', transform=axs[0][0].transAxes, color='white')
     axs[0][1].text(
         0.0, 0.1,
-        r'(b) Ca II k ${}\;\AA$'.format(
-            np.round(
-                get_relative_velocity(
-                    wave_3933[13]
-                ),
-                2
-            )
-        ),
+        r'(b) $B_{{LOS}}$',
         transform=axs[0][1].transAxes,
         color='white'
     )
     axs[1][0].text(
         0.0, 0.1,
-        r'(c) Ca II k ${}\;\AA$'.format(
-            np.round(
-                get_relative_velocity(
-                    wave_3933[15]
-                ),
-                2
-            )
-        ),
+        r'(c) $Ca\;II\;K3$',
         transform=axs[1][0].transAxes,
         color='white'
     )
-    axs[1][1].text(0.0, 0.1, r'(d) Ca II 8542 core', transform=axs[1][1].transAxes, color='white')
+    axs[1][1].text(
+        0.0, 0.1,
+        r'(c) $Ca\;II\;K2_{{V}}$',
+        transform=axs[1][1].transAxes,
+        color='white'
+    )
+    axs[2][0].text(0.0, 0.1, r'(e) Ca II 8542 core', transform=axs[2][0].transAxes, color='white')
+    axs[2][1].text(0.0, 0.1, r'(f) Ca II 8542 $-0.02 \AA$', transform=axs[2][1].transAxes, color='white')
+
+    cbaxes = inset_axes(
+        axs[0][1],
+        width="30%",
+        height="1%",
+        loc=2,
+        # borderpad=5
+    )
+    cbar = fig.colorbar(
+        im,
+        cax=cbaxes,
+        ticks=[-500, 500],
+        orientation='horizontal'
+    )
+
+    # cbar.ax.xaxis.set_ticks_position('top')
+    cbar.ax.tick_params(labelsize=6, colors='white')
 
     axs[0][0].contour(fov_1_mask, levels=0, extent=extent, origin='lower', colors='#4E79A7')
     axs[0][1].contour(fov_1_mask, levels=0, extent=extent, origin='lower', colors='#4E79A7')
     axs[1][0].contour(fov_1_mask, levels=0, extent=extent, origin='lower', colors='#4E79A7')
     axs[1][1].contour(fov_1_mask, levels=0, extent=extent, origin='lower', colors='#4E79A7')
+    axs[2][0].contour(fov_1_mask, levels=0, extent=extent, origin='lower', colors='#4E79A7')
+    axs[2][1].contour(fov_1_mask, levels=0, extent=extent, origin='lower', colors='#4E79A7')
 
     axs[0][0].contour(fov_2_mask, levels=0, extent=extent, origin='lower', colors='#F28E2B')
     axs[0][1].contour(fov_2_mask, levels=0, extent=extent, origin='lower', colors='#F28E2B')
     axs[1][0].contour(fov_2_mask, levels=0, extent=extent, origin='lower', colors='#F28E2B')
     axs[1][1].contour(fov_2_mask, levels=0, extent=extent, origin='lower', colors='#F28E2B')
+    axs[2][0].contour(fov_2_mask, levels=0, extent=extent, origin='lower', colors='#F28E2B')
+    axs[2][1].contour(fov_2_mask, levels=0, extent=extent, origin='lower', colors='#F28E2B')
 
     axs[0][0].contour(fov_3_mask, levels=0, extent=extent, origin='lower', colors='#E15759')
     axs[0][1].contour(fov_3_mask, levels=0, extent=extent, origin='lower', colors='#E15759')
     axs[1][0].contour(fov_3_mask, levels=0, extent=extent, origin='lower', colors='#E15759')
     axs[1][1].contour(fov_3_mask, levels=0, extent=extent, origin='lower', colors='#E15759')
+    axs[2][0].contour(fov_3_mask, levels=0, extent=extent, origin='lower', colors='#E15759')
+    axs[2][1].contour(fov_3_mask, levels=0, extent=extent, origin='lower', colors='#E15759')
 
     axs[0][0].contour(fov_4_mask, levels=0, extent=extent, origin='lower', colors='#76B7B2')
     axs[0][1].contour(fov_4_mask, levels=0, extent=extent, origin='lower', colors='#76B7B2')
     axs[1][0].contour(fov_4_mask, levels=0, extent=extent, origin='lower', colors='#76B7B2')
     axs[1][1].contour(fov_4_mask, levels=0, extent=extent, origin='lower', colors='#76B7B2')
+    axs[2][0].contour(fov_4_mask, levels=0, extent=extent, origin='lower', colors='#76B7B2')
+    axs[2][1].contour(fov_4_mask, levels=0, extent=extent, origin='lower', colors='#76B7B2')
 
     axs[0][0].contour(fov_5_mask, levels=0, extent=extent, origin='lower', colors='#59A14F')
     axs[0][1].contour(fov_5_mask, levels=0, extent=extent, origin='lower', colors='#59A14F')
     axs[1][0].contour(fov_5_mask, levels=0, extent=extent, origin='lower', colors='#59A14F')
     axs[1][1].contour(fov_5_mask, levels=0, extent=extent, origin='lower', colors='#59A14F')
+    axs[2][0].contour(fov_5_mask, levels=0, extent=extent, origin='lower', colors='#59A14F')
+    axs[2][1].contour(fov_5_mask, levels=0, extent=extent, origin='lower', colors='#59A14F')
 
     axs[0][0].contour(fov_6_mask, levels=0, extent=extent, origin='lower', colors='#EDC948')
     axs[0][1].contour(fov_6_mask, levels=0, extent=extent, origin='lower', colors='#EDC948')
     axs[1][0].contour(fov_6_mask, levels=0, extent=extent, origin='lower', colors='#EDC948')
     axs[1][1].contour(fov_6_mask, levels=0, extent=extent, origin='lower', colors='#EDC948')
+    axs[2][0].contour(fov_6_mask, levels=0, extent=extent, origin='lower', colors='#EDC948')
+    axs[2][1].contour(fov_6_mask, levels=0, extent=extent, origin='lower', colors='#EDC948')
 
     axs[0][0].contour(fov_7_mask, levels=0, extent=extent, origin='lower', colors='#B07AA1')
     axs[0][1].contour(fov_7_mask, levels=0, extent=extent, origin='lower', colors='#B07AA1')
     axs[1][0].contour(fov_7_mask, levels=0, extent=extent, origin='lower', colors='#B07AA1')
     axs[1][1].contour(fov_7_mask, levels=0, extent=extent, origin='lower', colors='#B07AA1')
+    axs[2][0].contour(fov_7_mask, levels=0, extent=extent, origin='lower', colors='#B07AA1')
+    axs[2][1].contour(fov_7_mask, levels=0, extent=extent, origin='lower', colors='#B07AA1')
 
     axs[0][0].contour(fov_8_mask, levels=0, extent=extent, origin='lower', colors='#FF9DA7')
     axs[0][1].contour(fov_8_mask, levels=0, extent=extent, origin='lower', colors='#FF9DA7')
     axs[1][0].contour(fov_8_mask, levels=0, extent=extent, origin='lower', colors='#FF9DA7')
     axs[1][1].contour(fov_8_mask, levels=0, extent=extent, origin='lower', colors='#FF9DA7')
+    axs[2][0].contour(fov_8_mask, levels=0, extent=extent, origin='lower', colors='#FF9DA7')
+    axs[2][1].contour(fov_8_mask, levels=0, extent=extent, origin='lower', colors='#FF9DA7')
 
     axs[0][0].contour(fov_9_mask, levels=0, extent=extent, origin='lower', colors='#9C755F')
     axs[0][1].contour(fov_9_mask, levels=0, extent=extent, origin='lower', colors='#9C755F')
     axs[1][0].contour(fov_9_mask, levels=0, extent=extent, origin='lower', colors='#9C755F')
     axs[1][1].contour(fov_9_mask, levels=0, extent=extent, origin='lower', colors='#9C755F')
+    axs[2][0].contour(fov_9_mask, levels=0, extent=extent, origin='lower', colors='#9C755F')
+    axs[2][1].contour(fov_9_mask, levels=0, extent=extent, origin='lower', colors='#9C755F')
 
     axs[0][0].contour(fov_10_mask, levels=0, extent=extent, origin='lower', colors='#BAB0AC')
     axs[0][1].contour(fov_10_mask, levels=0, extent=extent, origin='lower', colors='#BAB0AC')
     axs[1][0].contour(fov_10_mask, levels=0, extent=extent, origin='lower', colors='#BAB0AC')
     axs[1][1].contour(fov_10_mask, levels=0, extent=extent, origin='lower', colors='#BAB0AC')
+    axs[2][0].contour(fov_10_mask, levels=0, extent=extent, origin='lower', colors='#BAB0AC')
+    axs[2][1].contour(fov_10_mask, levels=0, extent=extent, origin='lower', colors='#BAB0AC')
 
-    axs[0][0].yaxis.set_minor_locator(MultipleLocator(1))
-    axs[0][1].yaxis.set_minor_locator(MultipleLocator(1))
-    axs[1][0].yaxis.set_minor_locator(MultipleLocator(1))
-    axs[1][1].yaxis.set_minor_locator(MultipleLocator(1))
+    # axs[0][0].yaxis.set_minor_locator(MultipleLocator(1))
+    # axs[0][1].yaxis.set_minor_locator(MultipleLocator(1))
+    # axs[1][0].yaxis.set_minor_locator(MultipleLocator(1))
+    # axs[1][1].yaxis.set_minor_locator(MultipleLocator(1))
+    # axs[2][0].yaxis.set_minor_locator(MultipleLocator(1))
+    # axs[2][1].yaxis.set_minor_locator(MultipleLocator(1))
 
-    axs[0][0].xaxis.set_minor_locator(MultipleLocator(1))
-    axs[0][1].xaxis.set_minor_locator(MultipleLocator(1))
-    axs[1][0].xaxis.set_minor_locator(MultipleLocator(1))
-    axs[1][1].xaxis.set_minor_locator(MultipleLocator(1))
+    # axs[0][0].xaxis.set_minor_locator(MultipleLocator(1))
+    # axs[0][1].xaxis.set_minor_locator(MultipleLocator(1))
+    # axs[1][0].xaxis.set_minor_locator(MultipleLocator(1))
+    # axs[1][1].xaxis.set_minor_locator(MultipleLocator(1))
+    # axs[2][0].xaxis.set_minor_locator(MultipleLocator(1))
+    # axs[2][1].xaxis.set_minor_locator(MultipleLocator(1))
 
-    # axs[0][0].tick_params(direction='in', which='both', color='white')
-    # axs[0][1].tick_params(direction='in', which='both', color='white')
-    # axs[1][0].tick_params(direction='in', which='both', color='white')
-    # axs[1][1].tick_params(direction='in', which='both', color='white')
+    axs[0][0].tick_params(direction='in', which='both', color='white')
+    axs[0][1].tick_params(direction='in', which='both', color='white')
+    axs[1][0].tick_params(direction='in', which='both', color='white')
+    axs[1][1].tick_params(direction='in', which='both', color='white')
 
     axs[0][0].set_xticklabels([])
     axs[0][1].set_xticklabels([])
+    axs[1][0].set_xticklabels([])
+    axs[1][1].set_xticklabels([])
     axs[0][1].set_yticklabels([])
     axs[1][1].set_yticklabels([])
+    axs[2][1].set_yticklabels([])
 
     axs[0][0].set_ylabel('y[arcsec]')
     axs[1][0].set_ylabel('y[arcsec]')
+    axs[2][0].set_ylabel('y[arcsec]')
 
-    axs[1][0].set_xlabel('x[arcsec]')
-    axs[1][1].set_xlabel('x[arcsec]')
+    axs[2][0].set_xlabel('x[arcsec]')
+    axs[2][1].set_xlabel('x[arcsec]')
 
-    fig.tight_layout()
     fig.savefig('FOV.pdf', format='pdf', dpi=300)
 
     plt.close('all')
