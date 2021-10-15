@@ -310,6 +310,104 @@ def actual_plotting(labels, rps, name='guess'):
         )
 
 
+def make_appendix_plot(rps):
+    new_quiet_profiles = np.array([0, 11, 14, 15, 20, 21, 24, 28, 31, 34, 40, 42, 43, 47, 48, 51, 60, 62, 69, 70, 73, 74, 75, 86, 89, 90, 84, 8, 44, 63])
+    new_shock_reverse_other_profiles = np.array([2, 4, 10, 19, 26, 30, 37, 52, 79, 94, 1, 22, 23, 53, 55, 56, 66, 67, 72, 77, 80, 81, 92, 87, 99, 6, 49, 17, 96, 98, 3, 13, 16, 25, 32, 33, 35, 41, 45, 46, 58, 61, 64, 68, 82, 95, 97, 5, 7, 9, 12, 27, 29, 38, 39, 50, 54, 57, 59, 65, 71, 76, 83, 88, 91, 93])
+    
+    center = rps / cont_array
+
+    for profiles, name in zip([new_quiet_profiles, new_shock_reverse_other_profiles], ['quiet', 'emission']):
+
+        plt.close('all')
+
+        plt.clf()
+
+        plt.cla()
+
+        fig = plt.figure(figsize=(7, 7))
+
+        gs = gridspec.GridSpec(6, 3)
+
+        k = 0
+
+        for i in range(6):
+            for j in range(3):
+                ax1 = fig.add_subplot(gs[k])
+
+                sel_rps = profiles[i * 5: (i + 1) * 5]
+
+                if j == 0:
+                    for index, rp in enumerate(sel_rps):
+                        ax1.plot(
+                            wave_3933,
+                            center[rp, 0:29],
+                            linewidth=0.5,
+                            linestyle='solid',
+                            label='#{}'.format(
+                                rp
+                            )
+                        )
+                        ax1.legend(loc="upper right")
+
+                    ax1.set_xticks([3933.682 - 0.5, 3933.682, 3933.682 + 0.5])
+                    ax1.set_xticklabels([-0.5, 0, 0.5])
+
+                    ax1.set_ylabel(r'$I/I_{c}$')
+
+                    if i == 5:
+                        ax1.set_xlabel(r'$\Delta \lambda (\AA)$')
+
+                elif j == 1:
+                    for index, rp in enumerate(sel_rps):
+                        ax1.plot(
+                            wave_8542,
+                            center[rp, 30:30 + 20],
+                            linewidth=0.5,
+                            linestyle='solid',
+                        )
+
+                    ax1.set_xlim(8542.09 - 2.4, 8542 + 2.4)
+
+                    ax1.set_xticks([8542.09 -1, 8542.09, 8542.09 + 1])
+                    ax1.set_xticklabels([-1, 0, 1])
+
+                    if i == 5:
+                        ax1.set_xlabel(r'$\Delta \lambda (\AA)$')
+
+                else:
+                    for index, rp in enumerate(sel_rps):
+                        ax1.plot(
+                            wave_6173,
+                            center[rp, 30 + 20:30 + 20 + 14],
+                            linewidth=0.5,
+                            linestyle='solid',
+                        )
+
+                    ax1.set_xlim(6173.334 - 0.7, 6173.334 + 0.7)
+
+                    ax1.set_xticks([6173.334 - 0.5, 6173.334, 6173.334 + 0.5])
+                    ax1.set_xticklabels([-0.5, 0, 0.5])
+
+                    if i == 5:
+                        ax1.set_xlabel(r'$\Delta \lambda (\AA)$')
+
+                k += 1
+
+        fig.tight_layout()
+
+        fig.savefig(
+            'RPs_appemdix_{}.pdf'.format(name),
+            format='pdf',
+            dpi=300
+        )
+
+        plt.close('all')
+
+        plt.clf()
+
+        plt.cla()
+
+
 def plot_profiles():
     global whole_data
 
@@ -327,7 +425,8 @@ def plot_profiles():
         ind = np.where(labels == i)[0]
         rps[i] = np.mean(whole_data[ind], 0)
 
-    actual_plotting(labels, rps, name='guess')
+    # actual_plotting(labels, rps, name='guess')
+    make_appendix_plot(rps)
     f.close()
 
 
