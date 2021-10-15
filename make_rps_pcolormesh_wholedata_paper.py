@@ -171,7 +171,7 @@ def actual_plotting(labels, rps, name='guess'):
 
     gs = gridspec.GridSpec(4, 3)
 
-    gs.update(left=0, right=1, top=1, bottom=0, wspace=0.0, hspace=0.0)
+    # gs.update(left=0, right=1, top=1, bottom=0, wspace=0.0, hspace=0.0)
 
     for i in range(4):
 
@@ -267,7 +267,7 @@ def actual_plotting(labels, rps, name='guess'):
                 ax1.set_yticks(y_ticks)
                 ax1.set_yticklabels(y_ticks)
 
-                ax1.tick_params(axis="y",direction="in", pad=-30)
+                # ax1.tick_params(axis="y",direction="in", pad=-30)
 
             elif j == 1:
 
@@ -296,7 +296,7 @@ def actual_plotting(labels, rps, name='guess'):
                 ax1.set_yticks(y_ticks)
                 ax1.set_yticklabels(y_ticks)
 
-                ax1.tick_params(axis="y",direction="in", pad=-30)
+                # ax1.tick_params(axis="y",direction="in", pad=-30)
 
             else:
 
@@ -325,10 +325,11 @@ def actual_plotting(labels, rps, name='guess'):
                 ax1.set_yticks(y_ticks)
                 ax1.set_yticklabels(y_ticks)
 
-                ax1.tick_params(axis="y",direction="in", pad=-30)
+                # ax1.tick_params(axis="y",direction="in", pad=-30)
 
             k += 1
 
+        fig.tight_layout()
         fig.savefig(
             'RPs_paper.pdf'.format(k),
             format='pdf',
