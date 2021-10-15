@@ -245,29 +245,16 @@ def actual_plotting(labels, rps, name='guess'):
                 ax1.text(
                     0.3,
                     0.8,
-                    'RP {}'.format(k),
+                    'RP {}'.format(total_shock_profiles[i]),
                     transform=ax1.transAxes,
                     fontsize='small'
                 )
 
-                ax1.set_xticks([3933.682])
-                ax1.set_xticklabels([])
+                ax1.set_xticks([-0.5, 0, 0.5])
+                ax1.set_xticklabels([-0.5, 0, 0.5])
 
-                # y_ticks = [
-                #     np.round(
-                #         (min_3950 + max_3950) / 3,
-                #         2
-                #     ),
-                #     np.round(
-                #         2 * (min_3950 + max_3950) / 3,
-                #         2
-                #     )
-                # ]
-
-                # ax1.set_yticks(y_ticks)
-                # ax1.set_yticklabels(y_ticks)
-
-                # ax1.tick_params(axis="y",direction="in", pad=-30)
+                ax1.set_xlabel(r'$\Delta \lambda (\AA)$')
+                ax1.set_ylabel(r'$I/I_{c}$')
 
             elif j == 1:
 
@@ -279,24 +266,10 @@ def actual_plotting(labels, rps, name='guess'):
                     linestyle='solid'
                 )
 
-                ax1.set_xticks([8542.09])
-                ax1.set_xticklabels([])
+                ax1.set_xticks([-1, 0, 1])
+                ax1.set_xticklabels([-1, 0, 1])
 
-                # y_ticks = [
-                #     np.round(
-                #         (min_8542 + max_8542) / 3,
-                #         2
-                #     ),
-                #     np.round(
-                #         2 * (min_8542 + max_8542) / 3,
-                #         2
-                #     )
-                # ]
-
-                # ax1.set_yticks(y_ticks)
-                # ax1.set_yticklabels(y_ticks)
-
-                # ax1.tick_params(axis="y",direction="in", pad=-30)
+                ax1.set_xlabel(r'$\Delta \lambda (\AA)$')
 
             else:
 
@@ -308,24 +281,10 @@ def actual_plotting(labels, rps, name='guess'):
                     linestyle='solid'
                 )
 
-                ax1.set_xticks([6173.334])
-                ax1.set_xticklabels([])
+                ax1.set_xticks([-0.5, 0, 0.5])
+                ax1.set_xticklabels([-0.5, 0, 0.5])
 
-                # y_ticks = [
-                #     np.round(
-                #         (min_6173 + max_6173) / 3,
-                #         2
-                #     ),
-                #     np.round(
-                #         2 * (min_6173 + max_6173) / 3,
-                #         2
-                #     )
-                # ]
-
-                # ax1.set_yticks(y_ticks)
-                # ax1.set_yticklabels(y_ticks)
-
-                # ax1.tick_params(axis="y",direction="in", pad=-30)
+                ax1.set_xlabel(r'$\Delta \lambda (\AA)$')
 
             k += 1
 
