@@ -253,19 +253,19 @@ def actual_plotting(labels, rps, name='guess'):
                 ax1.set_xticks([3933.682])
                 ax1.set_xticklabels([])
 
-                y_ticks = [
-                    np.round(
-                        (min_3950 + max_3950) / 3,
-                        2
-                    ),
-                    np.round(
-                        2 * (min_3950 + max_3950) / 3,
-                        2
-                    )
-                ]
+                # y_ticks = [
+                #     np.round(
+                #         (min_3950 + max_3950) / 3,
+                #         2
+                #     ),
+                #     np.round(
+                #         2 * (min_3950 + max_3950) / 3,
+                #         2
+                #     )
+                # ]
 
-                ax1.set_yticks(y_ticks)
-                ax1.set_yticklabels(y_ticks)
+                # ax1.set_yticks(y_ticks)
+                # ax1.set_yticklabels(y_ticks)
 
                 # ax1.tick_params(axis="y",direction="in", pad=-30)
 
@@ -282,19 +282,19 @@ def actual_plotting(labels, rps, name='guess'):
                 ax1.set_xticks([8542.09])
                 ax1.set_xticklabels([])
 
-                y_ticks = [
-                    np.round(
-                        (min_8542 + max_8542) / 3,
-                        2
-                    ),
-                    np.round(
-                        2 * (min_8542 + max_8542) / 3,
-                        2
-                    )
-                ]
+                # y_ticks = [
+                #     np.round(
+                #         (min_8542 + max_8542) / 3,
+                #         2
+                #     ),
+                #     np.round(
+                #         2 * (min_8542 + max_8542) / 3,
+                #         2
+                #     )
+                # ]
 
-                ax1.set_yticks(y_ticks)
-                ax1.set_yticklabels(y_ticks)
+                # ax1.set_yticks(y_ticks)
+                # ax1.set_yticklabels(y_ticks)
 
                 # ax1.tick_params(axis="y",direction="in", pad=-30)
 
@@ -311,19 +311,19 @@ def actual_plotting(labels, rps, name='guess'):
                 ax1.set_xticks([6173.334])
                 ax1.set_xticklabels([])
 
-                y_ticks = [
-                    np.round(
-                        (min_6173 + max_6173) / 3,
-                        2
-                    ),
-                    np.round(
-                        2 * (min_6173 + max_6173) / 3,
-                        2
-                    )
-                ]
+                # y_ticks = [
+                #     np.round(
+                #         (min_6173 + max_6173) / 3,
+                #         2
+                #     ),
+                #     np.round(
+                #         2 * (min_6173 + max_6173) / 3,
+                #         2
+                #     )
+                # ]
 
-                ax1.set_yticks(y_ticks)
-                ax1.set_yticklabels(y_ticks)
+                # ax1.set_yticks(y_ticks)
+                # ax1.set_yticklabels(y_ticks)
 
                 # ax1.tick_params(axis="y",direction="in", pad=-30)
 
