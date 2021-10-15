@@ -334,7 +334,9 @@ def make_appendix_plot(rps):
             for j in range(3):
                 ax1 = fig.add_subplot(gs[k])
 
-                sel_rps = profiles[i * 5: (i + 1) * 5]
+                num = profiles.size // 6
+
+                sel_rps = profiles[i * num: (i + 1) * num]
 
                 if j == 0:
                     for index, rp in enumerate(sel_rps):
