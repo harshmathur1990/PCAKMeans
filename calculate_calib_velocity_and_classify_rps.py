@@ -7,6 +7,7 @@ import h5py
 import sunpy.io
 from helita.io.lp import *
 import matplotlib.gridspec as gridspec
+import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from skimage.measure import regionprops
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
@@ -490,7 +491,7 @@ def get_very_strong_shocks_mask(arr):
 
     mask = np.zeros_like(arr)
 
-    for i in list(very_strong_shocks_profiles):
+    for i in list([78]):
         mask[np.where(arr == i)] = 1
 
     return mask
@@ -517,7 +518,7 @@ def plot_mask(x, y, t):
 
     f = h5py.File(old_kmeans_file, 'r')
 
-    shocks_mask = get_shocks_mask(f['new_final_labels'][t, x:x + 50, y:y + 50])
+    shocks_mask = get_very_strong_shocks_mask(f['new_final_labels'][t, x:x + 50, y:y + 50])
 
     plt.imshow(
         np.multiply(
@@ -678,6 +679,10 @@ def get_input_profiles(ref_x, ref_y, get_6173=False, get_8542=False, get_6173_bl
 
 
 def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mark_x, mark_y, letter, blos_lim=30):
+
+    write_path = Path(
+        '/home/harsh/Shocks Paper/Shocks Evolution Plots/'
+    )
     whole_data, blos_6173 = get_input_profiles(ref_x, ref_y, get_6173_blos=True, time_step=time_step)
 
     whole_data = whole_data[time_step]
@@ -846,7 +851,7 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
             axs[i][j].set_yticklabels([])
 
     fig.savefig(
-        'FoV_{}.pdf'.format(
+        write_path / 'FoV_{}.pdf'.format(
             letter
         ),
         dpi=300,
@@ -860,6 +865,10 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
 
 
 def make_nb_image(ref_x, ref_y, time_step, wave_indice, mark_x, mark_y, letter):
+    write_path = Path(
+        '/home/harsh/Shocks Paper/Shocks Evolution Plots/'
+    )
+
     whole_data = get_input_profiles(ref_x, ref_y)
 
     whole_data = whole_data[time_step]
@@ -931,7 +940,7 @@ def make_nb_image(ref_x, ref_y, time_step, wave_indice, mark_x, mark_y, letter):
     axs.set_yticklabels([])
 
     fig.savefig(
-        'FoV_one_t_step_{}.pdf'.format(
+        write_path / 'FoV_one_t_step_{}.pdf'.format(
             letter
         ),
         dpi=300,
@@ -1231,6 +1240,10 @@ def plot_1_profiles(ref_x, ref_y, x1, y1, t1):
 
 
 def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, letter, color_list=None):
+    write_path = Path(
+        '/home/harsh/Shocks Paper/Shocks Evolution Plots/'
+    )
+
     whole_data = get_input_profiles(ref_x, ref_y, get_8542=True, time_step=time_indice)
     time = np.round(
         np.arange(0, 8.26*100, 8.26),
@@ -1286,7 +1299,7 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, letter, co
     fig.tight_layout()
 
     fig.savefig(
-        'pixel_evolution_CaK_{}.pdf'.format(
+        write_path / 'pixel_evolution_CaK_{}.pdf'.format(
             letter
         ),
         format='pdf',
@@ -1343,7 +1356,7 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, letter, co
     fig.tight_layout()
 
     fig.savefig(
-        'pixel_evolution_CaIR_{}.pdf'.format(
+        write_path / 'pixel_evolution_CaIR_{}.pdf'.format(
             letter
         ),
         format='pdf',
@@ -1356,6 +1369,10 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, letter, co
 
 
 def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t, color_list, letter):
+    write_path = Path(
+        '/home/harsh/Shocks Paper/Shocks Evolution Plots/'
+    )
+
     whole_data = get_input_profiles(ref_x, ref_y, get_8542=True, time_step=time_step)
     dv = get_relative_velocity(wave_3933)
     dv8542 = get_relative_velocity_8542(wave_8542)
@@ -1397,7 +1414,7 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t, color_list, lette
     fig.tight_layout()
 
     fig.savefig(
-        'lambda_t_FoV_CaK_{}.pdf'.format(
+        write_path / 'lambda_t_FoV_CaK_{}.pdf'.format(
             letter
         ),
         dpi=300,
@@ -1440,7 +1457,7 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t, color_list, lette
     fig.tight_layout()
 
     fig.savefig(
-        'lambda_t_FoV_CaIR_{}.pdf'.format(
+        write_path / 'lambda_t_FoV_CaIR_{}.pdf'.format(
             letter
         ),
         dpi=300,
@@ -1473,15 +1490,15 @@ def make_shock_evolution_plots():
 
     mark_list = [
         [6 , 25, 18],
-        [16, 28, 24],
-        [20, 22, 26],
-        [35, 25, 25],
-        [15, 23, 25],
-        [59, 30, 29],
-        [97, 26, 21],
-        [11, 19, 17],
-        [11, 25, 18],
-        [12, 26, 26]
+        [16, 16, 15],
+        [20, 23, 27],
+        [35, 29, 20],
+        [15, 24, 22],
+        [59, 28, 28],
+        [97, 24, 22],
+        [11, 22, 16],
+        [11, 26, 21],
+        [12, 28, 28]
     ]
 
     FoV_letter_list = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
@@ -1493,17 +1510,17 @@ def make_shock_evolution_plots():
     color_list = ['blue', 'orange', 'red']
 
     for i in range(10):
-        # plot_new_evolution_diagram(
-        #     ref_x_list[i],
-        #     ref_y_list[i],
-        #     time_step_list[i],
-        #     wave_indice,
-        #     mark_list[i][0],
-        #     mark_list[i][1],
-        #     mark_list[i][2],
-        #     FoV_letter_list[i],
-        #     blos_lim
-        # )
+        plot_new_evolution_diagram(
+            ref_x_list[i],
+            ref_y_list[i],
+            time_step_list[i],
+            wave_indice,
+            mark_list[i][0],
+            mark_list[i][1],
+            mark_list[i][2],
+            FoV_letter_list[i],
+            blos_lim
+        )
 
         make_evolution_single_pixel_plot(
             ref_x_list[i],
@@ -1521,32 +1538,32 @@ def make_shock_evolution_plots():
             color_list
         )
 
-        # make_lambda_t_curve(
-        #     ref_x_list[i],
-        #     ref_y_list[i],
-        #     mark_list[i][1],
-        #     mark_list[i][2],
-        #     time_step_list[i],
-        #     np.array(
-        #         [
-        #             mark_list[i][0] - 1,
-        #             mark_list[i][0],
-        #             mark_list[i][0] + 1
-        #         ]
-        #     ),
-        #     color_list,
-        #     FoV_letter_list[i]
-        # )
+        make_lambda_t_curve(
+            ref_x_list[i],
+            ref_y_list[i],
+            mark_list[i][1],
+            mark_list[i][2],
+            time_step_list[i],
+            np.array(
+                [
+                    mark_list[i][0] - 1,
+                    mark_list[i][0],
+                    mark_list[i][0] + 1
+                ]
+            ),
+            color_list,
+            FoV_letter_list[i]
+        )
 
-        # make_nb_image(
-        #     ref_x_list[i],
-        #     ref_y_list[i],
-        #     mark_list[i][0],
-        #     wave_indice[1],
-        #     mark_list[i][1],
-        #     mark_list[i][2],
-        #     FoV_letter_list[i]
-        # )
+        make_nb_image(
+            ref_x_list[i],
+            ref_y_list[i],
+            mark_list[i][0],
+            wave_indice[1],
+            mark_list[i][1],
+            mark_list[i][2],
+            FoV_letter_list[i]
+        )
 
 
 def make_fov_contour():
@@ -1708,16 +1725,15 @@ def get_response_function_data():
 
     atmos_param[0, 0:2] /= 1e5
 
-    response[:, 0] /= np.abs(response[:, 0]).max()
-
-    response[:, 1] /= np.abs(response[:, 1]).max()
-
-    response[:, 2] /= np.abs(response[:, 2]).max()
+    for ii in range(4):
+        for jj in range(3):
+            response[ii, jj] /= np.abs(response[ii, jj]).max()
 
     return inp_profiles, syn_profiles, response, atmos_param
 
 
 def plot_response_functions():
+    write_path = Path('/home/harsh/Shocks Paper/')
 
     time = np.round(
         np.arange(0, 8.26 * 100, 8.26),
@@ -1787,9 +1803,9 @@ def plot_response_functions():
 
             axs2 = axs.twiny()
 
-            axs2.plot(atmos_param[i+1, j], ltau, color='red')
+            axs2.plot(atmos_param[i+1, j], ltau, color='red', linewidth=0.5)
 
-            axs2.plot(atmos_param[0, j], ltau, color='gray')
+            axs2.plot(atmos_param[0, j], ltau, color='gray', linewidth=0.5)
 
             axs2.set_xticks([])
 
@@ -1884,13 +1900,13 @@ def plot_response_functions():
 
                 max_sf_wave = relative_wave[max_indice_wave + 10]
                 
-                axs.plot(relative_wave, np.ones_like(relative_wave) * max_sf_tau, color='gray')
-                axs.axvline(x=max_sf_wave, color='gray')
+                axs.plot(relative_wave, np.ones_like(relative_wave) * max_sf_tau, color='gray', linestyle='--', linewidth=0.5)
+                axs.axvline(x=max_sf_wave, color='gray', linestyle='--', linewidth=0.5)
 
             k += 1
 
     fig.savefig(
-        'Response_Functions.pdf',
+        write_path / 'Response_Functions.pdf',
         format='pdf',
         dpi=300,
         bbox_inches='tight'
@@ -1981,3 +1997,7 @@ def get_all_profile_enhancement_data():
                 )
 
     return data_t, data_intensity_enhancement
+
+
+if __name__ == '__main__':
+    plot_response_functions()

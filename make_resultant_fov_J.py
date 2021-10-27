@@ -131,9 +131,9 @@ def get_exact_filename(base_dir, starts_with, ends_with):
 
 def get_fov():
 
-    quiet_frames_list = [[0, 56]]
-    shock_reverse_other_frames_list = [[0, 18], [18, 37], [37, 56]]
-    shocks_78_18_frames_list = [[0, 56]]
+    quiet_frames_list = [[0, 7]]
+    shock_reverse_other_frames_list = [[0, 7]]
+    shocks_78_18_frames_list = [[0, 7]]
 
     frs = (
         quiet_frames_list,
@@ -144,50 +144,43 @@ def get_fov():
     frs_names = ['quiet', 'shock_reverse_other', 'shocks_78_18']
 
     base_path = Path(
-        '/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/fov_rest_8_retry'
+        '/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/fov_535_585_715_765'
     )
 
     output_path = base_path / 'plots'
 
     all_profiles = np.zeros(
-        (56, 50, 50, 64),
+        (7, 50, 50, 64),
         dtype=np.float64
     )
 
     syn_profiles = np.zeros(
-        (56, 50, 50, 64),
+        (7, 50, 50, 64),
         dtype=np.float64
     )
 
     all_temp =  np.zeros(
-        (56, 50, 50, 150),
+        (7, 50, 50, 150),
         dtype=np.float64
     )
 
     all_vlos = np.zeros(
-        (56, 50, 50, 150),
+        (7, 50, 50, 150),
         dtype=np.float64
     )
 
     all_vturb = np.zeros(
-        (56, 50, 50, 150),
+        (7, 50, 50, 150),
         dtype=np.float64
     )
 
     all_labels = np.zeros(
-        (56, 50, 50),
+        (7, 50, 50),
         dtype=np.int64
     )
 
     fov_list = [
-        ([915, 965], [1072, 1122], [14, 21]),
-        ([486, 536], [974, 1024], [17, 24]),
-        ([582, 632], [627, 677], [32, 39]),
-        ([810, 860], [335, 385], [12, 19]),
-        ([455, 505], [940, 990], [57, 64]),
-        ([95, 145], [600, 650], [93, 100]),
-        ([315, 365], [855, 905], [7, 14]),
-        ([600, 650], [1280, 1330], [8, 15])
+        ([535, 585], [715, 765], [9, 16])
     ]
 
     input_profiles, input_labels = get_data_for_inversions(fov_list)
@@ -199,29 +192,29 @@ def get_fov():
         for frame in frames:
             input_profile_filepath = get_exact_filename(
                 base_path,
-                'wholedata_{}_profiles_rps_frame_{}_{}_rest_8_retry_fov'.format(
+                'wholedata_{}_profiles_rps_frame_{}_{}_x_535_585_y_715_765_frame_9_16'.format(
                     name, frame[0], frame[1]
                 ),
                 '.nc'
-            ) 
+            )
 
             output_atmos_filepath = get_exact_filename(
                 output_path,
-                'wholedata_{}_profiles_rps_frame_{}_{}_rest_8_retry_fov'.format(
+                'wholedata_{}_profiles_rps_frame_{}_{}_x_535_585_y_715_765_frame_9_16'.format(
                     name, frame[0], frame[1]
                 ),
                 'atmos.nc'
             )
             output_profile_filepath = get_exact_filename(
                 output_path,
-                'wholedata_{}_profiles_rps_frame_{}_{}_rest_8_retry_fov'.format(
+                'wholedata_{}_profiles_rps_frame_{}_{}_x_535_585_y_715_765_frame_9_16'.format(
                     name, frame[0], frame[1]
                 ),
                 'profs.nc'
             )
             pixel_file = get_exact_filename(
                 base_path,
-                'pixel_indices_{}_profiles_rps_frame_{}_{}_rest_8_retry_fov'.format(
+                'pixel_indices_{}_profiles_rps_frame_{}_{}_x_535_585_y_715_765_frame_9_16'.format(
                     name, frame[0], frame[1]
                 ),
                 '.h5'
@@ -253,7 +246,7 @@ def get_fov():
 
             all_labels[frame[0]:frame[1]][a1, b1, c1] = profile_types
 
-            for i in range(56):
+            for i in range(7):
                 mask = np.zeros_like(all_profiles[i, :, :, 13])
                 mask[np.where(all_profiles[i, :, :, 13] > 0)] = 1
 
@@ -310,12 +303,12 @@ def plot_fov_parameter_variation(
     time_info, header_time = sunpy.io.fits.read(spectra_file_path)[5]
 
     base_path = Path(
-        '/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/fov_rest_8_retry'
+        '/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/fov_535_585_715_765'
     )
 
     output_path = base_path / 'plots'
 
-    atmosparam_file = output_path / 'consolidated_results_velocity_calibrated_fov_rest_8_retry.h5'
+    atmosparam_file = output_path / 'consolidated_results_velocity_calibrated_fov_535_585_715_765.h5'
 
     if atmosparam_file.exists():
         fatmosparam = h5py.File(atmosparam_file, 'r')
@@ -623,6 +616,8 @@ def plot_fov_parameter_variation(
 
     def updatefig(j):
 
+        import ipdb;ipdb.set_trace()
+
         global cs00, cs01, cs02, cs03, cs04, cs10, cs11, cs12, cs13, cs14, cs20, cs21, cs22, cs23, cs24
 
         contour_mask = np.zeros((50, 50))
@@ -853,7 +848,7 @@ def plot_fov_parameter_variation(
     ani = animation.FuncAnimation(
         fig,
         updatefig,
-        frames=range(56),
+        frames=range(7),
         interval=rate,
         blit=True
     )
@@ -902,8 +897,8 @@ if __name__ == '__main__':
     )[0]
 
     base_path = Path(
-        '/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/fov_rest_8_retry/plots/'
+        '/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/fov_535_585_715_765/plots/'
     )
     plot_fov_parameter_variation(
-        animation_path=base_path / 'inversion_map_fov_rest_8_retry.mp4'
+        animation_path=base_path / 'inversion_map_fov_535_585_715_765.mp4'
     )

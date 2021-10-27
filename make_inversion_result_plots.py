@@ -7,7 +7,7 @@ import matplotlib.gridspec as gridspec
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pathlib import Path
 from prepare_data import *
-from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
+from matplotlib.ticker import MultipleLocator
 
 
 base_path = Path('/home/harsh/OsloAnalysis')
@@ -134,7 +134,7 @@ def plot_fov_results_for_a_pixel(
 
     fig = plt.figure(figsize=(6, 4))
 
-    gs = gridspec.GridSpec(2, 2)
+    GridSpec
 
     # gs.update(wspace=0.75, hspace=0.75)
 
@@ -685,7 +685,7 @@ def make_line_cut_plots(xs, ys, ref_x, time_array, fovName):
 
     labels_f = h5py.File(old_kmeans_file, 'r')
 
-    labels = labels_f['new_final_labels'][time_array][:, xs + ref_x, ys:ys + 50]
+    labels = labels_f['new_final_labels'][time_array][:, xs:xs + 50, ys:ys + ref_y]
 
     labels_mask = np.zeros((2, 150, 50), dtype=np.int64)
 
