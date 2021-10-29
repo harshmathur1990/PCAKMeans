@@ -411,10 +411,6 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y):
 
 
 def make_time_evolution_plots(index_f, start_t, mark_x, mark_y):
-    vmin = -6
-    vmax = 6
-    tmin = -2
-    tmax = 3.5
 
     log_t_values = np.array([-4.2, -3, -1])
 
@@ -439,9 +435,14 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y):
         axes=(1, 0)
     )
 
+    vmin = -np.ceil(np.abs(params[1]).max())
+    vmax = np.ceil(np.abs(params[1]).max())
     # params[0] -= np.mean(params[0], 1)[:, np.newaxis]
 
     params[0] = params[0] - params[0, :, 0][:, np.newaxis]
+
+    tmin = -np.ceil(np.abs(params[0]).max())
+    tmax = np.ceil(np.abs(params[0]).max())
 
     mask_shock = np.zeros(7, dtype=np.int64)
 
@@ -515,7 +516,7 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y):
                 axs.set_xlabel(r'$Time\;(s)$')
                 axs.yaxis.set_minor_locator(MultipleLocator(0.5))
 
-            axs.grid(True, ls='--', alpha=0.5)
+            # axs.grid(True, ls='--', alpha=0.5)
             axs.xaxis.set_minor_locator(MultipleLocator(10))
             axs.tick_params(direction='in', which='both')
 
@@ -547,16 +548,16 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y):
     )
 
 if __name__ == '__main__':
-    plot_data_for_result_plots(0,  4,  6, 18)
-    plot_data_for_result_plots(1, 14, 16, 15)
-    plot_data_for_result_plots(2, 17, 20, 27)
-    plot_data_for_result_plots(3, 32, 35, 20)
-    plot_data_for_result_plots(4, 12, 15, 22)
-    plot_data_for_result_plots(5, 57, 59, 28)
-    plot_data_for_result_plots(6, 93, 97, 22)
-    plot_data_for_result_plots(7,  7, 11, 16)
-    plot_data_for_result_plots(8,  8, 11, 21)
-    plot_data_for_result_plots(9,  9, 12, 28)
+    # plot_data_for_result_plots(0,  4,  6, 18)
+    # plot_data_for_result_plots(1, 14, 16, 15)
+    # plot_data_for_result_plots(2, 17, 20, 27)
+    # plot_data_for_result_plots(3, 32, 35, 20)
+    # plot_data_for_result_plots(4, 12, 15, 22)
+    # plot_data_for_result_plots(5, 57, 59, 28)
+    # plot_data_for_result_plots(6, 93, 97, 22)
+    # plot_data_for_result_plots(7,  7, 11, 16)
+    # plot_data_for_result_plots(8,  8, 11, 21)
+    # plot_data_for_result_plots(9,  9, 12, 28)
     make_time_evolution_plots(0,  4, 25, 18)
     make_time_evolution_plots(1, 14, 16, 15)
     make_time_evolution_plots(2, 17, 23, 27)

@@ -1255,72 +1255,115 @@ def make_time_evolution_plots_per_pixel(
     plt.cla()
 
 
-def get_data_for_pre_shock_peak_shock_temp_scatter_plot(xs, ys, start_t, interesting_t):
+def get_data_for_pre_shock_peak_shock_temp_scatter_plot(index_list, mark_t_list):
+    interesting_tau = [-4.2, -3, -1]
 
-    #ltau = -5, -3, -1
-    interesting_tau_indice = np.array(
-        [102, 116, 131]
-    )
+    interesting_tau_indice = np.zeros(3, dtype=np.int64)
 
-    x = [xs, xs + 50]
-    y = [ys, ys + 50]
+    for indd, tau in enumerate(interesting_tau):
+        interesting_tau_indice[indd] = np.argmin(np.abs(ltau - tau))
 
-    out_file = '/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/fov_{}_{}_{}_{}/plots/consolidated_results_velocity_calibrated_fov_{}_{}_{}_{}.h5'.format(
-        x[0], x[1], y[0], y[1], x[0], x[1], y[0], y[1]
-    )
+    ind_lt = np.where((ltau >= -4.2) & (ltau <= -3))[0]
+    ltau_vlos = ltau[ind_lt]
 
-    f = h5py.File(old_kmeans_file, 'r')
+    out_file = Path('/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/FoVAtoJ.nc')
 
-    labels_f =  f['new_final_labels'][interesting_t][x[0]:x[1], y[0]:y[1]]
-
-    f.close()
-
-    mask_shock = np.zeros((50, 50), dtype=np.int64)
-
-    for profile in strong_shocks_profiles:
-        mask_shock[np.where(labels_f == profile)] = 1
+    pre_temp = None
+    peak_temp_delta_t = None
+    vlos_shock = None
+    peak_temp_delta_t_vlos = None
 
     f = h5py.File(out_file, 'r')
 
-    all_temp = f['all_temp'][np.array([start_t, interesting_t])][:, :, :, interesting_tau_indice]
+    for index, mark_t in zip(index_list, mark_t_list):
+        indices = np.array(
+            [
+                index * 7,
+                index * 7 + mark_t
+            ]
+        )
 
-    a, b = np.where(mask_shock == 1)
+        all_temp = f['all_temp'][indices][:, :, :, interesting_tau_indice] / 1e3
 
-    pre_temp = all_temp[0, a, b]
+        labels = f['all_labels'][indices[1]]
 
-    peak_temp_delta_t = np.subtract(
-        all_temp[1, a, b],
-        all_temp[0, a, b]
-    )
+        mask_shock = np.zeros((50, 50), dtype=np.int64)
 
-    return pre_temp, peak_temp_delta_t
+        for profile in list(strong_shocks_profiles):
+            mask_shock[np.where(labels == profile)] = 1
 
+        a, b = np.where(mask_shock == 1)
 
-def get_consolidated_data_shock_temp_scatter_plot(combo_list):
-    
-    pre_temp = None
-    peak_temp_delta_t = None
-
-    for combo in combo_list:
         if pre_temp is None:
-            pre_temp, peak_temp_delta_t = get_data_for_pre_shock_peak_shock_temp_scatter_plot(*combo)
+            pre_temp = all_temp[0][a, b]
         else:
-            a, b = get_data_for_pre_shock_peak_shock_temp_scatter_plot(*combo)
-            pre_temp = np.vstack([pre_temp, a])
-            peak_temp_delta_t = np.vstack([peak_temp_delta_t, b])
+            pre_temp = np.vstack([pre_temp, all_temp[0][a, b]])
 
-    return pre_temp, peak_temp_delta_t
+        if peak_temp_delta_t is None:
+            peak_temp_delta_t = np.subtract(
+                all_temp[1][a, b],
+                all_temp[0][a, b]
+            )
+        else:
+            peak_temp_delta_t = np.vstack(
+                [
+                    peak_temp_delta_t,
+                    np.subtract(
+                        all_temp[1][a, b],
+                        all_temp[0][a, b]
+                    )
+                ]
+            )
+
+        all_temp_vlos = f['all_temp'][indices][:, :, :, ind_lt] / 1e3
+
+        all_vlos = f['all_vlos'][indices[1]][:, :, ind_lt]
+
+        min_vlos = np.min(all_vlos, 2)
+
+        min_vlos_indice = np.argmin(all_vlos, 2)
+
+        mul_matrix = np.zeros((ind_lt.size, min_vlos_indice[a, b].size))
+
+        mul_matrix[min_vlos_indice[a, b], np.array(range(184))] = 1
+
+        ltau_vlos_sel = ltau_vlos[min_vlos_indice]
+
+        if peak_temp_delta_t_vlos is None:
+            peak_temp_delta_t_vlos = np.subtract(
+                np.dot(all_temp_vlos[1][a, b]
+                np.dot(all_temp_vlos[0][a, b]
+            )
+        else:
+            peak_temp_delta_t_vlos = np.vstack(
+                [
+                    peak_temp_delta_t_vlos,
+                    np.subtract(
+                        np.dot(all_temp_vlos[1][a, b], mul_matrix).diagonal(),
+                        np.dot(all_temp_vlos[0][a, b], mul_matrix).diagonal()
+                    )
+                ]
+            )
+
+        if vlos_shock is None:
+            vlos_shock = all_vlos[a, b]
+        else:
+            vlos_shock = np.vstack([vlos_shock, all_vlos[a, b]])
+
+    f.close()
+
+    return pre_temp, peak_temp_delta_t, vlos_shock, peak_temp_delta_t_vlos
 
 
-def make_pre_shock_peak_shock_temp_scatter_plot():
+def make_pre_shock_peak_shock_temp_vlos_scatter_plot():
+
+    write_path = Path('/home/harsh/Shocks Paper/InversionStats/')
 
     size = plt.rcParams['lines.markersize']
 
-    pre_temp, peak_temp_delta_t = get_consolidated_data_shock_temp_scatter_plot(
-        [
-            [662, 708, 4, 6],
-            [520, 715, 9, 12]
-        ]
+    pre_temp, peak_temp_delta_t, vlos_shock, peak_temp_delta_t_vlos = get_data_for_pre_shock_peak_shock_temp_scatter_plot(
+        [0, 2, 3, 4, 5, 6, 7, 8, 9],
+        [2, 3, 3, 3, 2, 4, 4, 3, 3]
     )
     
     plt.close('all')
@@ -1329,11 +1372,11 @@ def make_pre_shock_peak_shock_temp_scatter_plot():
 
     plt.cla()
 
-    plt.scatter(pre_temp[:, 0] / 1e3, peak_temp_delta_t[:, 0] / 1e3, color='blue', label=r'$log(\tau_{500}) = -4.2$', s=size/4)
+    plt.scatter(pre_temp[:, 0], peak_temp_delta_t[:, 0], color='blue', label=r'$log(\tau_{500}) = -4.2$', s=size/4)
 
-    plt.scatter(pre_temp[:, 1] / 1e3, peak_temp_delta_t[:, 1] / 1e3, color='green', label=r'$log(\tau_{500}) = -3$', s=size/4)
+    plt.scatter(pre_temp[:, 1], peak_temp_delta_t[:, 1], color='green', label=r'$log(\tau_{500}) = -3$', s=size/4)
 
-    plt.scatter(pre_temp[:, 2] / 1e3, peak_temp_delta_t[:, 2] / 1e3, color='brown', label=r'$log(\tau_{500}) = -1$', s=size/4)
+    plt.scatter(pre_temp[:, 2], peak_temp_delta_t[:, 2], color='brown', label=r'$log(\tau_{500}) = -1$', s=size/4)
 
     plt.xlabel(r'$Pre\;Shock\;T\;(kK)$')
 
@@ -1347,13 +1390,55 @@ def make_pre_shock_peak_shock_temp_scatter_plot():
 
     fig.tight_layout()
 
-    fig.savefig('PreShockPeakShockTemp.pdf', format='pdf', dpi=300)
+    fig.savefig(write_path / 'PreShockPeakShockTemp.pdf', format='pdf', dpi=300)
 
-    plt.close('all')
+    for indd, lt in enumerate([-4.2, -4, -3.8, -3.6, -3.4, -3.2, -3]):
+        plt.close('all')
 
-    plt.clf()
+        plt.clf()
 
-    plt.cla()
+        plt.cla()
+
+        plt.scatter(
+            vlos_shock[:, indd],
+            peak_temp_delta_t_vlos[:, indd],
+            color='blue',
+            label=r'$log(\tau_{{500}}) = {}$'.format(
+                lt
+            ),
+            s=size / 4,
+            marker='1'
+        )
+
+        # plt.xlim(-8, 8)
+        #
+        # plt.ylim(3, 12)
+
+        plt.xlabel(r'$V_{LOS}[kms^{-1}]$')
+
+        plt.ylabel(r'$Peak\;Shock\;\Delta T\;(kK)$')
+
+        plt.legend()
+
+        fig = plt.gcf()
+
+        fig.set_size_inches(6, 4, forward=True)
+
+        fig.tight_layout()
+
+        fig.savefig(
+            write_path / 'VelocityTempScatter_{}.pdf'.format(
+                lt
+            ),
+            format='pdf',
+            dpi=300
+        )
+
+        plt.close('all')
+
+        plt.clf()
+
+        plt.cla()
 
 
 def get_data_for_velocity_temp_scatter_plot(xs, ys, start_t, end_t, ltau_int):
@@ -1870,5 +1955,5 @@ if __name__ == '__main__':
 
     # make_inversion_density_plots()
 
-    pass
+    make_pre_shock_peak_shock_temp_vlos_scatter_plot()
 
