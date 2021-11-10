@@ -175,7 +175,7 @@ def actual_plotting(labels, rps, name='guess'):
 
     gs = gridspec.GridSpec(4, 3)
 
-    # gs.update(left=0, right=1, top=1, bottom=0, wspace=0.0, hspace=0.0)
+    gs.update(left=0, right=1, top=1, bottom=0, wspace=0.0, hspace=0.0)
 
     for i in range(4):
 
