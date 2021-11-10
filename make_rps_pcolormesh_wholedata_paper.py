@@ -175,7 +175,7 @@ def actual_plotting(labels, rps, name='guess'):
 
     gs = gridspec.GridSpec(4, 3)
 
-    gs.update(left=0.15, right=1, top=1, bottom=0.15, wspace=0.2, hspace=0.2)
+    gs.update(left=0.15, right=1, top=1, bottom=0.12, wspace=0.2, hspace=0.2)
 
     for i in range(4):
 
@@ -257,7 +257,7 @@ def actual_plotting(labels, rps, name='guess'):
                 ax1.axvline(3933.682, linestyle=':', color='black')
 
                 ax1.set_xticks([3933.682 - 0.5, 3933.682, 3933.682 + 0.5])
-                ax1.set_xticklabels([-0.5, 0, 0.5])
+                ax1.set_xticklabels([-0.5, 0, 0.5], fontsize=fontsize)
 
                 ax1.set_ylabel(r'$I/I_{c}$', fontsize=fontsize)
 
@@ -279,7 +279,7 @@ def actual_plotting(labels, rps, name='guess'):
                 ax1.axvline(8542.09, linestyle=':', color='black')
 
                 ax1.set_xticks([8542.09 -1, 8542.09, 8542.09 + 1])
-                ax1.set_xticklabels([-1, 0, 1])
+                ax1.set_xticklabels([-1, 0, 1], fontsize=fontsize)
 
                 if i == 3:
                     ax1.set_xlabel(r'$\Delta \lambda (\AA)$', fontsize=fontsize)
