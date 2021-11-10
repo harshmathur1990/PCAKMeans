@@ -258,7 +258,7 @@ def actual_plotting(labels, rps, name='guess'):
 
                 ax1.set_xticks([3933.682 - 0.5, 3933.682, 3933.682 + 0.5])
                 ax1.set_xticklabels([-0.5, 0, 0.5], fontsize=fontsize)
-
+                ax1.yaxis.set_tick_params(labelsize=fontsize)
                 ax1.set_ylabel(r'$I/I_{c}$', fontsize=fontsize)
 
                 if i == 3:
@@ -280,7 +280,7 @@ def actual_plotting(labels, rps, name='guess'):
 
                 ax1.set_xticks([8542.09 -1, 8542.09, 8542.09 + 1])
                 ax1.set_xticklabels([-1, 0, 1], fontsize=fontsize)
-
+                ax1.yaxis.set_tick_params(labelsize=fontsize)
                 if i == 3:
                     ax1.set_xlabel(r'$\Delta \lambda (\AA)$', fontsize=fontsize)
 
@@ -300,7 +300,7 @@ def actual_plotting(labels, rps, name='guess'):
 
                 ax1.set_xticks([6173.334 - 0.5, 6173.334, 6173.334 + 0.5])
                 ax1.set_xticklabels([-0.5, 0, 0.5], fontsize=fontsize)
-
+                ax1.yaxis.set_tick_params(labelsize=fontsize)
                 if i == 3:
                     ax1.set_xlabel(r'$\Delta \lambda (\AA)$', fontsize=fontsize)
 
