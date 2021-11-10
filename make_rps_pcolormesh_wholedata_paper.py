@@ -257,7 +257,9 @@ def actual_plotting(labels, rps, name='guess'):
                 ax1.axvline(3933.682, linestyle=':', color='black')
 
                 ax1.set_xticks([3933.682 - 0.5, 3933.682, 3933.682 + 0.5])
-                ax1.set_xticklabels([-0.5, 0, 0.5], fontsize=fontsize)
+
+                if i == 3:
+                    ax1.set_xticklabels([-0.5, 0, 0.5], fontsize=fontsize)
 
                 ax1.set_yticks([0.1, 0.3, 0.5, 0.7])
                 ax1.set_yticklabels([0.1, 0.3, 0.5, 0.7], fontsize=fontsize)
@@ -281,7 +283,9 @@ def actual_plotting(labels, rps, name='guess'):
                 ax1.axvline(8542.09, linestyle=':', color='black')
 
                 ax1.set_xticks([8542.09 -1, 8542.09, 8542.09 + 1])
-                ax1.set_xticklabels([-1, 0, 1], fontsize=fontsize)
+
+                if i == 3:
+                    ax1.set_xticklabels([-1, 0, 1], fontsize=fontsize)
 
                 ax1.set_yticks([0.3, 0.5, 0.7])
                 ax1.set_yticklabels([0.3, 0.5, 0.7], fontsize=fontsize)
@@ -303,7 +307,9 @@ def actual_plotting(labels, rps, name='guess'):
                 ax1.axvline(6173.334, linestyle=':', color='black')
 
                 ax1.set_xticks([6173.334 - 0.5, 6173.334, 6173.334 + 0.5])
-                ax1.set_xticklabels([-0.5, 0, 0.5], fontsize=fontsize)
+
+                if i == 3:
+                    ax1.set_xticklabels([-0.5, 0, 0.5], fontsize=fontsize)
 
                 ax1.set_yticks([0.5, 0.7, 0.9, 1.1])
                 ax1.set_yticklabels([0.5, 0.7, 0.9, 1.1], fontsize=fontsize)
