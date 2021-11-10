@@ -21,7 +21,7 @@ input_file_hmi_blos = Path('/home/harsh/OsloAnalysis/hmimag_aligned_3950_2019-06
 
 # mask = np.transpose(mask, axes=(2, 1, 0))
 
-selected_frames = np.array([0])
+selected_frames = np.array([7])
 
 wave_3933 = np.array(
     [
@@ -59,13 +59,18 @@ def get_relative_velocity(wavelength):
     return wavelength - 3933.682
 
 
+@np.vectorize
+def get_relative_velocity_Ca_8542(wavelength):
+    return wavelength - 8542.09
+
+
 def get_data():
 
     whole_data = np.zeros((selected_frames.shape[0], 64, 1236, 1848))
 
     data, header = sunpy.io.fits.read(input_file_3950, memmap=True)[0]
 
-    whole_data[0, 0:30] = data[0, 0]
+    whole_data[0, 0:30] = data[7, 0]
 
     sh, dt, header = getheader(input_file_6173)
     data = np.memmap(
@@ -82,7 +87,7 @@ def get_data():
         axes=(2, 3, 4, 1, 0)
     )
 
-    whole_data[0, 30:30 + 14] = data[0, 0]
+    whole_data[0, 30:30 + 14] = data[7, 0]
 
     sh, dt, header = getheader(input_file_8542)
     data = np.memmap(
@@ -99,7 +104,7 @@ def get_data():
         axes=(2, 3, 4, 1, 0)
     )
 
-    whole_data[0, 30 + 14:30 + 14 + 20] = data[0, 0]
+    whole_data[0, 30 + 14:30 + 14 + 20] = data[7, 0]
 
     sh, dt, header = getheader(input_file_6173_blos)
 
@@ -142,11 +147,11 @@ def plot_fov_images():
     plt.clf()
     plt.cla()
 
-    fig = plt.figure(figsize=(7.08, 7.08))
+    fig = plt.figure(figsize=(7, 6.77))
 
     gs = gridspec.GridSpec(3, 2)
 
-    gs.update(left=0, right=1, top=1, bottom=0, wspace=0.0, hspace=0.0)
+    gs.update(left=0.1, right=1, top=1, bottom=0.07, wspace=0.0, hspace=0.0)
 
     axs = list()
 
@@ -176,81 +181,190 @@ def plot_fov_images():
 
     #fov A
     fov_1_mask[662:712, 708:758] = 1
-
+    axs[1][0].text(
+        638 / 1848,
+        662 / 1236,
+        'A',
+        transform=axs[1][0].transAxes,
+        color='#4E79A7'
+    )
     #fov B
     fov_2_mask[915:965, 1072:1122] = 1
+    axs[1][0].text(
+        1002 / 1848,
+        915 / 1236,
+        'B',
+        transform=axs[1][0].transAxes,
+        color='#F28E2B'
+    )
 
     #fov C
     fov_3_mask[486:536, 974:1024] = 1
+    axs[1][0].text(
+        1034 / 1848,
+        486 / 1236,
+        'C',
+        transform=axs[1][0].transAxes,
+        color='#E15759'
+    )
 
     #fov D
     fov_4_mask[582:632, 627:677] = 1
+    axs[1][0].text(
+        557 / 1848,
+        582 / 1236,
+        'D',
+        transform=axs[1][0].transAxes,
+        color='#76B7B2'
+    )
 
     #fov E
     fov_5_mask[810:860, 335:385] = 1
+    axs[1][0].text(
+        265 / 1848,
+        810 / 1236,
+        'E',
+        transform=axs[1][0].transAxes,
+        color='#59A14F'
+    )
 
     #fov F
     fov_6_mask[455:505, 940:990] = 1
+    axs[1][0].text(
+        870 / 1848,
+        455 / 1236,
+        'F',
+        transform=axs[1][0].transAxes,
+        color='#EDC948'
+    )
 
     #fov G
     fov_7_mask[95:145, 600:650] = 1
+    axs[1][0].text(
+        530 / 1848,
+        95 / 1236,
+        'G',
+        transform=axs[1][0].transAxes,
+        color='#B07AA1'
+    )
 
     #fov H
     fov_8_mask[315:365, 855:905] = 1
+    axs[1][0].text(
+        785 / 1848,
+        315 / 1236,
+        'H',
+        transform=axs[1][0].transAxes,
+        color='#FF9DA7'
+    )
 
     #fov I
     fov_9_mask[600:650, 1280:1330] = 1
+    axs[1][0].text(
+        1220 / 1848,
+        600 / 1236,
+        'I',
+        transform=axs[1][0].transAxes,
+        color='#9C755F'
+    )
 
     #fov J
     fov_10_mask[535:585, 715:765] = 1
+    axs[1][0].text(
+        785 / 1848,
+        535 / 1236,
+        'J',
+        transform=axs[1][0].transAxes,
+        color='#BAB0AC'
+    )
 
+    ca_k_indice = np.array([14, 12])
+    ca_8_indice = np.array([10, 9])
     axs[0][0].imshow(whole_data[0, 29, :, :], cmap='gray', origin='lower', extent=extent)
-    im = axs[0][1].imshow(b6173[0], cmap='gray', origin='lower', extent=extent, vmin=-500, vmax=500)
+    im = axs[0][1].imshow(b6173[7], cmap='gray', origin='lower', extent=extent, vmin=-300, vmax=300)
 
-    axs[1][0].imshow(whole_data[0, 15, :, :], cmap='gray', origin='lower', extent=extent)
-    axs[1][1].imshow(whole_data[0, 13, :, :], cmap='gray', origin='lower', extent=extent)
+    axs[1][0].imshow(whole_data[0, ca_k_indice[0], :, :], cmap='gray', origin='lower', extent=extent)
+    axs[1][1].imshow(whole_data[0, ca_k_indice[1], :, :], cmap='gray', origin='lower', extent=extent)
 
-    axs[2][0].imshow(whole_data[0, 30 + 14 + 10, :, :], cmap='gray', origin='lower', extent=extent)
-    axs[2][1].imshow(whole_data[0, 30 + 14 + 9, :, :], cmap='gray', origin='lower', extent=extent)
+    axs[2][0].imshow(whole_data[0, 30 + 14 + ca_8_indice[0], :, :], cmap='gray', origin='lower', extent=extent)
+    axs[2][1].imshow(whole_data[0, 30 + 14 + ca_8_indice[1], :, :], cmap='gray', origin='lower', extent=extent)
 
-    axs[0][0].text(0.0, 0.1, r'(a) Continuum 4000 $\AA$', transform=axs[0][0].transAxes, color='white')
+    axs[0][0].text(0.05, 0.91, r'(a) Continuum 4000 $\AA$', transform=axs[0][0].transAxes, color='white')
     axs[0][1].text(
-        0.0, 0.1,
+        0.05, 0.91,
         r'(b) $B_{{LOS}}$',
         transform=axs[0][1].transAxes,
         color='white'
     )
     axs[1][0].text(
-        0.0, 0.1,
-        r'(c) $Ca\;II\;K3$',
+        0.05, 0.91,
+        r'(c) $Ca\;II\;K\;{}\;m\AA$'.format(
+            np.round(
+                get_relative_velocity(
+                    wave_3933[ca_k_indice[0]]
+                ) * 1000,
+                1
+            )
+        ),
         transform=axs[1][0].transAxes,
         color='white'
     )
     axs[1][1].text(
-        0.0, 0.1,
-        r'(c) $Ca\;II\;K2_{{V}}$',
+        0.05, 0.91,
+        r'(d) $Ca\;II\;K\;{}\;m\AA$'.format(
+            np.round(
+                get_relative_velocity(
+                    wave_3933[ca_k_indice[1]]
+                ) * 1000,
+                1
+            )
+        ),
         transform=axs[1][1].transAxes,
         color='white'
     )
-    axs[2][0].text(0.0, 0.1, r'(e) Ca II 8542 core', transform=axs[2][0].transAxes, color='white')
-    axs[2][1].text(0.0, 0.1, r'(f) Ca II 8542 $-0.02 \AA$', transform=axs[2][1].transAxes, color='white')
+    axs[2][0].text(
+        0.05, 0.91,
+        r'(e) $Ca\;II\;8542\;{}\;m\AA$'.format(
+            np.round(
+                get_relative_velocity_Ca_8542(
+                    wave_8542[ca_8_indice[0]]
+                ) * 1000,
+                1
+            )
+        ),
+        transform=axs[2][0].transAxes,
+        color='white'
+    )
+    axs[2][1].text(
+        0.05, 0.91,
+        r'(f) $Ca\;II\;8542\;{}\;m\AA$'.format(
+            np.round(
+                get_relative_velocity_Ca_8542(
+                    wave_8542[ca_8_indice[1]]
+                ) * 1000,
+                1
+            )
+        ),
+        transform=axs[2][1].transAxes,
+        color='white'
+    )
 
     cbaxes = inset_axes(
         axs[0][1],
-        width="30%",
-        height="1%",
-        loc=2,
-        # borderpad=5
+        width="50%",
+        height="8%",
+        loc=1,
+        borderpad=1
     )
     cbar = fig.colorbar(
         im,
         cax=cbaxes,
-        ticks=[-500, 500],
+        ticks=[-300, 300],
         orientation='horizontal'
     )
 
     # cbar.ax.xaxis.set_ticks_position('top')
-    cbar.ax.tick_params(labelsize=6, colors='white')
+    cbar.ax.tick_params(labelsize=8, colors='white')
 
     axs[0][0].contour(fov_1_mask, levels=0, extent=extent, origin='lower', colors='#4E79A7')
     axs[0][1].contour(fov_1_mask, levels=0, extent=extent, origin='lower', colors='#4E79A7')
@@ -322,24 +436,26 @@ def plot_fov_images():
     axs[2][0].contour(fov_10_mask, levels=0, extent=extent, origin='lower', colors='#BAB0AC')
     axs[2][1].contour(fov_10_mask, levels=0, extent=extent, origin='lower', colors='#BAB0AC')
 
-    # axs[0][0].yaxis.set_minor_locator(MultipleLocator(1))
-    # axs[0][1].yaxis.set_minor_locator(MultipleLocator(1))
-    # axs[1][0].yaxis.set_minor_locator(MultipleLocator(1))
-    # axs[1][1].yaxis.set_minor_locator(MultipleLocator(1))
-    # axs[2][0].yaxis.set_minor_locator(MultipleLocator(1))
-    # axs[2][1].yaxis.set_minor_locator(MultipleLocator(1))
-
-    # axs[0][0].xaxis.set_minor_locator(MultipleLocator(1))
-    # axs[0][1].xaxis.set_minor_locator(MultipleLocator(1))
-    # axs[1][0].xaxis.set_minor_locator(MultipleLocator(1))
-    # axs[1][1].xaxis.set_minor_locator(MultipleLocator(1))
-    # axs[2][0].xaxis.set_minor_locator(MultipleLocator(1))
-    # axs[2][1].xaxis.set_minor_locator(MultipleLocator(1))
+    axs[0][0].yaxis.set_minor_locator(MultipleLocator(1))
+    axs[0][1].yaxis.set_minor_locator(MultipleLocator(1))
+    axs[1][0].yaxis.set_minor_locator(MultipleLocator(1))
+    axs[1][1].yaxis.set_minor_locator(MultipleLocator(1))
+    axs[2][0].yaxis.set_minor_locator(MultipleLocator(1))
+    axs[2][1].yaxis.set_minor_locator(MultipleLocator(1))
+    #
+    axs[0][0].xaxis.set_minor_locator(MultipleLocator(1))
+    axs[0][1].xaxis.set_minor_locator(MultipleLocator(1))
+    axs[1][0].xaxis.set_minor_locator(MultipleLocator(1))
+    axs[1][1].xaxis.set_minor_locator(MultipleLocator(1))
+    axs[2][0].xaxis.set_minor_locator(MultipleLocator(1))
+    axs[2][1].xaxis.set_minor_locator(MultipleLocator(1))
 
     axs[0][0].tick_params(direction='in', which='both', color='white')
     axs[0][1].tick_params(direction='in', which='both', color='white')
     axs[1][0].tick_params(direction='in', which='both', color='white')
     axs[1][1].tick_params(direction='in', which='both', color='white')
+    axs[2][0].tick_params(direction='in', which='both', color='white')
+    axs[2][1].tick_params(direction='in', which='both', color='white')
 
     axs[0][0].set_xticklabels([])
     axs[0][1].set_xticklabels([])
@@ -356,8 +472,15 @@ def plot_fov_images():
     axs[2][0].set_xlabel('x[arcsec]')
     axs[2][1].set_xlabel('x[arcsec]')
 
-    fig.savefig('FOV.pdf', format='pdf', dpi=300)
+    write_path = Path(
+        '/home/harsh/Shocks Paper'
+    )
+    fig.savefig(write_path / 'FOV.pdf', format='pdf', dpi=300)
 
     plt.close('all')
     plt.clf()
     plt.cla()
+
+
+if __name__ == '__main__':
+    plot_fov_images()

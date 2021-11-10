@@ -249,6 +249,8 @@ def get_data_for_rps_guess_map_plot():
 
 def plot_paper_rp_guess_map_plot():
 
+    write_path = Path('/home/harsh/Shocks Paper/KMeans/')
+
     params, labels = get_data_for_rps_guess_map_plot()
 
     mask = np.zeros_like(labels, dtype=np.int64)
@@ -268,34 +270,28 @@ def plot_paper_rp_guess_map_plot():
 
     X, Y = np.meshgrid(range(50), range(50))
 
+    fontsize = 8
+
     plt.close('all')
 
     plt.clf()
 
     plt.cla()
 
-    fig = plt.figure(figsize=(7, 7 * 4/3))
+    fig, axs = plt.subplots(4, 3, figsize=(3.5, 7))
 
-    gs = gridspec.GridSpec(4, 3)
-
-    gs.update(left=0, right=1, top=1, bottom=0, wspace=0.0, hspace=0.0)
+    plt.subplots_adjust(left=0, right=1, top=0.94, bottom=0.04, wspace=0.0, hspace=0.05)
 
     cmap = ['gray', 'hot', 'bwr', 'copper']
 
-    k = 0
-    axs = list()
     for i in range(4):
-        a_axs = list()
         for j in range(3):
-            this_axs = fig.add_subplot(gs[k])
+            this_axs = axs[i][j]
             this_axs.set_xticks([])
             this_axs.set_yticks([])
             this_axs.set_xticklabels([])
             this_axs.set_yticklabels([])
             this_axs.contour(X, Y, mask, levels=1)
-            a_axs.append(this_axs)
-            k += 1
-        axs.append(a_axs)
 
     axs[0][0].imshow(params[0][0], cmap='gray', origin='lower')
     axs[0][1].imshow(params[0][1], cmap='gray', origin='lower')
@@ -315,10 +311,10 @@ def plot_paper_rp_guess_map_plot():
 
     cbaxes = inset_axes(
         axs[1][0],
-        width="30%",
-        height="1%",
-        loc=2,
-        # borderpad=5
+        width="70%",
+        height="8%",
+        loc='lower center',
+        borderpad=-1.5
     )
     cbar = fig.colorbar(
         im10,
@@ -328,14 +324,14 @@ def plot_paper_rp_guess_map_plot():
     )
 
     # cbar.ax.xaxis.set_ticks_position('top')
-    cbar.ax.tick_params(labelsize=6, colors='black')
+    cbar.ax.tick_params(labelsize=fontsize, colors='black')
 
     cbaxes = inset_axes(
         axs[1][1],
-        width="30%",
-        height="1%",
-        loc=2,
-        # borderpad=5
+        width="70%",
+        height="8%",
+        loc='lower center',
+        borderpad=-1.5
     )
     cbar = fig.colorbar(
         im11,
@@ -345,14 +341,14 @@ def plot_paper_rp_guess_map_plot():
     )
 
     # cbar.ax.xaxis.set_ticks_position('top')
-    cbar.ax.tick_params(labelsize=6, colors='white')
+    cbar.ax.tick_params(labelsize=fontsize, colors='black')
 
     cbaxes = inset_axes(
         axs[1][2],
-        width="30%",
-        height="1%",
-        loc=2,
-        # borderpad=5
+        width="70%",
+        height="8%",
+        loc='lower center',
+        borderpad=-1.5
     )
     cbar = fig.colorbar(
         im12,
@@ -362,14 +358,14 @@ def plot_paper_rp_guess_map_plot():
     )
 
     # cbar.ax.xaxis.set_ticks_position('top')
-    cbar.ax.tick_params(labelsize=6, colors='white')
+    cbar.ax.tick_params(labelsize=fontsize, colors='black')
 
     cbaxes = inset_axes(
         axs[2][0],
-        width="30%",
-        height="1%",
-        loc=2,
-        # borderpad=5
+        width="70%",
+        height="8%",
+        loc='lower center',
+        borderpad=-1.5
     )
     cbar = fig.colorbar(
         im20,
@@ -379,14 +375,14 @@ def plot_paper_rp_guess_map_plot():
     )
 
     # cbar.ax.xaxis.set_ticks_position('top')
-    cbar.ax.tick_params(labelsize=6, colors='black')
+    cbar.ax.tick_params(labelsize=fontsize, colors='black')
 
     cbaxes = inset_axes(
         axs[2][1],
-        width="30%",
-        height="1%",
-        loc=2,
-        # borderpad=5
+        width="70%",
+        height="8%",
+        loc='lower center',
+        borderpad=-1.5
     )
     cbar = fig.colorbar(
         im21,
@@ -396,14 +392,14 @@ def plot_paper_rp_guess_map_plot():
     )
 
     # cbar.ax.xaxis.set_ticks_position('top')
-    cbar.ax.tick_params(labelsize=6, colors='black')
+    cbar.ax.tick_params(labelsize=fontsize, colors='black')
 
     cbaxes = inset_axes(
         axs[2][2],
-        width="30%",
-        height="1%",
-        loc=2,
-        # borderpad=5
+        width="70%",
+        height="8%",
+        loc='lower center',
+        borderpad=-1.5
     )
     cbar = fig.colorbar(
         im22,
@@ -413,14 +409,14 @@ def plot_paper_rp_guess_map_plot():
     )
 
     # cbar.ax.xaxis.set_ticks_position('top')
-    cbar.ax.tick_params(labelsize=6, colors='black')
+    cbar.ax.tick_params(labelsize=fontsize, colors='black')
 
     cbaxes = inset_axes(
         axs[3][0],
-        width="30%",
-        height="1%",
-        loc=2,
-        # borderpad=5
+        width="70%",
+        height="8%",
+        loc='lower center',
+        borderpad=-1.5
     )
     cbar = fig.colorbar(
         im30,
@@ -430,14 +426,14 @@ def plot_paper_rp_guess_map_plot():
     )
 
     # cbar.ax.xaxis.set_ticks_position('top')
-    cbar.ax.tick_params(labelsize=6, colors='white')
+    cbar.ax.tick_params(labelsize=fontsize, colors='black')
 
     cbaxes = inset_axes(
         axs[3][1],
-        width="30%",
-        height="1%",
-        loc=2,
-        # borderpad=5
+        width="70%",
+        height="8%",
+        loc='lower center',
+        borderpad=-1.5
     )
     cbar = fig.colorbar(
         im31,
@@ -447,14 +443,14 @@ def plot_paper_rp_guess_map_plot():
     )
 
     # cbar.ax.xaxis.set_ticks_position('top')
-    cbar.ax.tick_params(labelsize=6, colors='white')
+    cbar.ax.tick_params(labelsize=fontsize, colors='black')
 
     cbaxes = inset_axes(
         axs[3][2],
-        width="30%",
-        height="1%",
-        loc=2,
-        # borderpad=5
+        width="70%",
+        height="8%",
+        loc='lower center',
+        borderpad=-1.5
     )
     cbar = fig.colorbar(
         im32,
@@ -464,16 +460,16 @@ def plot_paper_rp_guess_map_plot():
     )
 
     # cbar.ax.xaxis.set_ticks_position('top')
-    cbar.ax.tick_params(labelsize=6, colors='white')
+    cbar.ax.tick_params(labelsize=fontsize, colors='black')
 
-    axs[0][0].text(0.1, 0.8, r'FoV A', transform=axs[0][0].transAxes, color='white')
-    axs[0][0].text(0.1, 0.1, r'$\;Continuum\;4000\;\AA$', transform=axs[0][0].transAxes, color='white')
-    axs[0][1].text(0.1, 0.1, r'Ca II K wing', transform=axs[0][1].transAxes, color='white')
-    axs[0][2].text(0.1, 0.1, r'Ca II K inner core', transform=axs[0][2].transAxes, color='white')
+    fig.suptitle('FoV A', fontsize=fontsize)
+    axs[0][0].set_title(r'$\;Continuum\;4000\;\AA$', fontsize=fontsize)
+    axs[0][1].set_title(r'Ca II K wing', fontsize=fontsize)
+    axs[0][2].set_title(r'Ca II K inner core', fontsize=fontsize)
 
-    axs[1][0].text(0.1, 0.1, r'${}<\log (\tau_{{500}})<{}$'.format(-1, 0), transform=axs[1][0].transAxes, color='black')
-    axs[1][1].text(0.1, 0.1, r'${}<\log (\tau_{{500}})<{}$'.format(-4.5, -3.5), transform=axs[1][1].transAxes, color='white')
-    axs[1][2].text(0.1, 0.1, r'${}<\log (\tau_{{500}})<{}$'.format(-5.5, -4.5), transform=axs[1][2].transAxes, color='white')
+    axs[1][0].set_title(r'${}<\log (\tau_{{500}})<{}$'.format(-1, 0), fontsize=7)
+    axs[1][1].set_title(r'${}<\log (\tau_{{500}})<{}$'.format(-4.5, -3.5), fontsize=7)
+    axs[1][2].set_title(r'${}<\log (\tau_{{500}})<{}$'.format(-5.5, -4.5), fontsize=7)
 
     # axs[2][0].text(0.0, 0.1, r'(g) Ca II 8542 core', transform=axs[1][0].transAxes, color='white')
     # axs[2][1].text(0.0, 0.1, r'(h) Ca II 8542 core', transform=axs[1][1].transAxes, color='white')
@@ -483,7 +479,7 @@ def plot_paper_rp_guess_map_plot():
     # axs[3][1].text(0.0, 0.1, r'(k) Ca II 8542 core', transform=axs[2][1].transAxes, color='white')
     # axs[3][2].text(0.0, 0.1, r'(l) Ca II 8542 core', transform=axs[2][2].transAxes, color='white')
 
-    fig.savefig(shocks_paper_path / 'InversionGuessRPs.pdf', format='pdf', dpi=300)
+    fig.savefig(write_path / 'InversionGuessRPs.pdf', format='pdf', dpi=300)
 
     plt.close('all')
 
@@ -491,5 +487,5 @@ def plot_paper_rp_guess_map_plot():
 
     plt.cla()
 
-# if __name__ == '__main__':
-#     plot_paper_rp_guess_map_plot()
+if __name__ == '__main__':
+    plot_paper_rp_guess_map_plot()

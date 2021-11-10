@@ -683,6 +683,9 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
     write_path = Path(
         '/home/harsh/Shocks Paper/Shocks Evolution Plots/'
     )
+
+    fontsize = 8
+
     whole_data, blos_6173 = get_input_profiles(ref_x, ref_y, get_6173_blos=True, time_step=time_step)
 
     whole_data = whole_data[time_step]
@@ -692,7 +695,10 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
     labels = f['new_final_labels'][time_step][:, ref_x:ref_x + 50, ref_y:ref_y + 50]
     f.close()
 
-    time_arr = np.arange(0, 826, 8.26)
+    time_arr = np.round(
+        np.arange(0, 826, 8.26),
+        1
+    )
 
     plt.close('all')
 
@@ -704,7 +710,7 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
 
     gs = gridspec.GridSpec(7, 5)
 
-    gs.update(left=0, right=1, top=1, bottom=0, wspace=0.0, hspace=0.0)
+    gs.update(left=0.1, right=1, top=0.9, bottom=0, wspace=0.0, hspace=0.0)
 
     axs = list()
 
@@ -738,29 +744,16 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
                     vmax=wb_vmax
                 )
                 if i == 0:
-                    axs[i][j].text(
-                        0.3, 0.8,
-                        r'$4000\;\AA$',
-                        transform=axs[i][j].transAxes,
-                        color='white',
-                        fontsize='xx-small'
+                    axs[i][j].set_title(
+                        r'(a) $4000\;\AA$',
+                        fontsize=fontsize
                     )
-                    axs[i][j].text(
-                        0.05, 0.9,
-                        r'$(a)$',
-                        transform=axs[i][j].transAxes,
-                        color='white',
-                        fontsize='xx-small'
-                    )
-                axs[i][j].text(
-                        0.2, 0.6,
-                        r'$t={}s$'.format(
-                            time_arr[time_step[i]]
-                        ),
-                        transform=axs[i][j].transAxes,
-                        color='white',
-                        fontsize='xx-small'
-                    )
+                axs[i][j].set_ylabel(
+                    r'$t={}s$'.format(
+                        time_arr[time_step[i]]
+                    ),
+                    fontsize=fontsize
+                )
             elif j == 1:
                 im = axs[i][j].imshow(
                     blos_6173[i, :, :],
@@ -771,18 +764,15 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
                 )
 
                 if i == 0:
-                    axs[i][j].text(
-                        0.3, 0.8,
+                    axs[i][j].set_title(
                         r'$B_{LOS}$',
-                        transform=axs[i][j].transAxes,
-                        color='white',
-                        fontsize='xx-small'
+                        fontsize=fontsize
                     )
 
                     cbaxes = inset_axes(
                         axs[i][j],
-                        width="30%",
-                        height="3%",
+                        width="70%",
+                        height="10%",
                         loc=3,
                         # borderpad=5
                     )
@@ -794,7 +784,7 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
                     )
 
                     cbar.ax.xaxis.set_ticks_position('top')
-                    cbar.ax.tick_params(labelsize=6, colors='white')
+                    cbar.ax.tick_params(colors='white', labelsize=fontsize)
             else:
                 axs[i][j].imshow(
                     whole_data[i, :, :, wave_indice[j - 2]],
@@ -804,33 +794,27 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
                     vmax=im_vmax
                 )
                 if i == 0:
-                    axs[i][j].text(
-                        0.05, 0.8,
-                        r'$Ca\;II\;K\;{}\;\AA$'.format(
+                    axs[i][j].set_title(
+                        r'${}\;m\AA$'.format(
                             np.round(
                                 get_relative_velocity(
                                     wave_3933[wave_indice[j - 2]]
-                                ),
-                                2
+                                ) * 1000,
+                                1
                             )
                         ),
-                        transform=axs[i][j].transAxes,
-                        color='white',
-                        fontsize='xx-small'
+                        fontsize=fontsize
                     )
                 if i == 1:
                     if j == 4:
-                        axs[i][j].text(
-                            0.2, 0.6,
+                        fig.suptitle(
                             r'$FOV\;{}$'.format(
                                 letter
                             ),
-                            transform=axs[i][j].transAxes,
-                            color='white',
-                            fontsize='xx-small'
+                            fontsize=fontsize
                         )
 
-            if mark_t == time_step[i] and j == 3:
+            if mark_t == time_step[i] and j == 2:
                 axs[i][j].scatter(
                     mark_y, mark_x,
                     marker='+',
@@ -869,34 +853,48 @@ def make_nb_image(ref_x, ref_y, time_step, wave_indice, mark_x, mark_y, letter):
         '/home/harsh/Shocks Paper/Shocks Evolution Plots/'
     )
 
-    whole_data = get_input_profiles(ref_x, ref_y)
+    whole_data = get_input_profiles(ref_x, ref_y, time_step=time_step)
 
-    whole_data = whole_data[time_step]
+    whole_data = whole_data[time_step][0]
 
     f = h5py.File(old_kmeans_file, 'r')
-    labels = f['new_final_labels'][time_step][ref_x:ref_x + 50, ref_y:ref_y + 50]
+    labels = f['new_final_labels'][time_step][0][ref_x:ref_x + 50, ref_y:ref_y + 50]
     f.close()
 
-    time_arr = np.arange(0, 826, 8.26)
+    time_arr = np.round(
+        np.arange(0, 826, 8.26),
+        1
+    )
 
+    fontsize = 8
     plt.close('all')
 
     plt.clf()
 
     plt.cla()
 
-    fig = plt.figure(figsize=(1.75, 1.75))
+    fig = plt.figure(figsize=(1.4, 1.6))
 
     gs = gridspec.GridSpec(1, 1)
 
-    gs.update(left=0, right=1, top=1, bottom=0, wspace=0.0, hspace=0.0)
+    gs.update(left=0, right=1, top=0.875, bottom=0, wspace=0.0, hspace=0.0)
 
     axs = fig.add_subplot(gs[0])
 
     axs.imshow(whole_data[:, :, wave_indice], cmap='gray', origin='lower')
 
     axs.text(
-        0.05, 0.8,
+        0.4, 1.08,
+        r'FoV {}'.format(
+            letter
+        ),
+        transform=axs.transAxes,
+        color='black',
+        fontsize=fontsize
+    )
+
+    axs.text(
+        0.25, 1.00,
         r'$Ca\;II\;K\;{}\;\AA$'.format(
             np.round(
                 get_relative_velocity(
@@ -906,18 +904,8 @@ def make_nb_image(ref_x, ref_y, time_step, wave_indice, mark_x, mark_y, letter):
             )
         ),
         transform=axs.transAxes,
-        color='white',
-        fontsize='xx-small'
-    )
-
-    axs.text(
-        0.05, 0.6,
-        r'FoV {}'.format(
-            letter
-        ),
-        transform=axs.transAxes,
-        color='white',
-        fontsize='xx-small'
+        color='black',
+        fontsize=fontsize
     )
 
     axs.scatter(
@@ -1239,10 +1227,12 @@ def plot_1_profiles(ref_x, ref_y, x1, y1, t1):
     plt.cla()
 
 
-def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, letter, color_list=None):
+def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, letter, wave_indice, color_list=None):
     write_path = Path(
         '/home/harsh/Shocks Paper/Shocks Evolution Plots/'
     )
+
+    fontsize = 8
 
     whole_data = get_input_profiles(ref_x, ref_y, get_8542=True, time_step=time_indice)
     time = np.round(
@@ -1254,8 +1244,8 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, letter, co
     plt.clf()
     plt.cla()
 
-    fig, axs = plt.subplots(1, 1, figsize=(4.0, 3.5))
-
+    fig, axs = plt.subplots(1, 1, figsize=(1.75, 1.4))
+    plt.subplots_adjust(left=0.26, right=0.99, bottom=0.27, top=0.98)
     for index, t in enumerate(time_indice):
         if color_list is not None:
             axs.plot(
@@ -1272,23 +1262,35 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, letter, co
                 )
             )
 
+    for wi in wave_indice:
+        axs.axvline(
+            get_relative_velocity(wave_3933[wi]),
+            linestyle='--',
+            color='black',
+            linewidth=0.5
+        )
+
     if color_list is None:
         axs.legend(loc="upper right")
 
     axs.text(
-        0.05, 0.9,
+        0.05, 0.85,
         r'$(d)$',
         transform=axs.transAxes,
         color='black',
-        fontsize='xx-large'
+        fontsize=fontsize
     )
     axs.set_xticks([-0.5, 0, 0.5])
 
     axs.set_xticklabels([-0.5, 0, 0.5])
 
-    axs.set_xlabel(r'$\Delta \lambda\;(\AA)$')
+    axs.xaxis.set_tick_params(labelsize=fontsize)
 
-    axs.set_ylabel(r'$I/I_{c}$')
+    axs.yaxis.set_tick_params(labelsize=fontsize)
+
+    axs.set_xlabel(r'$\Delta \lambda\;(\AA)$', fontsize=fontsize)
+
+    axs.set_ylabel(r'$I/I_{c}$', fontsize=fontsize)
 
     # axs.set_title(
     #     'FoV {}'.format(
@@ -1296,7 +1298,7 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, letter, co
     #     )
     # )
 
-    fig.tight_layout()
+    # fig.tight_layout()
 
     fig.savefig(
         write_path / 'pixel_evolution_CaK_{}.pdf'.format(
@@ -1310,7 +1312,8 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, letter, co
     plt.clf()
     plt.cla()
 
-    fig, axs = plt.subplots(1, 1, figsize=(4.0, 3.5))
+    fig, axs = plt.subplots(1, 1, figsize=(1.75, 1.4))
+    plt.subplots_adjust(left=0.26, right=0.99, bottom=0.27, top=0.98)
 
     for index, t in enumerate(time_indice):
         if color_list is not None:
@@ -1332,20 +1335,24 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, letter, co
         axs.legend(loc="upper right")
 
     axs.text(
-        0.05, 0.9,
+        0.05, 0.85,
         r'$(e)$',
         transform=axs.transAxes,
         color='black',
-        fontsize='xx-large'
+        fontsize=fontsize
     )
 
     axs.set_xticks([-1, 0, 1])
 
     axs.set_xticklabels([-1, 0, 1])
 
-    axs.set_xlabel(r'$\Delta \lambda\;(\AA)$')
+    axs.xaxis.set_tick_params(labelsize=fontsize)
 
-    axs.set_ylabel(r'$I/I_{c}$')
+    axs.yaxis.set_tick_params(labelsize=fontsize)
+
+    axs.set_xlabel(r'$\Delta \lambda\;(\AA)$', fontsize=fontsize)
+
+    axs.set_ylabel(r'$I/I_{c}$', fontsize=fontsize)
 
     # axs.set_title(
     #     'FoV {}'.format(
@@ -1353,7 +1360,7 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, letter, co
     #     )
     # )
 
-    fig.tight_layout()
+    # fig.tight_layout()
 
     fig.savefig(
         write_path / 'pixel_evolution_CaIR_{}.pdf'.format(
@@ -1368,7 +1375,7 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, letter, co
     plt.cla()
 
 
-def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t, color_list, letter):
+def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t, color_list, letter, appendix=False, wave_indice=12):
     write_path = Path(
         '/home/harsh/Shocks Paper/Shocks Evolution Plots/'
     )
@@ -1379,12 +1386,14 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t, color_list, lette
 
     time = np.arange(0, 826, 8.26)
 
+    fontsize = 8
+
     plt.close('all')
     plt.clf()
     plt.cla()
 
     fig, axs = plt.subplots(1, 1, figsize=(1.75, 3.5))
-
+    plt.subplots_adjust(left=0.32, right=0.99, bottom=0.12, top=0.93)
     axs.imshow(
         whole_data[time_step, x, y, 0:29],
         extent=[dv[0], dv[-2], time[time_step[0]], time[time_step[-1]]],
@@ -1394,40 +1403,62 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t, color_list, lette
     )
 
     for i, tt in enumerate(mark_t):
-        axs.scatter([0], [time[tt]], color=color_list[i], marker='+')
+        if not appendix:
+            axs.scatter([0], [time[tt]], color=color_list[i], marker='+')
+        else:
 
-    axs.text(
-        0.05, 0.9,
-        r'$(b)$',
-        transform=axs.transAxes,
-        color='white',
-        fontsize='small'
-    )
+            xx = np.round(
+                get_relative_velocity(
+                    wave_3933[wave_indice]
+                ),
+                2
+            )
+            axs.scatter([xx], [time[tt]], color=color_list[i], marker='+')
+
+    if not appendix:
+        axs.text(
+            0.05, 0.9,
+            r'$(b)$',
+            transform=axs.transAxes,
+            color='white',
+            fontsize=fontsize
+        )
     axs.set_xticks([-0.5, 0, 0.5])
     axs.set_xticklabels([-0.5, 0, 0.5])
-    axs.set_xlabel(r'$\Delta \lambda\;(\AA)$')
-    axs.set_ylabel(r'$time\;(seconds)$')
+    axs.set_xlabel(r'$\Delta \lambda\;(\AA)$', fontsize=fontsize)
+    axs.set_ylabel(r'$time\;(seconds)$', fontsize=fontsize)
     axs.set_title(
-        r'$Ca\;II\;K$'
+        r'$Ca\;II\;K$',
+        fontsize=fontsize
     )
 
-    fig.tight_layout()
+    # fig.tight_layout()
 
-    fig.savefig(
-        write_path / 'lambda_t_FoV_CaK_{}.pdf'.format(
-            letter
-        ),
-        dpi=300,
-        format='pdf',
-        # bbox_inches='tight'
-    )
+    if not appendix:
+        fig.savefig(
+            write_path / 'lambda_t_FoV_CaK_{}.pdf'.format(
+                letter
+            ),
+            dpi=300,
+            format='pdf',
+            # bbox_inches='tight'
+        )
+    else:
+        fig.savefig(
+            write_path / 'lambda_t_FoV_CaK_{}_appendix.pdf'.format(
+                letter
+            ),
+            dpi=300,
+            format='pdf',
+            # bbox_inches='tight'
+        )
 
     plt.close('all')
     plt.clf()
     plt.cla()
 
     fig, axs = plt.subplots(1, 1, figsize=(1.75, 3.5))
-
+    plt.subplots_adjust(left=0.32, right=0.99, bottom=0.12, top=0.93)
     axs.imshow(
         whole_data[time_step, x, y, 30 + 14:30 + 14 + 20],
         extent=[dv8542[0], dv8542[-1], time[time_step[0]], time[time_step[-1]]],
@@ -1439,31 +1470,43 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t, color_list, lette
     for i, tt in enumerate(mark_t):
         axs.scatter([0], [time[tt]], color=color_list[i], marker='+')
 
-    axs.text(
-        0.05, 0.9,
-        r'$(c)$',
-        transform=axs.transAxes,
-        color='white',
-        fontsize='small'
-    )
+    if not appendix:
+        axs.text(
+            0.05, 0.9,
+            r'$(c)$',
+            transform=axs.transAxes,
+            color='white',
+            fontsize=fontsize
+        )
     axs.set_xticks([-1, 0, 1])
     axs.set_xticklabels([-1, 0, 1])
-    axs.set_xlabel(r'$\Delta \lambda\;(\AA)$')
-    axs.set_ylabel(r'$time\;(seconds)$')
+    axs.set_xlabel(r'$\Delta \lambda\;(\AA)$', fontsize=fontsize)
+    axs.set_ylabel(r'$time\;(seconds)$', fontsize=fontsize)
     axs.set_title(
-        r'$Ca\;II\;8542$'
+        r'$Ca\;II\;8542$',
+        fontsize=fontsize
     )
 
-    fig.tight_layout()
+    # fig.tight_layout()
 
-    fig.savefig(
-        write_path / 'lambda_t_FoV_CaIR_{}.pdf'.format(
-            letter
-        ),
-        dpi=300,
-        format='pdf',
-        # bbox_inches='tight'
-    )
+    if not appendix:
+        fig.savefig(
+            write_path / 'lambda_t_FoV_CaIR_{}.pdf'.format(
+                letter
+            ),
+            dpi=300,
+            format='pdf',
+            # bbox_inches='tight'
+        )
+    else:
+        fig.savefig(
+            write_path / 'lambda_t_FoV_CaIR_{}_appendix.pdf'.format(
+                letter
+            ),
+            dpi=300,
+            format='pdf',
+            # bbox_inches='tight'
+        )
 
     plt.close('all')
     plt.clf()
@@ -1503,7 +1546,7 @@ def make_shock_evolution_plots():
 
     FoV_letter_list = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
 
-    wave_indice = np.array([11, 13, 16])
+    wave_indice = np.array([12, 14, 16])
 
     blos_lim = 100
 
@@ -1529,26 +1572,34 @@ def make_shock_evolution_plots():
             mark_list[i][2],
             np.array(
                 [
-                    mark_list[i][0] - 1,
+                    mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
                     mark_list[i][0],
-                    mark_list[i][0] + 1
+                    mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
                 ]
             ),
             FoV_letter_list[i],
+            wave_indice,
             color_list
         )
 
+        start_t = time_step_list[i][0]
+        end_t = time_step_list[i][-1]
+
+        begin_seq = np.arange(start_t-7 if (start_t-7) >= 0 else 0, start_t)
+        end_seq = np.arange(end_t, end_t + 7 if (end_t + 7) < 100 else 99)
+
+        time_step = np.array(list(begin_seq) + list(time_step_list[i]) + list(end_seq))
         make_lambda_t_curve(
             ref_x_list[i],
             ref_y_list[i],
             mark_list[i][1],
             mark_list[i][2],
-            time_step_list[i],
+            time_step,
             np.array(
                 [
-                    mark_list[i][0] - 1,
+                    mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
                     mark_list[i][0],
-                    mark_list[i][0] + 1
+                    mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
                 ]
             ),
             color_list,
@@ -1558,11 +1609,27 @@ def make_shock_evolution_plots():
         make_nb_image(
             ref_x_list[i],
             ref_y_list[i],
-            mark_list[i][0],
-            wave_indice[1],
+            np.array([mark_list[i][0]]),
+            wave_indice[0],
             mark_list[i][1],
             mark_list[i][2],
             FoV_letter_list[i]
+        )
+
+        make_lambda_t_curve(
+            ref_x_list[i],
+            ref_y_list[i],
+            mark_list[i][1],
+            mark_list[i][2],
+            time_step,
+            np.array(
+                [
+                    mark_list[i][0]
+                ]
+            ),
+            [color_list[0]],
+            FoV_letter_list[i],
+            appendix=True
         )
 
 
@@ -2000,4 +2067,5 @@ def get_all_profile_enhancement_data():
 
 
 if __name__ == '__main__':
-    plot_response_functions()
+    # plot_response_functions()
+    make_shock_evolution_plots()

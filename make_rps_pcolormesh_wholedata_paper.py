@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 from helita.io.lp import *
 from mpl_toolkits.axisartist.axislines import Subplot
 import matplotlib.gridspec as gridspec
+from pathlib import Path
+
 
 file = '/data/harsh/sub_fov_result_kmeans_whole_data_inertia_inverted_weights.h5'
 
@@ -161,13 +163,15 @@ def actual_plotting(labels, rps, name='guess'):
 
     k = 0
 
+    fontsize = 8
+
     plt.close('all')
 
     plt.clf()
 
     plt.cla()
 
-    fig = plt.figure(figsize=(7, 7))
+    fig = plt.figure(figsize=(3.5, 3.5))
 
     gs = gridspec.GridSpec(4, 3)
 
@@ -239,7 +243,7 @@ def actual_plotting(labels, rps, name='guess'):
                         np.round(a.size * 100 / labels.size, 2)
                     ),
                     transform=ax1.transAxes,
-                    fontsize='small'
+                    fontsize=fontsize
                 )
 
                 ax1.text(
@@ -247,7 +251,7 @@ def actual_plotting(labels, rps, name='guess'):
                     0.8,
                     'RP {}'.format(total_shock_profiles[i]),
                     transform=ax1.transAxes,
-                    fontsize='small'
+                    fontsize=fontsize
                 )
 
                 ax1.axvline(3933.682, linestyle=':', color='black')
@@ -255,10 +259,10 @@ def actual_plotting(labels, rps, name='guess'):
                 ax1.set_xticks([3933.682 - 0.5, 3933.682, 3933.682 + 0.5])
                 ax1.set_xticklabels([-0.5, 0, 0.5])
 
-                ax1.set_ylabel(r'$I/I_{c}$')
+                ax1.set_ylabel(r'$I/I_{c}$', fontsize=fontsize)
 
                 if i == 3:
-                    ax1.set_xlabel(r'$\Delta \lambda (\AA)$')
+                    ax1.set_xlabel(r'$\Delta \lambda (\AA)$', fontsize=fontsize)
 
             elif j == 1:
 
@@ -278,7 +282,7 @@ def actual_plotting(labels, rps, name='guess'):
                 ax1.set_xticklabels([-1, 0, 1])
 
                 if i == 3:
-                    ax1.set_xlabel(r'$\Delta \lambda (\AA)$')
+                    ax1.set_xlabel(r'$\Delta \lambda (\AA)$', fontsize=fontsize)
 
             else:
 
@@ -295,10 +299,10 @@ def actual_plotting(labels, rps, name='guess'):
                 ax1.axvline(6173.334, linestyle=':', color='black')
 
                 ax1.set_xticks([6173.334 - 0.5, 6173.334, 6173.334 + 0.5])
-                ax1.set_xticklabels([-0.5, 0, 0.5])
+                ax1.set_xticklabels([-0.5, 0, 0.5], fontsize=fontsize)
 
                 if i == 3:
-                    ax1.set_xlabel(r'$\Delta \lambda (\AA)$')
+                    ax1.set_xlabel(r'$\Delta \lambda (\AA)$', fontsize=fontsize)
 
             k += 1
 
@@ -427,8 +431,8 @@ def plot_profiles():
         ind = np.where(labels == i)[0]
         rps[i] = np.mean(whole_data[ind], 0)
 
-    # actual_plotting(labels, rps, name='guess')
-    make_appendix_plot(rps)
+    actual_plotting(labels, rps, name='guess')
+    # make_appendix_plot(rps)
     f.close()
 
 
