@@ -402,7 +402,7 @@ def make_appendix_plot(rps):
                             linestyle='solid',
                         )
 
-                    ax1.set_ylim(0, 0.9)
+                    ax1.set_ylim(0.2, 0.9)
                     ax1.set_yticks([0.4, 0.8])
                     ax1.set_yticklabels([0.4, 0.8], fontsize=fontsize)
 
@@ -426,7 +426,7 @@ def make_appendix_plot(rps):
                             linestyle='solid',
                         )
 
-                    ax1.set_ylim(0, 1.3)
+                    ax1.set_ylim(0.5, 1.3)
                     ax1.set_yticks([0.8, 1])
                     ax1.set_yticklabels([0.8, 1], fontsize=fontsize)
 
