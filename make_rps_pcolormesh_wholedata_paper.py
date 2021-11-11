@@ -352,7 +352,7 @@ def make_appendix_plot(rps):
 
         gs = gridspec.GridSpec(6, 3)
 
-        gs.update(left=0.15, right=0.83, bottom=0.05, top=0.99, wspace=0.48, hspace=0.1)
+        gs.update(left=0.15, right=0.83, bottom=0.08, top=0.99, wspace=0.48, hspace=0.1)
 
         k = 0
 
@@ -427,7 +427,7 @@ def make_appendix_plot(rps):
                         if name == 'quiet':
                             ax1.legend(loc=(1.04, -0.07), fontsize=7, title_fontsize=7)
                         else:
-                            ax1.legend(loc=(1.04, -0.4), fontsize=7, title_fontsize=7)
+                            ax1.legend(loc=(1.04, -0.4), fontsize=6, title_fontsize=6)
 
                     ax1.set_ylim(0.55, 1.3)
                     ax1.set_yticks([0.8, 1])
