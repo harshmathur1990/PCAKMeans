@@ -370,12 +370,8 @@ def make_appendix_plot(rps):
                             wave_3933,
                             center[rp, 0:29],
                             linewidth=0.5,
-                            linestyle='solid',
-                            label='#{}'.format(
-                                rp
-                            )
+                            linestyle='solid'
                         )
-                        ax1.legend(loc="upper right")
 
                     ax1.set_xticks([3933.682 - 0.5, 3933.682, 3933.682 + 0.5])
 
@@ -424,7 +420,11 @@ def make_appendix_plot(rps):
                             center[rp, 30 + 20:30 + 20 + 14],
                             linewidth=0.5,
                             linestyle='solid',
+                            label='#{}'.format(
+                                rp
+                            )
                         )
+                        ax1.legend(loc=(1.04,0))
 
                     ax1.set_ylim(0.55, 1.3)
                     ax1.set_yticks([0.8, 1])
