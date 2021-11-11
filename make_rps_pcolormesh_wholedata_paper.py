@@ -379,6 +379,10 @@ def make_appendix_plot(rps):
 
                     ax1.set_xticks([3933.682 - 0.5, 3933.682, 3933.682 + 0.5])
 
+                    ax1.set_ylim(0, 0.25)
+                    ax1.set_yticks([0.1, 0.2])
+                    ax1.set_yticklabels([0.1, 0.2], fontsize=fontsize)
+
                     if i == 5:
                         ax1.set_xticklabels([-0.5, 0, 0.5], fontsize=fontsize)
                     else:
@@ -398,8 +402,11 @@ def make_appendix_plot(rps):
                             linestyle='solid',
                         )
 
-                    ax1.set_xlim(8542.09 - 2.4, 8542 + 2.4)
+                    ax1.set_ylim(0, 0.9)
+                    ax1.set_yticks([0.4, 0.8])
+                    ax1.set_yticklabels([0.4, 0.8], fontsize=fontsize)
 
+                    ax1.set_xlim(8542.09 - 2.4, 8542 + 2.4)
                     ax1.set_xticks([8542.09 -1, 8542.09, 8542.09 + 1])
 
                     if i == 5:
@@ -419,8 +426,11 @@ def make_appendix_plot(rps):
                             linestyle='solid',
                         )
 
-                    ax1.set_xlim(6173.334 - 0.7, 6173.334 + 0.7)
+                    ax1.set_ylim(0, 1.3)
+                    ax1.set_yticks([0.8, 1])
+                    ax1.set_yticklabels([0.8, 1], fontsize=fontsize)
 
+                    ax1.set_xlim(6173.334 - 0.7, 6173.334 + 0.7)
                     ax1.set_xticks([6173.334 - 0.5, 6173.334, 6173.334 + 0.5])
 
                     if i == 5:
