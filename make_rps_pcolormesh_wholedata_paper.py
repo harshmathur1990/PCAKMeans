@@ -352,6 +352,8 @@ def make_appendix_plot(rps):
 
         gs = gridspec.GridSpec(6, 3)
 
+        gs.update(left=0.1, right=1, bottom=0.1, top=1, wspace=0.2, hspace=0.2)
+
         k = 0
 
         for i in range(6):
@@ -419,7 +421,7 @@ def make_appendix_plot(rps):
 
                 k += 1
 
-        fig.tight_layout()
+        # fig.tight_layout()
 
         fig.savefig(
             'RPs_appemdix_{}.pdf'.format(name),
