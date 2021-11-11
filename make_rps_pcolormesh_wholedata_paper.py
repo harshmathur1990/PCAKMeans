@@ -425,7 +425,7 @@ def make_appendix_plot(rps):
                             )
                         )
                         if name == 'quiet':
-                            ax1.legend(loc=(1.04, -0.1), fontsize=7, title_fontsize=7)
+                            ax1.legend(loc=(1.04, -0.05), fontsize=7, title_fontsize=7)
                         else:
                             ax1.legend(loc=(1.04, -0.3), fontsize=7, title_fontsize=7)
 
