@@ -6,6 +6,7 @@ import matplotlib.gridspec as gridspec
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pathlib import Path
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
+import matplotlib as mpl
 
 base_path = Path('/home/harsh/OsloAnalysis')
 new_kmeans = base_path / 'new_kmeans'
@@ -47,6 +48,7 @@ def get_relative_velocity(wavelength):
 
 
 def make_inversion_fit_plot(xs, ys, wave_indice, time_steps, ref_x, ref_y, fovName):
+    write_path = Path('/home/harsh/Shocks Paper/InversionMaps/')
     x = [xs, xs + 50]
     y = [ys, ys + 50]
 
@@ -102,6 +104,8 @@ def make_inversion_fit_plot(xs, ys, wave_indice, time_steps, ref_x, ref_y, fovNa
 
     color = ['blue', 'orange', 'brown', 'darkgreen']
 
+    fontsize = 6
+
     for l in range(3):
         plt.cla()
 
@@ -109,7 +113,7 @@ def make_inversion_fit_plot(xs, ys, wave_indice, time_steps, ref_x, ref_y, fovNa
 
         plt.close('all')
 
-        fig = plt.figure(figsize=(1.16, 2.56))
+        fig = plt.figure(figsize=(1.4, 3.08))
 
         gs = gridspec.GridSpec(4, 2)
 
@@ -130,12 +134,9 @@ def make_inversion_fit_plot(xs, ys, wave_indice, time_steps, ref_x, ref_y, fovNa
                     )
                     axs.scatter([ref_y], [ref_x], marker='+', color=color[i])
                     if i == 0:
-                        axs.text(
-                            0.1, 0.9,
+                        axs.set_title(
                             r'Observed',
-                            transform=axs.transAxes,
-                            color='white',
-                            fontsize='xx-small'
+                            fontsize=fontsize
                         )
                     axs.text(
                         0.1, 0.7,
@@ -153,12 +154,9 @@ def make_inversion_fit_plot(xs, ys, wave_indice, time_steps, ref_x, ref_y, fovNa
                         vmax=vmax[l][j]
                     )
                     if i == 0:
-                        axs.text(
-                            0.1, 0.9,
+                        axs.set_title(
                             r'Synthesized',
-                            transform=axs.transAxes,
-                            color='white',
-                            fontsize='xx-small'
+                            fontsize=fontsize
                         )
 
                 axs.set_xticks([])
@@ -169,14 +167,14 @@ def make_inversion_fit_plot(xs, ys, wave_indice, time_steps, ref_x, ref_y, fovNa
                 k += 1
 
         if l == 0:
-            fig.suptitle(r'$Ca\;II\;K_{2V}$', fontsize='small')
-            fig.savefig('CaIIK2v_fit.pdf', format='pdf', dpi=300)
+            fig.suptitle(r'$Ca\;II\;K_{2V}$', fontsize=fontsize)
+            fig.savefig(write_path / 'CaIIK2v_fit.pdf', format='pdf', dpi=300)
         elif l == 1:
-            fig.suptitle(r'$Ca\;II\;K_{3}$', fontsize='small')
-            fig.savefig('CaIIK3_fit.pdf', format='pdf', dpi=300)
+            fig.suptitle(r'$Ca\;II\;K_{3}$', fontsize=fontsize)
+            fig.savefig(write_path / 'CaIIK3_fit.pdf', format='pdf', dpi=300)
         else:
-            fig.suptitle(r'$Ca\;II\;K_{2R}$', fontsize='small')
-            fig.savefig('CaIIK2r_fit.pdf', format='pdf', dpi=300)
+            fig.suptitle(r'$Ca\;II\;K_{2R}$', fontsize=fontsize)
+            fig.savefig(write_path / 'CaIIK2r_fit.pdf', format='pdf', dpi=300)
 
     plt.cla()
 
@@ -184,41 +182,58 @@ def make_inversion_fit_plot(xs, ys, wave_indice, time_steps, ref_x, ref_y, fovNa
 
     plt.close('all')
 
-    fig, axs = plt.subplots(4, 3, figsize=(2.47 * 2, 2 * 2.47 * 4 / 3))
-
+    fig, axs = plt.subplots(4, 3, figsize=(2.32, 3.08))
+    plt.subplots_adjust(left=0.17, right=0.99, top=0.93, bottom=0.11, wspace=0.5, hspace=0.15)
     for i in range(4):
         for j in range(3):
             if j == 0:
                 axs[i][j].scatter(wave_3933[:-1] - 3933.682, all_profiles[i, ref_x, ref_y, 0:29], color=color[i], s=size/2, marker='+')
                 axs[i][j].plot(wave_3933[:-1] - 3933.682, syn_profiles[i, ref_x, ref_y, 0:29], linestyle='--', color=color[i], linewidth=0.5)
-                axs[i][j].set_ylabel(r'$I/I_{c}$')
+                axs[i][j].set_ylabel(r'$I/I_{c}$', fontsize=fontsize)
                 if i == 0:
-                    axs[i][j].set_title(r'$Ca II K$')
+                    axs[i][j].set_title(r'$Ca II K$', fontsize=fontsize)
                 if i == 3:
-                    axs[i][j].set_xlabel(r'$\Delta\lambda(\AA)$')
+                    axs[i][j].set_xlabel(r'$\Delta\lambda(\AA)$', fontsize=fontsize)
                 axs[i][j].set_xticks([-0.5, 0, 0.5])
-                axs[i][j].set_xticklabels([-0.5, 0, 0.5])
+                if i == 3:
+                    axs[i][j].set_xticklabels([-0.5, 0, 0.5], fontsize=fontsize)
+                else:
+                    axs[i][j].set_xticklabels([])
             elif j == 1:
                 axs[i][j].scatter(wave_8542 - 8542.09, all_profiles[i, ref_x, ref_y, 30:30+20], color=color[i], s=size/2, marker='+')
                 axs[i][j].plot(wave_8542 - 8542.09, syn_profiles[i, ref_x, ref_y, 30:30+20], linestyle='--', color=color[i], linewidth=0.5)
                 if i == 0:
-                    axs[i][j].set_title(r'$Ca\;II\;8542\;\AA$')
+                    axs[i][j].set_title(r'$Ca\;II\;8542\;\AA$', fontsize=fontsize)
                 if i == 3:
-                    axs[i][j].set_xlabel(r'$\Delta\lambda(\AA)$')
+                    axs[i][j].set_xlabel(r'$\Delta\lambda(\AA)$', fontsize=fontsize)
                 axs[i][j].set_xticks([-1, 0, 1])
-                axs[i][j].set_xticklabels([-1, 0, 1])
+                if i == 3:
+                    axs[i][j].set_xticklabels([-1, 0, 1], fontsize=fontsize)
+                else:
+                    axs[i][j].set_xticklabels([])
                 axs[i][j].set_xlim(-2.4, 2.4)
             else:
                 axs[i][j].scatter(wave_6173 - 6173.3340, all_profiles[i, ref_x, ref_y, 30 + 20:30 + 20 + 14], color=color[i], s=size/2, marker='+')
                 axs[i][j].plot(wave_6173 - 6173.3340, syn_profiles[i, ref_x, ref_y, 30 + 20:30 + 20 + 14], linestyle='--', color=color[i], linewidth=0.5)
                 if i == 0:
-                    axs[i][j].set_title(r'$Fe\;I\;6173\;\AA$')
+                    axs[i][j].set_title(r'$Fe\;I\;6173\;\AA$', fontsize=fontsize)
                 if i == 3:
-                    axs[i][j].set_xlabel(r'$\Delta\lambda(\AA)$')
+                    axs[i][j].set_xlabel(r'$\Delta\lambda(\AA)$', fontsize=fontsize)
                 axs[i][j].set_xticks([-0.5, 0, 0.5])
-                axs[i][j].set_xticklabels([-0.5, 0, 0.5])
+                if i == 3:
+                    axs[i][j].set_xticklabels([-0.5, 0, 0.5], fontsize=fontsize)
+                else:
+                    axs[i][j].set_xticklabels([])
                 axs[i][j].set_xlim(-0.7, 0.7)
 
-    fig.tight_layout()
+            fmt = lambda x, y: np.round(x, 1)
+            axs[i][j].yaxis.set_major_formatter(mpl.ticker.FuncFormatter(fmt))
+            axs[i][j].yaxis.set_tick_params(labelsize=fontsize)
 
-    fig.savefig('Profile_fits.pdf', format='pdf', dpi=300)
+    # fig.tight_layout()
+
+    fig.savefig(write_path / 'Profile_fits.pdf', format='pdf', dpi=300)
+
+
+if __name__ == '__main__':
+    make_inversion_fit_plot(662, 708, np.array([11, 13, 15]), np.array([4, 5, 6, 7]), 25, 18, 'A')

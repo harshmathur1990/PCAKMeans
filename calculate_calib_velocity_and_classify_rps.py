@@ -1956,19 +1956,19 @@ def plot_response_functions():
                 axs3.set_yticks([0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4])
                 axs3.set_yticklabels([0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4])
 
-                max_indice_ltau, max_indice_wave = np.unravel_index(
-                    np.argmax(
-                        response[i+1, j, :, 10:17]
-                    ),
-                    response[i+1, j, :, 10:17].shape
-                )
-
-                max_sf_tau = ltau[max_indice_ltau]
-
-                max_sf_wave = relative_wave[max_indice_wave + 10]
-                
-                axs.plot(relative_wave, np.ones_like(relative_wave) * max_sf_tau, color='gray', linestyle='--', linewidth=0.5)
-                axs.axvline(x=max_sf_wave, color='gray', linestyle='--', linewidth=0.5)
+                # max_indice_ltau, max_indice_wave = np.unravel_index(
+                #     np.argmax(
+                #         response[i+1, j, :, 10:17]
+                #     ),
+                #     response[i+1, j, :, 10:17].shape
+                # )
+                #
+                # max_sf_tau = ltau[max_indice_ltau]
+                #
+                # max_sf_wave = relative_wave[max_indice_wave + 10]
+                #
+                # axs.plot(relative_wave, np.ones_like(relative_wave) * max_sf_tau, color='gray', linestyle='--', linewidth=0.5)
+                # axs.axvline(x=max_sf_wave, color='gray', linestyle='--', linewidth=0.5)
 
             k += 1
 
@@ -2067,5 +2067,5 @@ def get_all_profile_enhancement_data():
 
 
 if __name__ == '__main__':
-    # plot_response_functions()
-    make_shock_evolution_plots()
+    plot_response_functions()
+    # make_shock_evolution_plots()
