@@ -424,7 +424,7 @@ def make_appendix_plot(rps):
                                 rp
                             )
                         )
-                        ax1.legend(loc=(1.04, -0.1))
+                        ax1.legend(loc=(1.04, -0.1), fontsize=fontsize, title_fontsize=fontsize)
 
                     ax1.set_ylim(0.55, 1.3)
                     ax1.set_yticks([0.8, 1])
