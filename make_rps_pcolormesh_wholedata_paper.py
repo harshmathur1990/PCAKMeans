@@ -352,7 +352,7 @@ def make_appendix_plot(rps):
 
         gs = gridspec.GridSpec(6, 3)
 
-        gs.update(left=0.15, right=0.7, bottom=0.05, top=0.99, wspace=0.2, hspace=0.2)
+        gs.update(left=0.15, right=0.7, bottom=0.08, top=0.99, wspace=0.2, hspace=0.2)
 
         k = 0
 
@@ -424,7 +424,7 @@ def make_appendix_plot(rps):
                                 rp
                             )
                         )
-                        ax1.legend(loc=(1.04,0))
+                        ax1.legend(loc=(1.04, -0.1))
 
                     ax1.set_ylim(0.55, 1.3)
                     ax1.set_yticks([0.8, 1])
