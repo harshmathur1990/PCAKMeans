@@ -338,6 +338,8 @@ def make_appendix_plot(rps):
     
     center = rps / cont_array
 
+    fontsize = 8
+
     for profiles, name in zip([new_quiet_profiles, new_shock_reverse_other_profiles], ['quiet', 'emission']):
 
         plt.close('all')
@@ -346,7 +348,7 @@ def make_appendix_plot(rps):
 
         plt.cla()
 
-        fig = plt.figure(figsize=(14, 28))
+        fig = plt.figure(figsize=(3.5, 7))
 
         gs = gridspec.GridSpec(6, 3)
 
@@ -374,12 +376,12 @@ def make_appendix_plot(rps):
                         ax1.legend(loc="upper right")
 
                     ax1.set_xticks([3933.682 - 0.5, 3933.682, 3933.682 + 0.5])
-                    ax1.set_xticklabels([-0.5, 0, 0.5])
+                    ax1.set_xticklabels([-0.5, 0, 0.5], fontsize=fontsize)
 
-                    ax1.set_ylabel(r'$I/I_{c}$')
+                    ax1.set_ylabel(r'$I/I_{c}$', fontsize=fontsize)
 
                     if i == 5:
-                        ax1.set_xlabel(r'$\Delta \lambda (\AA)$')
+                        ax1.set_xlabel(r'$\Delta \lambda (\AA)$', fontsize=fontsize)
 
                 elif j == 1:
                     for index, rp in enumerate(sel_rps):
@@ -393,10 +395,10 @@ def make_appendix_plot(rps):
                     ax1.set_xlim(8542.09 - 2.4, 8542 + 2.4)
 
                     ax1.set_xticks([8542.09 -1, 8542.09, 8542.09 + 1])
-                    ax1.set_xticklabels([-1, 0, 1])
+                    ax1.set_xticklabels([-1, 0, 1], fontsize=fontsize)
 
                     if i == 5:
-                        ax1.set_xlabel(r'$\Delta \lambda (\AA)$')
+                        ax1.set_xlabel(r'$\Delta \lambda (\AA)$', fontsize=fontsize)
 
                 else:
                     for index, rp in enumerate(sel_rps):
@@ -410,10 +412,10 @@ def make_appendix_plot(rps):
                     ax1.set_xlim(6173.334 - 0.7, 6173.334 + 0.7)
 
                     ax1.set_xticks([6173.334 - 0.5, 6173.334, 6173.334 + 0.5])
-                    ax1.set_xticklabels([-0.5, 0, 0.5])
+                    ax1.set_xticklabels([-0.5, 0, 0.5], fontsize=fontsize)
 
                     if i == 5:
-                        ax1.set_xlabel(r'$\Delta \lambda (\AA)$')
+                        ax1.set_xlabel(r'$\Delta \lambda (\AA)$', fontsize=fontsize)
 
                 k += 1
 
@@ -449,8 +451,8 @@ def plot_profiles():
         ind = np.where(labels == i)[0]
         rps[i] = np.mean(whole_data[ind], 0)
 
-    actual_plotting(labels, rps, name='guess')
-    # make_appendix_plot(rps)
+    # actual_plotting(labels, rps, name='guess')
+    make_appendix_plot(rps)
     f.close()
 
 
