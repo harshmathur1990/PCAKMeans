@@ -710,7 +710,7 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
 
     gs = gridspec.GridSpec(7, 5)
 
-    gs.update(left=0.1, right=1, top=0.9, bottom=0, wspace=0.0, hspace=0.0)
+    gs.update(left=0.17, right=1, top=0.9, bottom=0.07, wspace=0.0, hspace=0.0)
 
     axs = list()
 
@@ -735,6 +735,10 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
 
     for i in range(7):
         for j in range(5):
+            axs[i][j].set_xticks([])
+            axs[i][j].set_yticks([])
+            axs[i][j].set_xticklabels([])
+            axs[i][j].set_yticklabels([])
             if j == 0:
                 axs[i][j].imshow(
                     whole_data[i, :, :, 29],
@@ -748,12 +752,33 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
                         r'(a) $4000\;\AA$',
                         fontsize=fontsize
                     )
-                axs[i][j].set_ylabel(
-                    r'$t={}s$'.format(
+                axs[i][j].text(
+                    -0.7, 0.4,
+                    r'${}s$'.format(
                         time_arr[time_step[i]]
                     ),
-                    fontsize=fontsize
+                    transform=axs[i][j].transAxes,
+                    fontsize=fontsize,
+                    # rotation=0,
+                    # labelpad=20
                 )
+                if i == 3:
+                    axs[i][j].text(
+                        -0.95, 0.3,
+                        'time',
+                        transform=axs[i][j].transAxes,
+                        fontsize=fontsize,
+                        rotation=90
+                    )
+                if i == 5:
+                    axs[i][j].set_yticks([0])
+                    axs[i][j].set_yticklabels([1.85], fontsize=fontsize)
+
+                if i == 6:
+                    axs[i][j].set_xticks([0])
+                    axs[i][j].set_xticklabels([0], fontsize=fontsize)
+                    axs[i][j].set_yticks([0])
+                    axs[i][j].set_yticklabels([0], fontsize=fontsize)
             elif j == 1:
                 im = axs[i][j].imshow(
                     blos_6173[i, :, :],
@@ -785,6 +810,11 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
 
                     cbar.ax.xaxis.set_ticks_position('top')
                     cbar.ax.tick_params(colors='white', labelsize=fontsize)
+
+                if i == 6:
+                    axs[i][j].set_xticks([0])
+                    axs[i][j].set_xticklabels([1.85], fontsize=fontsize)
+
             else:
                 axs[i][j].imshow(
                     whole_data[i, :, :, wave_indice[j - 2]],
@@ -831,8 +861,6 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
                 linewidths=0.2,
                 alpha=0.2
             )
-            axs[i][j].set_xticklabels([])
-            axs[i][j].set_yticklabels([])
 
     fig.savefig(
         write_path / 'FoV_{}.pdf'.format(
@@ -894,13 +922,13 @@ def make_nb_image(ref_x, ref_y, time_step, wave_indice, mark_x, mark_y, letter):
     )
 
     axs.text(
-        0.25, 1.00,
-        r'$Ca\;II\;K\;{}\;\AA$'.format(
+        0.15, 1.00,
+        r'$Ca\;II\;K\;{}\;m\AA$'.format(
             np.round(
                 get_relative_velocity(
                     wave_3933[wave_indice]
-                ),
-                2
+                ) * 1000,
+                1
             )
         ),
         transform=axs.transAxes,
@@ -1227,14 +1255,14 @@ def plot_1_profiles(ref_x, ref_y, x1, y1, t1):
     plt.cla()
 
 
-def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, letter, wave_indice, color_list=None):
+def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice_1, time_indice_2, letter, wave_indice, color_list_1=None, color_list_2=None):
     write_path = Path(
         '/home/harsh/Shocks Paper/Shocks Evolution Plots/'
     )
 
     fontsize = 8
 
-    whole_data = get_input_profiles(ref_x, ref_y, get_8542=True, time_step=time_indice)
+    whole_data = get_input_profiles(ref_x, ref_y, get_8542=True, time_step=time_indice_1)
     time = np.round(
         np.arange(0, 8.26*100, 8.26),
         2
@@ -1245,13 +1273,13 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, letter, wa
     plt.cla()
 
     fig, axs = plt.subplots(1, 1, figsize=(1.75, 1.4))
-    plt.subplots_adjust(left=0.26, right=0.99, bottom=0.27, top=0.98)
-    for index, t in enumerate(time_indice):
-        if color_list is not None:
+    plt.subplots_adjust(left=0.28, right=0.99, bottom=0.27, top=0.98)
+    for index, t in enumerate(time_indice_1):
+        if color_list_1 is not None:
             axs.plot(
                 get_relative_velocity(wave_3933[:-1]),
                 whole_data[t, x, y, 0:29],
-                color=color_list[index]
+                color=color_list_1[index]
             )
         else:
             axs.plot(
@@ -1270,7 +1298,7 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, letter, wa
             linewidth=0.5
         )
 
-    if color_list is None:
+    if color_list_1 is None:
         axs.legend(loc="upper right")
 
     axs.text(
@@ -1312,15 +1340,16 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, letter, wa
     plt.clf()
     plt.cla()
 
+    whole_data = get_input_profiles(ref_x, ref_y, get_8542=True, time_step=time_indice_2)
     fig, axs = plt.subplots(1, 1, figsize=(1.75, 1.4))
-    plt.subplots_adjust(left=0.26, right=0.99, bottom=0.27, top=0.98)
+    plt.subplots_adjust(left=0.28, right=0.99, bottom=0.27, top=0.98)
 
-    for index, t in enumerate(time_indice):
-        if color_list is not None:
+    for index, t in enumerate(time_indice_2):
+        if color_list_2 is not None:
             axs.plot(
                 get_relative_velocity_8542(wave_8542),
                 whole_data[t, x, y, 30 + 14:30 + 14 + 20],
-                color=color_list[index]
+                color=color_list_2[index]
             )
         else:
             axs.plot(
@@ -1331,7 +1360,7 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, letter, wa
                 )
             )
 
-    if color_list is None:
+    if color_list_2 is None:
         axs.legend(loc="upper right")
 
     axs.text(
@@ -1375,7 +1404,7 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice, letter, wa
     plt.cla()
 
 
-def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t, color_list, letter, appendix=False, wave_indice=12):
+def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t_1, mark_t_2, color_list_1, color_list_2, letter, appendix=False, wave_indice=12):
     write_path = Path(
         '/home/harsh/Shocks Paper/Shocks Evolution Plots/'
     )
@@ -1393,7 +1422,10 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t, color_list, lette
     plt.cla()
 
     fig, axs = plt.subplots(1, 1, figsize=(1.75, 3.5))
-    plt.subplots_adjust(left=0.32, right=0.99, bottom=0.12, top=0.93)
+    if not appendix:
+        plt.subplots_adjust(left=0.28, right=0.99, bottom=0.05, top=0.86)
+    else:
+        plt.subplots_adjust(left=0.28, right=0.99, bottom=0.13, top=0.9)
     axs.imshow(
         whole_data[time_step, x, y, 0:29],
         extent=[dv[0], dv[-2], time[time_step[0]], time[time_step[-1]]],
@@ -1402,9 +1434,9 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t, color_list, lette
         aspect='auto'
     )
 
-    for i, tt in enumerate(mark_t):
+    for i, tt in enumerate(mark_t_1):
         if not appendix:
-            axs.scatter([0], [time[tt]], color=color_list[i], marker='+')
+            axs.scatter([0], [time[tt]], color=color_list_1[i], marker='+')
         else:
 
             xx = np.round(
@@ -1413,7 +1445,7 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t, color_list, lette
                 ),
                 2
             )
-            axs.scatter([xx], [time[tt]], color=color_list[i], marker='+')
+            axs.scatter([xx], [time[tt]], color=color_list_1[i], marker='+')
 
     if not appendix:
         axs.text(
@@ -1424,8 +1456,12 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t, color_list, lette
             fontsize=fontsize
         )
     axs.set_xticks([-0.5, 0, 0.5])
-    axs.set_xticklabels([-0.5, 0, 0.5])
-    axs.set_xlabel(r'$\Delta \lambda\;(\AA)$', fontsize=fontsize)
+    if not appendix:
+        axs.set_xticklabels([])
+    else:
+        axs.set_xticklabels([-0.5, 0, 0.5], fontsize=fontsize)
+        axs.set_xlabel(r'$\Delta \lambda(\AA)$', fontsize=fontsize)
+    axs.yaxis.set_tick_params(labelsize=fontsize)
     axs.set_ylabel(r'$time\;(seconds)$', fontsize=fontsize)
     axs.set_title(
         r'$Ca\;II\;K$',
@@ -1458,7 +1494,10 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t, color_list, lette
     plt.cla()
 
     fig, axs = plt.subplots(1, 1, figsize=(1.75, 3.5))
-    plt.subplots_adjust(left=0.32, right=0.99, bottom=0.12, top=0.93)
+    if not appendix:
+        plt.subplots_adjust(left=0.28, right=0.99, bottom=0.05, top=0.86)
+    else:
+        plt.subplots_adjust(left=0.28, right=0.99, bottom=0.13, top=0.9)
     axs.imshow(
         whole_data[time_step, x, y, 30 + 14:30 + 14 + 20],
         extent=[dv8542[0], dv8542[-1], time[time_step[0]], time[time_step[-1]]],
@@ -1467,8 +1506,8 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t, color_list, lette
         aspect='auto'
     )
 
-    for i, tt in enumerate(mark_t):
-        axs.scatter([0], [time[tt]], color=color_list[i], marker='+')
+    for i, tt in enumerate(mark_t_2):
+        axs.scatter([0], [time[tt]], color=color_list_2[i], marker='+')
 
     if not appendix:
         axs.text(
@@ -1479,8 +1518,12 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t, color_list, lette
             fontsize=fontsize
         )
     axs.set_xticks([-1, 0, 1])
-    axs.set_xticklabels([-1, 0, 1])
-    axs.set_xlabel(r'$\Delta \lambda\;(\AA)$', fontsize=fontsize)
+    if not appendix:
+        axs.set_xticklabels([])
+    else:
+        axs.set_xticklabels([-1, 0, 1], fontsize=fontsize)
+        axs.set_xlabel(r'$\Delta \lambda(\AA)$', fontsize=fontsize)
+    axs.yaxis.set_tick_params(labelsize=fontsize)
     axs.set_ylabel(r'$time\;(seconds)$', fontsize=fontsize)
     axs.set_title(
         r'$Ca\;II\;8542$',
@@ -1550,21 +1593,23 @@ def make_shock_evolution_plots():
 
     blos_lim = 100
 
-    color_list = ['blue', 'orange', 'red']
+    color_list_2 = ['blue', 'orange', 'red']
+
+    color_list_1 = ['blue', 'green', 'orange', 'brown', 'red']
 
     for i in range(10):
-        plot_new_evolution_diagram(
-            ref_x_list[i],
-            ref_y_list[i],
-            time_step_list[i],
-            wave_indice,
-            mark_list[i][0],
-            mark_list[i][1],
-            mark_list[i][2],
-            FoV_letter_list[i],
-            blos_lim
-        )
-
+        # plot_new_evolution_diagram(
+        #     ref_x_list[i],
+        #     ref_y_list[i],
+        #     time_step_list[i],
+        #     wave_indice,
+        #     mark_list[i][0],
+        #     mark_list[i][1],
+        #     mark_list[i][2],
+        #     FoV_letter_list[i],
+        #     blos_lim
+        # )
+        #
         make_evolution_single_pixel_plot(
             ref_x_list[i],
             ref_y_list[i],
@@ -1573,28 +1618,12 @@ def make_shock_evolution_plots():
             np.array(
                 [
                     mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
+                    mark_list[i][0] - 2 if (mark_list[i][0] - 4) >= 0 else 0,
                     mark_list[i][0],
+                    mark_list[i][0] + 2 if (mark_list[i][0] + 4) < 100 else 99,
                     mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
                 ]
             ),
-            FoV_letter_list[i],
-            wave_indice,
-            color_list
-        )
-
-        start_t = time_step_list[i][0]
-        end_t = time_step_list[i][-1]
-
-        begin_seq = np.arange(start_t-7 if (start_t-7) >= 0 else 0, start_t)
-        end_seq = np.arange(end_t, end_t + 7 if (end_t + 7) < 100 else 99)
-
-        time_step = np.array(list(begin_seq) + list(time_step_list[i]) + list(end_seq))
-        make_lambda_t_curve(
-            ref_x_list[i],
-            ref_y_list[i],
-            mark_list[i][1],
-            mark_list[i][2],
-            time_step,
             np.array(
                 [
                     mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
@@ -1602,35 +1631,77 @@ def make_shock_evolution_plots():
                     mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
                 ]
             ),
-            color_list,
-            FoV_letter_list[i]
-        )
-
-        make_nb_image(
-            ref_x_list[i],
-            ref_y_list[i],
-            np.array([mark_list[i][0]]),
-            wave_indice[0],
-            mark_list[i][1],
-            mark_list[i][2],
-            FoV_letter_list[i]
-        )
-
-        make_lambda_t_curve(
-            ref_x_list[i],
-            ref_y_list[i],
-            mark_list[i][1],
-            mark_list[i][2],
-            time_step,
-            np.array(
-                [
-                    mark_list[i][0]
-                ]
-            ),
-            [color_list[0]],
             FoV_letter_list[i],
-            appendix=True
+            wave_indice,
+            color_list_1,
+            color_list_2
         )
+        #
+        start_t = time_step_list[i][0]
+        end_t = time_step_list[i][-1]
+
+        begin_seq = np.arange(start_t-14 if (start_t-14) >= 0 else 0, start_t)
+        end_seq = np.arange(end_t, end_t + 14 if (end_t + 14) < 100 else 99)
+
+        time_step = np.array(list(begin_seq) + list(time_step_list[i]) + list(end_seq))
+        # make_lambda_t_curve(
+        #     ref_x_list[i],
+        #     ref_y_list[i],
+        #     mark_list[i][1],
+        #     mark_list[i][2],
+        #     time_step,
+        #     np.array(
+        #         [
+        #             mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
+        #             mark_list[i][0] - 2 if (mark_list[i][0] - 4) >= 0 else 0,
+        #             mark_list[i][0],
+        #             mark_list[i][0] + 2 if (mark_list[i][0] + 4) < 100 else 99,
+        #             mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
+        #         ]
+        #     ),
+        #     np.array(
+        #         [
+        #             mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
+        #             mark_list[i][0],
+        #             mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
+        #         ]
+        #     ),
+        #     color_list_1,
+        #     color_list_2,
+        #     FoV_letter_list[i]
+        # )
+        #
+        # make_nb_image(
+        #     ref_x_list[i],
+        #     ref_y_list[i],
+        #     np.array([mark_list[i][0]]),
+        #     wave_indice[0],
+        #     mark_list[i][1],
+        #     mark_list[i][2],
+        #     FoV_letter_list[i]
+        # )
+
+        # make_lambda_t_curve(
+        #     ref_x_list[i],
+        #     ref_y_list[i],
+        #     mark_list[i][1],
+        #     mark_list[i][2],
+        #     time_step,
+        #     np.array(
+        #         [
+        #             mark_list[i][0]
+        #         ]
+        #     ),
+        #     np.array(
+        #         [
+        #             mark_list[i][0]
+        #         ]
+        #     ),
+        #     [color_list_2[0]],
+        #     [color_list_2[0]],
+        #     FoV_letter_list[i],
+        #     appendix=True
+        # )
 
 
 def make_fov_contour():
@@ -2067,5 +2138,5 @@ def get_all_profile_enhancement_data():
 
 
 if __name__ == '__main__':
-    plot_response_functions()
-    # make_shock_evolution_plots()
+    # plot_response_functions()
+    make_shock_evolution_plots()
