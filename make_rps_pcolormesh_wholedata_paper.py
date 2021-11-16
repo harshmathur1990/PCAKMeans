@@ -338,7 +338,7 @@ def make_appendix_plot(rps):
     
     center = rps / cont_array
 
-    fontsize = 8
+    fontsize = 12
 
     for profiles, name in zip([new_quiet_profiles, new_shock_reverse_other_profiles], ['quiet', 'emission']):
 
