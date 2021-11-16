@@ -348,7 +348,7 @@ def make_appendix_plot(rps):
 
         plt.cla()
 
-        fig = plt.figure(figsize=(3.5, 7))
+        fig = plt.figure(figsize=(7, 14))
 
         gs = gridspec.GridSpec(6, 3)
 

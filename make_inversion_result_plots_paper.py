@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from matplotlib.ticker import MultipleLocator
-
+from matplotlib.patches import Patch
 
 inversion_out_file = Path('/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/FoVAtoJ.nc')
 
@@ -63,11 +63,11 @@ def make_line_cut_plots(all_params, time_array, mask, fovName):
 
     all_vmin[0] = np.round(
         all_params[:, 0].min(),
-        2
+        1
     )
     all_vmax[0] = np.round(
         all_params[:, 0].max(),
-        2
+        1
     )
 
     all_vmin[1] = -8
@@ -76,13 +76,15 @@ def make_line_cut_plots(all_params, time_array, mask, fovName):
     all_vmin[2] = 0
     all_vmax[2] = 6
 
+    fontsize = 6
+
     plt.close('all')
 
     plt.clf()
 
     plt.cla()
 
-    fig = plt.figure(figsize=(6, 4))
+    fig = plt.figure(figsize=(3.5, 1.5))
 
     gs = gridspec.GridSpec(2, 3)
 
@@ -113,7 +115,7 @@ def make_line_cut_plots(all_params, time_array, mask, fovName):
                 shading='gouraud'
             )
 
-            axs.tick_params(labelsize=9, colors='black')
+            axs.tick_params(labelsize=fontsize, colors='black')
 
             axs.invert_yaxis()
 
@@ -121,7 +123,8 @@ def make_line_cut_plots(all_params, time_array, mask, fovName):
                 X, Y,
                 mask[i],
                 levels=0,
-                cmap='gray'
+                cmap='gray',
+                linewidths=0.5
             )
 
             axs.set_xticks([])
@@ -135,7 +138,7 @@ def make_line_cut_plots(all_params, time_array, mask, fovName):
                 cbaxes = inset_axes(
                     axs,
                     width="80%",
-                    height="3%",
+                    height="5%",
                     loc='upper center',
                     borderpad=-1
                 )
@@ -146,7 +149,7 @@ def make_line_cut_plots(all_params, time_array, mask, fovName):
                     orientation='horizontal'
                 )
                 cbar.ax.xaxis.set_ticks_position('top')
-                cbar.ax.tick_params(labelsize=9, colors='black')
+                cbar.ax.tick_params(labelsize=fontsize, colors='black')
 
             if j == 0:
 
@@ -156,11 +159,12 @@ def make_line_cut_plots(all_params, time_array, mask, fovName):
                     ),
                     transform=axs.transAxes,
                     color='white',
-                    fontsize='small'
+                    fontsize=fontsize
                 )
 
-                axs.set_yticks([-7, -6, -5, -4, -3, -2, -1, 0])
-                axs.set_yticklabels([-7, -6, -5, -4, -3, -2, -1, 0])
+                axs.set_yticks([-6, -4, -2, 0])
+                axs.set_yticklabels([-6, -4, -2, 0], fontsize=fontsize)
+                axs.yaxis.set_minor_locator(MultipleLocator(1))
 
                 if i == 0:
                     axs.text(
@@ -169,13 +173,13 @@ def make_line_cut_plots(all_params, time_array, mask, fovName):
                         ),
                         transform=axs.transAxes,
                         color='white',
-                        fontsize='small'
+                        fontsize=fontsize
                     )
             k += 1
 
             if i == 1:
                 axs.set_xticks([10, 20, 30, 40])
-                axs.set_xticklabels([10, 20, 30, 40])
+                axs.set_xticklabels([10, 20, 30, 40], fontsize=fontsize)
 
     fig.savefig(
         write_path / 'FoV_{}_linecut.pdf'.format(
@@ -201,6 +205,8 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y):
 
     labels_mask = np.zeros((2, 150, 50), dtype=np.int64)
 
+    fontsize = 6
+
     for ltau_val in [-4.2, -3, -1]:
 
         ltau_index = np.argmin(np.abs(ltau - ltau_val))
@@ -211,11 +217,11 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y):
 
         plt.cla()
 
-        fig = plt.figure(figsize=(7, 3))
+        fig = plt.figure(figsize=(3.5, 1.5))
 
         gs = gridspec.GridSpec(3, 7)
 
-        gs.update(left=0, right=1, top=1, bottom=0, wspace=0.0, hspace=0.0)
+        gs.update(left=0.15, right=1, top=0.85, bottom=0, wspace=0.0, hspace=0.0)
 
         temp = f['all_temp'][index * 7:index * 7 + 7, :, :, ltau_index] / 1e3
         vlos = f['all_vlos'][index * 7:index * 7 + 7, :, :, ltau_index]
@@ -226,15 +232,15 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y):
         # temp_vmax = [np.round(temp[i].max(), 2) for i in range(7)]
 
         if ltau_val == -1:
-            temp_vmin = np.round(temp.min(), 2)
-            temp_vmax = np.round(temp.max(), 2)
+            temp_vmin = np.round(temp.min(), 1)
+            temp_vmax = np.round(temp.max(), 1)
         elif ltau_val == -3:
-            temp_vmin = np.round(temp.min(), 2)
-            temp_vmax = np.round(temp.max(), 2)
+            temp_vmin = np.round(temp.min(), 1)
+            temp_vmax = np.round(temp.max(), 1)
         else:
-            temp_mn = np.round(temp.mean(), 2)
-            temp_sd = np.round(temp.std(), 2)
-            temp_vmin = np.round(temp.min(), 2)
+            temp_mn = np.round(temp.mean(), 1)
+            temp_sd = np.round(temp.std(), 1)
+            temp_vmin = np.round(temp.min(), 1)
             temp_vmax = temp_mn + 4 * temp_sd
 
         if ltau_val == -4.2:
@@ -250,10 +256,6 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y):
         vturb_vmin = 0
         vturb_vmax = 5
 
-        if ltau_val == -4.2:
-            color = 'white'
-        else:
-            color = 'black'
         k = 0
         for i in range(3):
             for j in range(7):
@@ -263,90 +265,91 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y):
                     if j == 0:
                         cbaxes = inset_axes(
                             axs,
-                            width="40%",
-                            height="5%",
-                            loc=4,
-                            borderpad=1
+                            width="8%",
+                            height="70%",
+                            loc='center left',
+                            borderpad=-2
                         )
                         cbar = fig.colorbar(
                             im,
                             cax=cbaxes,
                             ticks=[temp_vmin, temp_vmax],
-                            orientation='horizontal'
+                            orientation='vertical'
                         )
-
-                        cbar.ax.xaxis.set_ticks_position('top')
-                        cbar.ax.tick_params(labelsize=8, colors=color)
-                    if j == 0:
-                        axs.text(
-                            0.4, 0.9,
-                            'FoV {}'.format(
-                                fovNameList[index]
-                            ),
-                            transform=axs.transAxes,
-                            color=color,
-                            fontsize='small'
-                        )
+                        cbar.ax.tick_params(labelsize=fontsize, colors='black')
+                    # if j == 0:
+                    #     axs.text(
+                    #         0.4, 0.9,
+                    #         'FoV {}'.format(
+                    #             fovNameList[index]
+                    #         ),
+                    #         transform=axs.transAxes,
+                    #         color=color,
+                    #         fontsize='small'
+                    #     )
                     axs.text(
-                        0.4, 0.7,
-                        't={}s'.format(
+                        0.2, 1.1,
+                        '{}s'.format(
                             time[start_t + j]
                         ),
                         transform=axs.transAxes,
-                        color=color,
-                        fontsize='small'
+                        color='black',
+                        fontsize=fontsize
                     )
-                    if j == 6:
+                    if j == 0:
                         axs.text(
-                            0.1, 0.5,
+                            -1.2, 1.3,
                             r'$\log(\tau_{{500}})={}$'.format(
                                 ltau_val
                             ),
                             transform=axs.transAxes,
-                            color=color,
-                            fontsize='x-small'
+                            color='black',
+                            fontsize=fontsize
+                        )
+                    if j == 3:
+                        axs.text(
+                            0.3, 1.3,
+                            r'$time$',
+                            transform=axs.transAxes,
+                            color='black',
+                            fontsize=fontsize
                         )
                 elif i == 1:
                     im = axs.imshow(vlos[j], cmap='bwr', origin='lower', vmin=vlos_vmin, vmax=vlos_vmax)
                     if j == 0:
                         cbaxes = inset_axes(
                             axs,
-                            width="40%",
-                            height="5%",
-                            loc=4,
-                            borderpad=1
+                            width="8%",
+                            height="70%",
+                            loc='center left',
+                            borderpad=-2
                         )
                         cbar = fig.colorbar(
                             im,
                             cax=cbaxes,
                             ticks=[vlos_vmin, vlos_vmax],
-                            orientation='horizontal'
+                            orientation='vertical'
                         )
 
-                        cbar.ax.xaxis.set_ticks_position('top')
-                        clr = color
-                        if ltau_val == -4.2:
-                            clr = 'black'
-                        cbar.ax.tick_params(labelsize=9, colors=clr)
+                        cbar.ax.tick_params(labelsize=fontsize, colors='black')
                 else:
                     im = axs.imshow(vturb[j], cmap='copper', origin='lower', vmin=vturb_vmin, vmax=vturb_vmax)
                     if j == 0:
                         cbaxes = inset_axes(
                             axs,
-                            width="40%",
-                            height="5%",
-                            loc=4,
-                            borderpad=1
+                            width="8%",
+                            height="70%",
+                            loc='center left',
+                            borderpad=-2
                         )
                         cbar = fig.colorbar(
                             im,
                             cax=cbaxes,
                             ticks=[vturb_vmin, vturb_vmax],
-                            orientation='horizontal'
+                            orientation='vertical'
                         )
 
-                        cbar.ax.xaxis.set_ticks_position('top')
-                        cbar.ax.tick_params(labelsize=9, colors='white')
+                        cbar.ax.tick_params(labelsize=fontsize, colors='black')
 
                 mask = np.zeros((50, 50), dtype=np.int64)
 
@@ -354,14 +357,35 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y):
                     mask[np.where(labels[j] == profile)] = 1
 
                 if j == 0 or j == (mark_t - start_t):
-                    axs.axvline(x=mark_y, linestyle='--', color='blue')
+                    axs.axvline(x=mark_y, linestyle='--', color='blue', linewidth=0.5)
                     if i == 0:
                         labels_mask[0] = mask[:, mark_y][np.newaxis, :]
                     else:
                         labels_mask[1] = mask[:, mark_y][np.newaxis, :]
 
+                if j == 0:
+                    labels_text_1 = [r'$T$', r'$V_{LOS}$', r'$V_{turb}$']
+                    labels_text_2 = [r'$[kK]$', r'$[kms^{-1}]$', r'$[kms^{-1}]$']
+
+                    axs.text(
+                        -1.2, 0.3,
+                        labels_text_1[i],
+                        transform=axs.transAxes,
+                        color='black',
+                        fontsize=fontsize,
+                        rotation=90
+                    )
+                    axs.text(
+                        -1, 0.3,
+                        labels_text_2[i],
+                        transform=axs.transAxes,
+                        color='black',
+                        fontsize=fontsize,
+                        rotation=90
+                    )
+
                 X, Y = np.meshgrid(range(50), range(50))
-                axs.contour(X, Y, mask, levels=1, color='blue')
+                axs.contour(X, Y, mask, levels=0, colors='blue', linewidths=0.5)
 
                 axs.set_xticks([])
                 axs.set_yticks([])
@@ -453,13 +477,15 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y):
 
     time = np.round(np.arange(0, 826, 8.26), 2)
 
+    fontsize = 8
+
     plt.close('all')
 
     plt.clf()
 
     plt.cla()
 
-    fig = plt.figure(figsize=(6, 4))
+    fig = plt.figure(figsize=(1.75, 4))
 
     k = 0
 
@@ -485,22 +511,22 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y):
                     )
                 )
 
-                handles, labels = axs.get_legend_handles_labels()
-
-                plt.legend(
-                    handles,
-                    labels,
-                    ncol=3,
-                    bbox_to_anchor=(0., 1.02, 1., .102),
-                    loc='lower left',
-                    mode="expand",
-                    borderaxespad=0.
-                )
+                # handles, labels = axs.get_legend_handles_labels()
+                #
+                # plt.legend(
+                #     handles,
+                #     labels,
+                #     ncol=3,
+                #     bbox_to_anchor=(0., 1.02, 1., .102),
+                #     loc='lower left',
+                #     mode="expand",
+                #     borderaxespad=0.
+                # )
 
                 axs.set_ylim(tmin, tmax)
                 axs.set_yticks(np.arange(tmin + 0.5, tmax, 0.5))
-                axs.set_yticklabels(np.arange(tmin + 0.5, tmax, 0.5))
-                axs.set_ylabel(r'$\delta T[kK]$')
+                axs.set_yticklabels(np.arange(tmin + 0.5, tmax, 0.5), fontsize=fontsize)
+                axs.set_ylabel(r'$\delta T[kK]$', fontsize=fontsize)
                 axs.yaxis.set_minor_locator(MultipleLocator(0.1))
             else:
                 axs.plot(
@@ -511,9 +537,9 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y):
 
                 axs.set_ylim(vmin, vmax)
                 axs.set_yticks(np.arange(vmin + 2, vmax, 2))
-                axs.set_yticklabels(np.arange(vmin + 2, vmax, 2))
-                axs.set_ylabel(r'$V_{LOS}[kms^{-1}]$')
-                axs.set_xlabel(r'$Time\;(s)$')
+                axs.set_yticklabels(np.arange(vmin + 2, vmax, 2), fontsize=fontsize)
+                axs.set_ylabel(r'$V_{LOS}[kms^{-1}]$', fontsize=fontsize)
+                axs.set_xlabel(r'$Time\;(s)$', fontsize=fontsize)
                 axs.yaxis.set_minor_locator(MultipleLocator(0.5))
 
             # axs.grid(True, ls='--', alpha=0.5)
@@ -535,7 +561,7 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y):
             'FoV {}'.format(fovNameList[index_f]),
             transform=axs.transAxes,
             color='black',
-            fontsize='small'
+            fontsize=fontsize
         )
         k += 1
 
@@ -547,17 +573,57 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y):
         format='pdf'
     )
 
+
+def make_legend():
+    log_t_values = np.array([-4.2, -3, -1])
+    color = ['blue', 'green', 'orange']
+    label_list = list()
+
+    for log_t in log_t_values:
+        label_list.append(
+            r'$\log (\tau_{{500}})={}$'.format(
+                log_t
+            )
+        )
+
+    handles = [Patch(color=c, label=l) for l, c in zip(label_list, color)]
+    fontsize = 5
+    plt.close('all')
+    plt.clf()
+    plt.cla()
+
+    fig = plt.figure(figsize=(3.5, 3.5))
+    legend = plt.legend(
+        handles,
+        label_list,
+        ncol=3,
+        bbox_to_anchor=(0., 1.02, 1., .102),
+        loc='lower left',
+        mode="expand",
+        borderaxespad=0.,
+        fontsize=fontsize
+    )
+    fig.canvas.draw()
+    bbox = legend.get_window_extent().padded(2)
+    bbox = bbox.transformed(fig.dpi_scale_trans.inverted())
+    fig.savefig(write_path / 'legends.pdf', dpi=300, transparent=True, bbox_inches=bbox)
+
+    plt.close('all')
+    plt.clf()
+    plt.cla()
+
+
 if __name__ == '__main__':
-    plot_data_for_result_plots(0,  4,  6, 18)
-    plot_data_for_result_plots(1, 14, 16, 15)
-    plot_data_for_result_plots(2, 17, 20, 27)
-    plot_data_for_result_plots(3, 32, 35, 20)
-    plot_data_for_result_plots(4, 12, 15, 22)
-    plot_data_for_result_plots(5, 57, 59, 28)
-    plot_data_for_result_plots(6, 93, 97, 22)
-    plot_data_for_result_plots(7,  7, 11, 16)
-    plot_data_for_result_plots(8,  8, 11, 21)
-    plot_data_for_result_plots(9,  9, 12, 28)
+    # plot_data_for_result_plots(0,  4,  6, 18)
+    # plot_data_for_result_plots(1, 14, 16, 15)
+    # plot_data_for_result_plots(2, 17, 20, 27)
+    # plot_data_for_result_plots(3, 32, 35, 20)
+    # plot_data_for_result_plots(4, 12, 15, 22)
+    # plot_data_for_result_plots(5, 57, 59, 28)
+    # plot_data_for_result_plots(6, 93, 97, 22)
+    # plot_data_for_result_plots(7,  7, 11, 16)
+    # plot_data_for_result_plots(8,  8, 11, 21)
+    # plot_data_for_result_plots(9,  9, 12, 28)
     make_time_evolution_plots(0,  4, 25, 18)
     make_time_evolution_plots(1, 14, 16, 15)
     make_time_evolution_plots(2, 17, 23, 27)
@@ -568,3 +634,4 @@ if __name__ == '__main__':
     make_time_evolution_plots(7,  7, 22, 16)
     make_time_evolution_plots(8,  8, 26, 21)
     make_time_evolution_plots(9,  9, 28, 28)
+    # make_legend()

@@ -1882,6 +1882,8 @@ def plot_response_functions():
 
     inp_profiles, syn_profiles, response, atmos_param = get_response_function_data()
 
+    fontsize = 8
+
     plt.close('all')
 
     plt.clf()
@@ -1954,10 +1956,10 @@ def plot_response_functions():
             axs.set_yticks([0,  -1, -2, -3, -4, -5, -6, -7])
 
             if i == 2:
-                axs.set_xlabel(r'$\lambda\;(\AA)$')
+                axs.set_xlabel(r'$\lambda\;(\AA)$', fontsize=fontsize)
 
                 axs.set_xticks([-0.5, 0, 0.5])
-                axs.set_xticklabels([-0.5, 0, 0.5])
+                axs.set_xticklabels([-0.5, 0, 0.5], fontsize=fontsize)
 
                 cbaxes = inset_axes(axs, width="30%", height="3%", loc=3)
                 cbar = fig.colorbar(
@@ -1968,16 +1970,18 @@ def plot_response_functions():
                 )
                 cbar.ax.xaxis.set_ticks_position('top')
 
+                cbar.ax.tick_params(labelsize=fontsize, colors='black')
+
             if j == 0:
 
-                axs.set_ylabel(r'$log(\tau_{500})$')
-                axs.set_yticklabels([0, -1, -2, -3, -4, -5, -6, -7])
+                axs.set_ylabel(r'$log(\tau_{500})$', fontsize=fontsize)
+                axs.set_yticklabels([0, -1, -2, -3, -4, -5, -6, -7], fontsize=fontsize)
 
                 axs.text(
                     0.55, 0.05, 't={}s'.format(time[tind]),
                     transform=axs.transAxes,
-                    color='black'#,
-                    #fontsize='xx-small'
+                    color='black',
+                    fontsize=fontsize
                 )
 
                 axs2.set_xlim(-8, 8)
@@ -1986,12 +1990,12 @@ def plot_response_functions():
                     axs.text(
                         0.05, 0.9, 'FoV A',
                         transform=axs.transAxes,
-                        color='black'#,
-                        #fontsize='xx-small'
+                        color='black',
+                        fontsize=fontsize
                     )
                     axs2.set_xticks([-5, 0, 5])
-                    axs2.set_xlabel(r'$V_{LOS}[kms^{-1}]$')
-                    axs2.set_xticklabels([-5, 0, 5])
+                    axs2.set_xlabel(r'$V_{LOS}[kms^{-1}]$', fontsize=fontsize)
+                    axs2.set_xticklabels([-5, 0, 5], fontsize=fontsize)
 
             if j == 1:
                 
@@ -1999,8 +2003,8 @@ def plot_response_functions():
 
                 if i == 0:
                     axs2.set_xticks([0, 1, 2, 3, 4, 5, 6])
-                    axs2.set_xlabel(r'$V_{turb}[kms^{-1}]$')
-                    axs2.set_xticklabels([0, 1, 2, 3, 4, 5, 6])
+                    axs2.set_xlabel(r'$V_{turb}[kms^{-1}]$', fontsize=fontsize)
+                    axs2.set_xticklabels([0, 1, 2, 3, 4, 5, 6], fontsize=fontsize)
                     
             if j == 2:
 
@@ -2008,8 +2012,8 @@ def plot_response_functions():
                 
                 if i == 0:
                     axs2.set_xticks([4, 5, 6, 7, 8, 9, 10])
-                    axs2.set_xlabel(r'$T[kK]$')
-                    axs2.set_xticklabels([4, 5, 6, 7, 8, 9, 10])
+                    axs2.set_xlabel(r'$T[kK]$', fontsize=fontsize)
+                    axs2.set_xticklabels([4, 5, 6, 7, 8, 9, 10], fontsize=fontsize)
 
                 axs3 = axs.twinx()
 
@@ -2023,9 +2027,9 @@ def plot_response_functions():
 
                 axs3.set_ylim(0, 0.4)
 
-                axs3.set_ylabel(r'$I/I_{c\;4000\;\AA}$')
+                axs3.set_ylabel(r'$I/I_{c\;4000\;\AA}$', fontsize=fontsize)
                 axs3.set_yticks([0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4])
-                axs3.set_yticklabels([0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4])
+                axs3.set_yticklabels([0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4], fontsize=fontsize)
 
                 # max_indice_ltau, max_indice_wave = np.unravel_index(
                 #     np.argmax(
@@ -2138,5 +2142,5 @@ def get_all_profile_enhancement_data():
 
 
 if __name__ == '__main__':
-    # plot_response_functions()
-    make_shock_evolution_plots()
+    plot_response_functions()
+    # make_shock_evolution_plots()

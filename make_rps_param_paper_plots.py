@@ -278,46 +278,69 @@ def plot_paper_rp_guess_map_plot():
 
     plt.cla()
 
-    fig, axs = plt.subplots(4, 3, figsize=(3.5, 7))
+    fig = plt.figure(figsize=(3.5, 7))
 
-    plt.subplots_adjust(left=0, right=1, top=0.94, bottom=0.04, wspace=0.0, hspace=0.05)
+    # [0][0]
+    gs = gridspec.GridSpec(1, 1)
+    gs.update(left=0, right=0.333, bottom=0.732, top=0.932, wspace=0.0, hspace=0.0)
+    this_axs = fig.add_subplot(gs[0])
+    this_axs.imshow(params[0][0], cmap='gray', origin='lower')
+    this_axs.set_ylim(0, 60)
+    this_axs.set_xticks([])
+    this_axs.set_yticks([])
+    this_axs.set_xticklabels([])
+    this_axs.set_yticklabels([])
+    this_axs.contour(X, Y, mask, levels=1)
+    this_axs.text(0.05, 0.9, r'$\;Continuum\;4000\;\AA$', transform=this_axs.transAxes, fontsize=fontsize)
 
-    cmap = ['gray', 'hot', 'bwr', 'copper']
+    # [0][1]
+    gs = gridspec.GridSpec(1, 1)
+    gs.update(left=0.333, right=0.666, bottom=0.732, top=0.932, wspace=0.0, hspace=0.0)
+    this_axs = fig.add_subplot(gs[0])
+    this_axs.imshow(params[0][1], cmap='gray', origin='lower')
+    this_axs.set_ylim(0, 60)
+    this_axs.set_xticks([])
+    this_axs.set_yticks([])
+    this_axs.set_xticklabels([])
+    this_axs.set_yticklabels([])
+    this_axs.contour(X, Y, mask, levels=1)
+    this_axs.text(0.1, 0.9, r'Ca II K wing', transform=this_axs.transAxes, fontsize=fontsize)
 
-    for i in range(4):
-        for j in range(3):
-            this_axs = axs[i][j]
-            this_axs.set_xticks([])
-            this_axs.set_yticks([])
-            this_axs.set_xticklabels([])
-            this_axs.set_yticklabels([])
-            this_axs.contour(X, Y, mask, levels=1)
+    # [0][2]
+    gs = gridspec.GridSpec(1, 1)
+    gs.update(left=0.666, right=1.0, bottom=0.732, top=0.932, wspace=0.0, hspace=0.0)
+    this_axs = fig.add_subplot(gs[0])
+    this_axs.imshow(params[0][2], cmap='gray', origin='lower')
+    this_axs.set_ylim(0, 60)
+    this_axs.set_xticks([])
+    this_axs.set_yticks([])
+    this_axs.set_xticklabels([])
+    this_axs.set_yticklabels([])
+    this_axs.contour(X, Y, mask, levels=1)
+    this_axs.text(0.1, 0.9, r'Ca II K inner core', transform=this_axs.transAxes, fontsize=fontsize)
 
-    axs[0][0].imshow(params[0][0], cmap='gray', origin='lower')
-    axs[0][1].imshow(params[0][1], cmap='gray', origin='lower')
-    axs[0][2].imshow(params[0][2], cmap='gray', origin='lower')
-
-    im10 = axs[1][0].imshow(params[1][0], cmap='hot', origin='lower', vmin=5.7, vmax=5.9)
-    im11 = axs[1][1].imshow(params[1][1], cmap='hot', origin='lower', vmin=4.2, vmax=5.8)
-    im12 = axs[1][2].imshow(params[1][2], cmap='hot', origin='lower', vmin=4.76, vmax=6.93)
-
-    im20 = axs[2][0].imshow(params[2][0], cmap='bwr', origin='lower', vmin=-2, vmax=2)
-    im21 = axs[2][1].imshow(params[2][1], cmap='bwr', origin='lower', vmin=-2, vmax=2)
-    im22 = axs[2][2].imshow(params[2][2], cmap='bwr', origin='lower', vmin=-6, vmax=6)
-
-    im30 = axs[3][0].imshow(params[3][0], cmap='copper', origin='lower', vmin=0, vmax=4)
-    im31 = axs[3][1].imshow(params[3][1], cmap='copper', origin='lower', vmin=0, vmax=4)
-    im32 = axs[3][2].imshow(params[3][2], cmap='copper', origin='lower', vmin=0, vmax=4)
+    # [1][0]
+    gs = gridspec.GridSpec(1, 1)
+    gs.update(left=0, right=0.333, bottom=0.466, top=0.732, wspace=0.0, hspace=0.0)
+    this_axs = fig.add_subplot(gs[0])
+    im = this_axs.imshow(params[1][0], cmap='hot', origin='lower', vmin=5.7, vmax=5.9)
+    this_axs.set_ylim(0, 80)
+    this_axs.set_xticks([])
+    this_axs.set_yticks([])
+    this_axs.set_xticklabels([])
+    this_axs.set_yticklabels([])
+    this_axs.contour(X, Y, mask, levels=1)
+    this_axs.text(0.1, 0.9, r'${}<\log (\tau_{{500}})<{}$'.format(-1, 0), transform=this_axs.transAxes, fontsize=7)
 
     cbaxes = inset_axes(
-        axs[1][0],
+        this_axs,
         width="70%",
-        height="8%",
-        loc='lower center',
-        borderpad=-1.5
+        height="7%",
+        loc='upper center',
+        borderpad=2.5
     )
     cbar = fig.colorbar(
-        im10,
+        im,
         cax=cbaxes,
         ticks=[5.7, 5.9],
         orientation='horizontal'
@@ -326,15 +349,29 @@ def plot_paper_rp_guess_map_plot():
     # cbar.ax.xaxis.set_ticks_position('top')
     cbar.ax.tick_params(labelsize=fontsize, colors='black')
 
+    # [1][1]
+    gs = gridspec.GridSpec(1, 1)
+    gs.update(left=0.333, right=0.666, bottom=0.466, top=0.732, wspace=0.0, hspace=0.0)
+    this_axs = fig.add_subplot(gs[0])
+    im = this_axs.imshow(params[1][1], cmap='hot', origin='lower', vmin=4.2, vmax=5.8)
+    this_axs.set_ylim(0, 80)
+    this_axs.set_xticks([])
+    this_axs.set_yticks([])
+    this_axs.set_xticklabels([])
+    this_axs.set_yticklabels([])
+    this_axs.contour(X, Y, mask, levels=1)
+    this_axs.text(0.01, 0.9, r'${}<\log (\tau_{{500}})<{}$'.format(-4.5, -3.5), transform=this_axs.transAxes,
+                   fontsize=7)
+
     cbaxes = inset_axes(
-        axs[1][1],
+        this_axs,
         width="70%",
-        height="8%",
-        loc='lower center',
-        borderpad=-1.5
+        height="7%",
+        loc='upper center',
+        borderpad=2.5
     )
     cbar = fig.colorbar(
-        im11,
+        im,
         cax=cbaxes,
         ticks=[4.2, 5.8],
         orientation='horizontal'
@@ -343,32 +380,58 @@ def plot_paper_rp_guess_map_plot():
     # cbar.ax.xaxis.set_ticks_position('top')
     cbar.ax.tick_params(labelsize=fontsize, colors='black')
 
+    # [1][2]
+    gs = gridspec.GridSpec(1, 1)
+    gs.update(left=0.666, right=1.0, bottom=0.466, top=0.732, wspace=0.0, hspace=0.0)
+    this_axs = fig.add_subplot(gs[0])
+    im = this_axs.imshow(params[1][2], cmap='hot', origin='lower', vmin=4.7, vmax=6.9)
+    this_axs.set_ylim(0, 80)
+    this_axs.set_xticks([])
+    this_axs.set_yticks([])
+    this_axs.set_xticklabels([])
+    this_axs.set_yticklabels([])
+    this_axs.contour(X, Y, mask, levels=1)
+    this_axs.text(0.01, 0.9, r'${}<\log (\tau_{{500}})<{}$'.format(-5.5, -4.5), transform=this_axs.transAxes,
+                   fontsize=7)
+
     cbaxes = inset_axes(
-        axs[1][2],
+        this_axs,
         width="70%",
-        height="8%",
-        loc='lower center',
-        borderpad=-1.5
+        height="7%",
+        loc='upper center',
+        borderpad=2.5
     )
     cbar = fig.colorbar(
-        im12,
+        im,
         cax=cbaxes,
-        ticks=[4.76, 6.93],
+        ticks=[4.7, 6.9],
         orientation='horizontal'
     )
 
     # cbar.ax.xaxis.set_ticks_position('top')
     cbar.ax.tick_params(labelsize=fontsize, colors='black')
 
+    # [2][0]
+    gs = gridspec.GridSpec(1, 1)
+    gs.update(left=0, right=0.333, bottom=0.233, top=0.466, wspace=0.0, hspace=0.0)
+    this_axs = fig.add_subplot(gs[0])
+    im = this_axs.imshow(params[2][0], cmap='bwr', origin='lower', vmin=-2, vmax=2)
+    this_axs.set_ylim(0, 70)
+    this_axs.set_xticks([])
+    this_axs.set_yticks([])
+    this_axs.set_xticklabels([])
+    this_axs.set_yticklabels([])
+    this_axs.contour(X, Y, mask, levels=1)
+
     cbaxes = inset_axes(
-        axs[2][0],
+        this_axs,
         width="70%",
-        height="8%",
-        loc='lower center',
-        borderpad=-1.5
+        height="7%",
+        loc='upper center',
+        borderpad=1
     )
     cbar = fig.colorbar(
-        im20,
+        im,
         cax=cbaxes,
         ticks=[-2, 2],
         orientation='horizontal'
@@ -377,15 +440,27 @@ def plot_paper_rp_guess_map_plot():
     # cbar.ax.xaxis.set_ticks_position('top')
     cbar.ax.tick_params(labelsize=fontsize, colors='black')
 
+    # [2][1]
+    gs = gridspec.GridSpec(1, 1)
+    gs.update(left=0.333, right=0.666, bottom=0.233, top=0.466, wspace=0.0, hspace=0.0)
+    this_axs = fig.add_subplot(gs[0])
+    im = this_axs.imshow(params[2][1], cmap='bwr', origin='lower', vmin=-2, vmax=2)
+    this_axs.set_ylim(0, 70)
+    this_axs.set_xticks([])
+    this_axs.set_yticks([])
+    this_axs.set_xticklabels([])
+    this_axs.set_yticklabels([])
+    this_axs.contour(X, Y, mask, levels=1)
+
     cbaxes = inset_axes(
-        axs[2][1],
+        this_axs,
         width="70%",
-        height="8%",
-        loc='lower center',
-        borderpad=-1.5
+        height="7%",
+        loc='upper center',
+        borderpad=1
     )
     cbar = fig.colorbar(
-        im21,
+        im,
         cax=cbaxes,
         ticks=[-2, 2],
         orientation='horizontal'
@@ -394,15 +469,27 @@ def plot_paper_rp_guess_map_plot():
     # cbar.ax.xaxis.set_ticks_position('top')
     cbar.ax.tick_params(labelsize=fontsize, colors='black')
 
+    # [2][2]
+    gs = gridspec.GridSpec(1, 1)
+    gs.update(left=0.666, right=1.0, bottom=0.233, top=0.466, wspace=0.0, hspace=0.0)
+    this_axs = fig.add_subplot(gs[0])
+    im = this_axs.imshow(params[2][2], cmap='bwr', origin='lower', vmin=-6, vmax=6)
+    this_axs.set_ylim(0, 70)
+    this_axs.set_xticks([])
+    this_axs.set_yticks([])
+    this_axs.set_xticklabels([])
+    this_axs.set_yticklabels([])
+    this_axs.contour(X, Y, mask, levels=1)
+
     cbaxes = inset_axes(
-        axs[2][2],
+        this_axs,
         width="70%",
-        height="8%",
-        loc='lower center',
-        borderpad=-1.5
+        height="7%",
+        loc='upper center',
+        borderpad=1
     )
     cbar = fig.colorbar(
-        im22,
+        im,
         cax=cbaxes,
         ticks=[-6, 6],
         orientation='horizontal'
@@ -411,15 +498,27 @@ def plot_paper_rp_guess_map_plot():
     # cbar.ax.xaxis.set_ticks_position('top')
     cbar.ax.tick_params(labelsize=fontsize, colors='black')
 
+    # [3][0]
+    gs = gridspec.GridSpec(1, 1)
+    gs.update(left=0, right=0.333, bottom=0.0, top=0.233, wspace=0.0, hspace=0.0)
+    this_axs = fig.add_subplot(gs[0])
+    im = this_axs.imshow(params[3][0], cmap='copper', origin='lower', vmin=0, vmax=4)
+    this_axs.set_ylim(0, 70)
+    this_axs.set_xticks([])
+    this_axs.set_yticks([])
+    this_axs.set_xticklabels([])
+    this_axs.set_yticklabels([])
+    this_axs.contour(X, Y, mask, levels=1)
+
     cbaxes = inset_axes(
-        axs[3][0],
+        this_axs,
         width="70%",
-        height="8%",
-        loc='lower center',
-        borderpad=-1.5
+        height="7%",
+        loc='upper center',
+        borderpad=1
     )
     cbar = fig.colorbar(
-        im30,
+        im,
         cax=cbaxes,
         ticks=[0, 4],
         orientation='horizontal'
@@ -428,15 +527,27 @@ def plot_paper_rp_guess_map_plot():
     # cbar.ax.xaxis.set_ticks_position('top')
     cbar.ax.tick_params(labelsize=fontsize, colors='black')
 
+    # [3][1]
+    gs = gridspec.GridSpec(1, 1)
+    gs.update(left=0.333, right=0.666, bottom=0.0, top=0.233, wspace=0.0, hspace=0.0)
+    this_axs = fig.add_subplot(gs[0])
+    im = this_axs.imshow(params[3][1], cmap='copper', origin='lower', vmin=0, vmax=4)
+    this_axs.set_ylim(0, 70)
+    this_axs.set_xticks([])
+    this_axs.set_yticks([])
+    this_axs.set_xticklabels([])
+    this_axs.set_yticklabels([])
+    this_axs.contour(X, Y, mask, levels=1)
+
     cbaxes = inset_axes(
-        axs[3][1],
+        this_axs,
         width="70%",
-        height="8%",
-        loc='lower center',
-        borderpad=-1.5
+        height="7%",
+        loc='upper center',
+        borderpad=1
     )
     cbar = fig.colorbar(
-        im31,
+        im,
         cax=cbaxes,
         ticks=[0, 4],
         orientation='horizontal'
@@ -445,15 +556,27 @@ def plot_paper_rp_guess_map_plot():
     # cbar.ax.xaxis.set_ticks_position('top')
     cbar.ax.tick_params(labelsize=fontsize, colors='black')
 
+    # [3][2]
+    gs = gridspec.GridSpec(1, 1)
+    gs.update(left=0.666, right=1.0, bottom=0.0, top=0.233, wspace=0.0, hspace=0.0)
+    this_axs = fig.add_subplot(gs[0])
+    im = this_axs.imshow(params[3][2], cmap='copper', origin='lower', vmin=0, vmax=4)
+    this_axs.set_ylim(0, 70)
+    this_axs.set_xticks([])
+    this_axs.set_yticks([])
+    this_axs.set_xticklabels([])
+    this_axs.set_yticklabels([])
+    this_axs.contour(X, Y, mask, levels=1)
+
     cbaxes = inset_axes(
-        axs[3][2],
+        this_axs,
         width="70%",
-        height="8%",
-        loc='lower center',
-        borderpad=-1.5
+        height="7%",
+        loc='upper center',
+        borderpad=1
     )
     cbar = fig.colorbar(
-        im32,
+        im,
         cax=cbaxes,
         ticks=[0, 4],
         orientation='horizontal'
@@ -463,21 +586,6 @@ def plot_paper_rp_guess_map_plot():
     cbar.ax.tick_params(labelsize=fontsize, colors='black')
 
     fig.suptitle('FoV A', fontsize=fontsize)
-    axs[0][0].set_title(r'$\;Continuum\;4000\;\AA$', fontsize=fontsize)
-    axs[0][1].set_title(r'Ca II K wing', fontsize=fontsize)
-    axs[0][2].set_title(r'Ca II K inner core', fontsize=fontsize)
-
-    axs[1][0].set_title(r'${}<\log (\tau_{{500}})<{}$'.format(-1, 0), fontsize=7)
-    axs[1][1].set_title(r'${}<\log (\tau_{{500}})<{}$'.format(-4.5, -3.5), fontsize=7)
-    axs[1][2].set_title(r'${}<\log (\tau_{{500}})<{}$'.format(-5.5, -4.5), fontsize=7)
-
-    # axs[2][0].text(0.0, 0.1, r'(g) Ca II 8542 core', transform=axs[1][0].transAxes, color='white')
-    # axs[2][1].text(0.0, 0.1, r'(h) Ca II 8542 core', transform=axs[1][1].transAxes, color='white')
-    # axs[2][2].text(0.0, 0.1, r'(i) Ca II 8542 core', transform=axs[1][2].transAxes, color='white')
-    #
-    # axs[3][0].text(0.0, 0.1, r'(j) Ca II 8542 core', transform=axs[2][0].transAxes, color='white')
-    # axs[3][1].text(0.0, 0.1, r'(k) Ca II 8542 core', transform=axs[2][1].transAxes, color='white')
-    # axs[3][2].text(0.0, 0.1, r'(l) Ca II 8542 core', transform=axs[2][2].transAxes, color='white')
 
     fig.savefig(write_path / 'InversionGuessRPs.pdf', format='pdf', dpi=300)
 
@@ -486,6 +594,7 @@ def plot_paper_rp_guess_map_plot():
     plt.clf()
 
     plt.cla()
+
 
 if __name__ == '__main__':
     plot_paper_rp_guess_map_plot()
