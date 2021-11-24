@@ -134,7 +134,7 @@ def plot_fov_results_for_a_pixel(
 
     fig = plt.figure(figsize=(6, 4))
 
-    GridSpec
+    gs = GridSpec(4, 6)
 
     # gs.update(wspace=0.75, hspace=0.75)
 

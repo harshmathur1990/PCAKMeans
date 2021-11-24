@@ -188,22 +188,22 @@ def plot_fov_images():
         transform=axs[1][0].transAxes,
         color='#4E79A7'
     )
-    #fov B
-    fov_2_mask[915:965, 1072:1122] = 1
-    axs[1][0].text(
-        1002 / 1848,
-        915 / 1236,
-        'B',
-        transform=axs[1][0].transAxes,
-        color='#F28E2B'
-    )
+    # #fov B
+    # fov_2_mask[915:965, 1072:1122] = 1
+    # axs[1][0].text(
+    #     1002 / 1848,
+    #     915 / 1236,
+    #     'B',
+    #     transform=axs[1][0].transAxes,
+    #     color='#F28E2B'
+    # )
 
     #fov C
     fov_3_mask[486:536, 974:1024] = 1
     axs[1][0].text(
         1034 / 1848,
         486 / 1236,
-        'C',
+        'B',
         transform=axs[1][0].transAxes,
         color='#E15759'
     )
@@ -213,7 +213,7 @@ def plot_fov_images():
     axs[1][0].text(
         557 / 1848,
         582 / 1236,
-        'D',
+        'C',
         transform=axs[1][0].transAxes,
         color='#76B7B2'
     )
@@ -223,7 +223,7 @@ def plot_fov_images():
     axs[1][0].text(
         265 / 1848,
         810 / 1236,
-        'E',
+        'D',
         transform=axs[1][0].transAxes,
         color='#59A14F'
     )
@@ -233,27 +233,27 @@ def plot_fov_images():
     axs[1][0].text(
         870 / 1848,
         455 / 1236,
-        'F',
+        'E',
         transform=axs[1][0].transAxes,
         color='#EDC948'
     )
 
-    #fov G
-    fov_7_mask[95:145, 600:650] = 1
-    axs[1][0].text(
-        530 / 1848,
-        95 / 1236,
-        'G',
-        transform=axs[1][0].transAxes,
-        color='#B07AA1'
-    )
+    # #fov G
+    # fov_7_mask[95:145, 600:650] = 1
+    # axs[1][0].text(
+    #     530 / 1848,
+    #     95 / 1236,
+    #     'G',
+    #     transform=axs[1][0].transAxes,
+    #     color='#B07AA1'
+    # )
 
     #fov H
     fov_8_mask[315:365, 855:905] = 1
     axs[1][0].text(
         785 / 1848,
         315 / 1236,
-        'H',
+        'F',
         transform=axs[1][0].transAxes,
         color='#FF9DA7'
     )
@@ -263,7 +263,7 @@ def plot_fov_images():
     axs[1][0].text(
         1220 / 1848,
         600 / 1236,
-        'I',
+        'G',
         transform=axs[1][0].transAxes,
         color='#9C755F'
     )
@@ -273,7 +273,7 @@ def plot_fov_images():
     axs[1][0].text(
         785 / 1848,
         535 / 1236,
-        'J',
+        'H',
         transform=axs[1][0].transAxes,
         color='#BAB0AC'
     )
@@ -373,12 +373,12 @@ def plot_fov_images():
     axs[2][0].contour(fov_1_mask, levels=0, extent=extent, origin='lower', colors='#4E79A7')
     axs[2][1].contour(fov_1_mask, levels=0, extent=extent, origin='lower', colors='#4E79A7')
 
-    axs[0][0].contour(fov_2_mask, levels=0, extent=extent, origin='lower', colors='#F28E2B')
-    axs[0][1].contour(fov_2_mask, levels=0, extent=extent, origin='lower', colors='#F28E2B')
-    axs[1][0].contour(fov_2_mask, levels=0, extent=extent, origin='lower', colors='#F28E2B')
-    axs[1][1].contour(fov_2_mask, levels=0, extent=extent, origin='lower', colors='#F28E2B')
-    axs[2][0].contour(fov_2_mask, levels=0, extent=extent, origin='lower', colors='#F28E2B')
-    axs[2][1].contour(fov_2_mask, levels=0, extent=extent, origin='lower', colors='#F28E2B')
+    # axs[0][0].contour(fov_2_mask, levels=0, extent=extent, origin='lower', colors='#F28E2B')
+    # axs[0][1].contour(fov_2_mask, levels=0, extent=extent, origin='lower', colors='#F28E2B')
+    # axs[1][0].contour(fov_2_mask, levels=0, extent=extent, origin='lower', colors='#F28E2B')
+    # axs[1][1].contour(fov_2_mask, levels=0, extent=extent, origin='lower', colors='#F28E2B')
+    # axs[2][0].contour(fov_2_mask, levels=0, extent=extent, origin='lower', colors='#F28E2B')
+    # axs[2][1].contour(fov_2_mask, levels=0, extent=extent, origin='lower', colors='#F28E2B')
 
     axs[0][0].contour(fov_3_mask, levels=0, extent=extent, origin='lower', colors='#E15759')
     axs[0][1].contour(fov_3_mask, levels=0, extent=extent, origin='lower', colors='#E15759')
@@ -408,12 +408,12 @@ def plot_fov_images():
     axs[2][0].contour(fov_6_mask, levels=0, extent=extent, origin='lower', colors='#EDC948')
     axs[2][1].contour(fov_6_mask, levels=0, extent=extent, origin='lower', colors='#EDC948')
 
-    axs[0][0].contour(fov_7_mask, levels=0, extent=extent, origin='lower', colors='#B07AA1')
-    axs[0][1].contour(fov_7_mask, levels=0, extent=extent, origin='lower', colors='#B07AA1')
-    axs[1][0].contour(fov_7_mask, levels=0, extent=extent, origin='lower', colors='#B07AA1')
-    axs[1][1].contour(fov_7_mask, levels=0, extent=extent, origin='lower', colors='#B07AA1')
-    axs[2][0].contour(fov_7_mask, levels=0, extent=extent, origin='lower', colors='#B07AA1')
-    axs[2][1].contour(fov_7_mask, levels=0, extent=extent, origin='lower', colors='#B07AA1')
+    # axs[0][0].contour(fov_7_mask, levels=0, extent=extent, origin='lower', colors='#B07AA1')
+    # axs[0][1].contour(fov_7_mask, levels=0, extent=extent, origin='lower', colors='#B07AA1')
+    # axs[1][0].contour(fov_7_mask, levels=0, extent=extent, origin='lower', colors='#B07AA1')
+    # axs[1][1].contour(fov_7_mask, levels=0, extent=extent, origin='lower', colors='#B07AA1')
+    # axs[2][0].contour(fov_7_mask, levels=0, extent=extent, origin='lower', colors='#B07AA1')
+    # axs[2][1].contour(fov_7_mask, levels=0, extent=extent, origin='lower', colors='#B07AA1')
 
     axs[0][0].contour(fov_8_mask, levels=0, extent=extent, origin='lower', colors='#FF9DA7')
     axs[0][1].contour(fov_8_mask, levels=0, extent=extent, origin='lower', colors='#FF9DA7')

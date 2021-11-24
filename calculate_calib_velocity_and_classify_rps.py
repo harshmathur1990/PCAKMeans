@@ -417,6 +417,12 @@ very_strong_shocks_profiles = np.array(
     ]
 )
 
+very_very_strong_shocks_profiles = np.array(
+    [
+        78
+    ]
+)
+
 emerging_reverse_shock_profiles = np.array(
     [
         41, 83, 64, 33, 3
@@ -491,11 +497,20 @@ def get_very_strong_shocks_mask(arr):
 
     mask = np.zeros_like(arr)
 
-    for i in list([78]):
+    for i in list(very_strong_shocks_profiles):
         mask[np.where(arr == i)] = 1
 
     return mask
 
+
+def get_very_very_strong_shocks_mask(arr):
+
+    mask = np.zeros_like(arr)
+
+    for i in list(very_very_strong_shocks_profiles):
+        mask[np.where(arr == i)] = 1
+
+    return mask
 
 def get_reverse_shocks_mask(arr):
 
@@ -835,31 +850,55 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
                         ),
                         fontsize=fontsize
                     )
-                if i == 1:
-                    if j == 4:
-                        fig.suptitle(
-                            r'$FOV\;{}$'.format(
-                                letter
-                            ),
-                            fontsize=fontsize
-                        )
+                # if i == 1:
+                #     if j == 4:
+                #         fig.suptitle(
+                #             r'$FOV\;{}$'.format(
+                #                 letter
+                #             ),
+                #             fontsize=fontsize
+                #         )
 
             if mark_t == time_step[i] and j == 2:
                 axs[i][j].scatter(
                     mark_y, mark_x,
                     marker='+',
-                    color='blue'
+                    color='blue',
+                    linewidths=0.5
                 )
 
+            lightblue = '#5089C6'
+            mediumdarkblue = '#035397'
+            darkblue = '#001E6C'
             mask = get_shocks_mask(labels[i])
             mask[np.where(mask >= 1)] = 1
-            color='blue'
             axs[i][j].contour(
                 mask,
                 origin='lower',
-                colors=color,
-                linewidths=0.2,
-                alpha=0.2
+                colors=lightblue,
+                linewidths=1,
+                alpha=1,
+                levels=0
+            )
+            mask = get_very_strong_shocks_mask(labels[i])
+            mask[np.where(mask >= 1)] = 1
+            axs[i][j].contour(
+                mask,
+                origin='lower',
+                colors=mediumdarkblue,
+                linewidths=1,
+                alpha=1,
+                levels=0
+            )
+            mask = get_very_very_strong_shocks_mask(labels[i])
+            mask[np.where(mask >= 1)] = 1
+            axs[i][j].contour(
+                mask,
+                origin='lower',
+                colors=darkblue,
+                linewidths=1,
+                alpha=1,
+                levels=0
             )
 
     fig.savefig(
@@ -922,7 +961,7 @@ def make_nb_image(ref_x, ref_y, time_step, wave_indice, mark_x, mark_y, letter):
     )
 
     axs.text(
-        0.15, 1.00,
+        0.15, 1.005,
         r'$Ca\;II\;K\;{}\;m\AA$'.format(
             np.round(
                 get_relative_velocity(
@@ -939,19 +978,44 @@ def make_nb_image(ref_x, ref_y, time_step, wave_indice, mark_x, mark_y, letter):
     axs.scatter(
         mark_y, mark_x,
         marker='+',
-        color='blue'
+        color='blue',
+        linewidths=0.5
     )
 
+    lightblue = '#5089C6'
+    mediumdarkblue = '#035397'
+    darkblue = '#001E6C'
     mask = get_shocks_mask(labels)
     mask[np.where(mask >= 1)] = 1
-    color='blue'
     axs.contour(
         mask,
         origin='lower',
-        colors=color,
-        linewidths=0.2,
-        alpha=0.2
+        colors=lightblue,
+        linewidths=1,
+        alpha=1,
+        levels=0
     )
+    mask = get_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    axs.contour(
+        mask,
+        origin='lower',
+        colors=mediumdarkblue,
+        linewidths=1,
+        alpha=1,
+        levels=0
+    )
+    mask = get_very_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    axs.contour(
+        mask,
+        origin='lower',
+        colors=darkblue,
+        linewidths=0.5,
+        alpha=1,
+        levels=0
+    )
+
     axs.set_xticklabels([])
     axs.set_yticklabels([])
 
@@ -967,6 +1031,7 @@ def make_nb_image(ref_x, ref_y, time_step, wave_indice, mark_x, mark_y, letter):
     plt.clf()
 
     plt.cla()
+
 
 def plot_profile(ref_x, ref_y, x, y, t):
     whole_data = get_input_profiles(ref_x, ref_y)
@@ -1557,18 +1622,22 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t_1, mark_t_2, color
 
 
 def make_shock_evolution_plots():
-    ref_x_list = [662, 915, 486, 582, 810, 455, 95, 315, 600, 535]
+    # ref_x_list = [662, 915, 486, 582, 810, 455, 95, 315, 600, 535]
+    #
+    # ref_y_list = [708, 1072, 974, 627, 335, 940, 600, 855, 1280, 715]
 
-    ref_y_list = [708, 1072, 974, 627, 335, 940, 600, 855, 1280, 715]
+    ref_x_list = [662, 486, 582, 810, 455, 315, 600, 535]
+
+    ref_y_list = [708, 974, 627, 335, 940, 855, 1280, 715]
 
     time_step_list = [
         np.arange(4, 11),
-        np.arange(14, 21),
+        # np.arange(14, 21),
         np.arange(17, 24),
         np.arange(32, 39),
         np.arange(12, 19),
         np.arange(57, 64),
-        np.arange(93, 100),
+        # np.arange(93, 100),
         np.arange(7, 14),
         np.arange(8, 15),
         np.arange(9, 16)
@@ -1576,18 +1645,18 @@ def make_shock_evolution_plots():
 
     mark_list = [
         [6 , 25, 18],
-        [16, 16, 15],
+        # [16, 16, 15],
         [20, 23, 27],
         [35, 29, 20],
         [15, 24, 22],
         [59, 28, 28],
-        [97, 24, 22],
+        # [97, 24, 22],
         [11, 22, 16],
         [11, 26, 21],
         [12, 28, 28]
     ]
 
-    FoV_letter_list = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+    FoV_letter_list = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']  #, 'I', 'J']
 
     wave_indice = np.array([12, 14, 16])
 
@@ -1597,19 +1666,19 @@ def make_shock_evolution_plots():
 
     color_list_1 = ['blue', 'green', 'orange', 'brown', 'red']
 
-    for i in range(10):
-        # plot_new_evolution_diagram(
-        #     ref_x_list[i],
-        #     ref_y_list[i],
-        #     time_step_list[i],
-        #     wave_indice,
-        #     mark_list[i][0],
-        #     mark_list[i][1],
-        #     mark_list[i][2],
-        #     FoV_letter_list[i],
-        #     blos_lim
-        # )
-        #
+    for i in range(8):
+        plot_new_evolution_diagram(
+            ref_x_list[i],
+            ref_y_list[i],
+            time_step_list[i],
+            wave_indice,
+            mark_list[i][0],
+            mark_list[i][1],
+            mark_list[i][2],
+            FoV_letter_list[i],
+            blos_lim
+        )
+
         make_evolution_single_pixel_plot(
             ref_x_list[i],
             ref_y_list[i],
@@ -1636,7 +1705,7 @@ def make_shock_evolution_plots():
             color_list_1,
             color_list_2
         )
-        #
+
         start_t = time_step_list[i][0]
         end_t = time_step_list[i][-1]
 
@@ -1644,64 +1713,64 @@ def make_shock_evolution_plots():
         end_seq = np.arange(end_t, end_t + 14 if (end_t + 14) < 100 else 99)
 
         time_step = np.array(list(begin_seq) + list(time_step_list[i]) + list(end_seq))
-        # make_lambda_t_curve(
-        #     ref_x_list[i],
-        #     ref_y_list[i],
-        #     mark_list[i][1],
-        #     mark_list[i][2],
-        #     time_step,
-        #     np.array(
-        #         [
-        #             mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
-        #             mark_list[i][0] - 2 if (mark_list[i][0] - 4) >= 0 else 0,
-        #             mark_list[i][0],
-        #             mark_list[i][0] + 2 if (mark_list[i][0] + 4) < 100 else 99,
-        #             mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
-        #         ]
-        #     ),
-        #     np.array(
-        #         [
-        #             mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
-        #             mark_list[i][0],
-        #             mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
-        #         ]
-        #     ),
-        #     color_list_1,
-        #     color_list_2,
-        #     FoV_letter_list[i]
-        # )
-        #
-        # make_nb_image(
-        #     ref_x_list[i],
-        #     ref_y_list[i],
-        #     np.array([mark_list[i][0]]),
-        #     wave_indice[0],
-        #     mark_list[i][1],
-        #     mark_list[i][2],
-        #     FoV_letter_list[i]
-        # )
+        make_lambda_t_curve(
+            ref_x_list[i],
+            ref_y_list[i],
+            mark_list[i][1],
+            mark_list[i][2],
+            time_step,
+            np.array(
+                [
+                    mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
+                    mark_list[i][0] - 2 if (mark_list[i][0] - 4) >= 0 else 0,
+                    mark_list[i][0],
+                    mark_list[i][0] + 2 if (mark_list[i][0] + 4) < 100 else 99,
+                    mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
+                ]
+            ),
+            np.array(
+                [
+                    mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
+                    mark_list[i][0],
+                    mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
+                ]
+            ),
+            color_list_1,
+            color_list_2,
+            FoV_letter_list[i]
+        )
 
-        # make_lambda_t_curve(
-        #     ref_x_list[i],
-        #     ref_y_list[i],
-        #     mark_list[i][1],
-        #     mark_list[i][2],
-        #     time_step,
-        #     np.array(
-        #         [
-        #             mark_list[i][0]
-        #         ]
-        #     ),
-        #     np.array(
-        #         [
-        #             mark_list[i][0]
-        #         ]
-        #     ),
-        #     [color_list_2[0]],
-        #     [color_list_2[0]],
-        #     FoV_letter_list[i],
-        #     appendix=True
-        # )
+        make_nb_image(
+            ref_x_list[i],
+            ref_y_list[i],
+            np.array([mark_list[i][0]]),
+            wave_indice[0],
+            mark_list[i][1],
+            mark_list[i][2],
+            FoV_letter_list[i]
+        )
+
+        make_lambda_t_curve(
+            ref_x_list[i],
+            ref_y_list[i],
+            mark_list[i][1],
+            mark_list[i][2],
+            time_step,
+            np.array(
+                [
+                    mark_list[i][0]
+                ]
+            ),
+            np.array(
+                [
+                    mark_list[i][0]
+                ]
+            ),
+            [color_list_2[0]],
+            [color_list_2[0]],
+            FoV_letter_list[i],
+            appendix=True
+        )
 
 
 def make_fov_contour():
@@ -2142,5 +2211,5 @@ def get_all_profile_enhancement_data():
 
 
 if __name__ == '__main__':
-    plot_response_functions()
-    # make_shock_evolution_plots()
+    # plot_response_functions()
+    make_shock_evolution_plots()

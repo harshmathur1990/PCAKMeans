@@ -455,11 +455,15 @@ if __name__ == '__main__':
     #     ([600, 650], [1280, 1330], [8, 15])
     # ]
 
+    # fov_list = [
+    #     ([535, 585], [715, 765], [9, 16]),
+    # ]
+
     fov_list = [
-        ([535, 585], [715, 765], [9, 16]),
+        ([810, 860], [335, 385], [10, 12])
     ]
 
-    write_path = base_path / 'new_kmeans/wholedata_inversions/fov_535_585_715_765/'
+    write_path = base_path / 'new_kmeans/wholedata_inversions/fov_more/'
 
     quiet_frames_list = [[0, 7]]
     shock_reverse_other_frames_list = [[0, 7]]

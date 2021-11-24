@@ -166,15 +166,27 @@ def make_inversion_fit_plot(xs, ys, wave_indice, time_steps, ref_x, ref_y, fovNa
 
                 k += 1
 
-        if l == 0:
-            fig.suptitle(r'$Ca\;II\;K_{2V}$', fontsize=fontsize)
-            fig.savefig(write_path / 'CaIIK2v_fit.pdf', format='pdf', dpi=300)
-        elif l == 1:
-            fig.suptitle(r'$Ca\;II\;K_{3}$', fontsize=fontsize)
-            fig.savefig(write_path / 'CaIIK3_fit.pdf', format='pdf', dpi=300)
-        else:
-            fig.suptitle(r'$Ca\;II\;K_{2R}$', fontsize=fontsize)
-            fig.savefig(write_path / 'CaIIK2r_fit.pdf', format='pdf', dpi=300)
+        fig.suptitle(
+            r'$Ca\;II\;K\;{}\;m\AA$'.format(
+                np.round(
+                    get_relative_velocity(
+                        wave_3933[wave_indice[l]]
+                    ) * 1000,
+                    1
+                )
+            ),
+            fontsize=fontsize
+        )
+        fig.savefig(write_path / 'CaIIk_fit_{}.pdf'.format(l), format='pdf', dpi=300)
+        # if l == 0:
+        #     fig.suptitle(r'$Ca\;II\;K_{2V}$', fontsize=fontsize)
+        #     fig.savefig(write_path / 'CaIIK2v_fit.pdf', format='pdf', dpi=300)
+        # elif l == 1:
+        #     fig.suptitle(r'$Ca\;II\;K_{3}$', fontsize=fontsize)
+        #     fig.savefig(write_path / 'CaIIK3_fit.pdf', format='pdf', dpi=300)
+        # else:
+        #     fig.suptitle(r'$Ca\;II\;K_{2R}$', fontsize=fontsize)
+        #     fig.savefig(write_path / 'CaIIK2r_fit.pdf', format='pdf', dpi=300)
 
     plt.cla()
 
@@ -236,4 +248,4 @@ def make_inversion_fit_plot(xs, ys, wave_indice, time_steps, ref_x, ref_y, fovNa
 
 
 if __name__ == '__main__':
-    make_inversion_fit_plot(662, 708, np.array([11, 13, 15]), np.array([4, 5, 6, 7]), 25, 18, 'A')
+    make_inversion_fit_plot(662, 708, np.array([12, 14, 16]), np.array([4, 5, 6, 7]), 25, 18, 'A')

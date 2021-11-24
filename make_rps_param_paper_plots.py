@@ -7,6 +7,8 @@ from helita.io.lp import *
 import matplotlib.gridspec as gridspec
 from pathlib import Path
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+from calculate_calib_velocity_and_classify_rps import get_shocks_mask, \
+    get_very_strong_shocks_mask, get_very_very_strong_shocks_mask
 
 base_path = Path('/home/harsh/OsloAnalysis')
 
@@ -253,24 +255,14 @@ def plot_paper_rp_guess_map_plot():
 
     params, labels = get_data_for_rps_guess_map_plot()
 
-    mask = np.zeros_like(labels, dtype=np.int64)
-
-    shock_a = list()
-    shock_b = list()
-
-    for profile in strong_shocks_profiles:
-        a, b = np.where(labels == profile)
-        shock_a += list(a)
-        shock_b += list(b)
-
-    shock_a = np.array(shock_a)
-    shock_b = np.array(shock_b)
-
-    mask[shock_a, shock_b] = 1
-
     X, Y = np.meshgrid(range(50), range(50))
 
     fontsize = 8
+
+    lightblue = '#5089C6'
+    mediumdarkblue = '#035397'
+    darkblue = '#001E6C'
+    lwidth = 1
 
     plt.close('all')
 
@@ -290,8 +282,37 @@ def plot_paper_rp_guess_map_plot():
     this_axs.set_yticks([])
     this_axs.set_xticklabels([])
     this_axs.set_yticklabels([])
-    this_axs.contour(X, Y, mask, levels=1)
     this_axs.text(0.05, 0.9, r'$\;Continuum\;4000\;\AA$', transform=this_axs.transAxes, fontsize=fontsize)
+    mask = get_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=lightblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
+    mask = get_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=mediumdarkblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
+    mask = get_very_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=darkblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
 
     # [0][1]
     gs = gridspec.GridSpec(1, 1)
@@ -303,8 +324,37 @@ def plot_paper_rp_guess_map_plot():
     this_axs.set_yticks([])
     this_axs.set_xticklabels([])
     this_axs.set_yticklabels([])
-    this_axs.contour(X, Y, mask, levels=1)
     this_axs.text(0.1, 0.9, r'Ca II K wing', transform=this_axs.transAxes, fontsize=fontsize)
+    mask = get_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=lightblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
+    mask = get_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=mediumdarkblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
+    mask = get_very_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=darkblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
 
     # [0][2]
     gs = gridspec.GridSpec(1, 1)
@@ -316,8 +366,37 @@ def plot_paper_rp_guess_map_plot():
     this_axs.set_yticks([])
     this_axs.set_xticklabels([])
     this_axs.set_yticklabels([])
-    this_axs.contour(X, Y, mask, levels=1)
     this_axs.text(0.1, 0.9, r'Ca II K inner core', transform=this_axs.transAxes, fontsize=fontsize)
+    mask = get_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=lightblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
+    mask = get_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=mediumdarkblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
+    mask = get_very_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=darkblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
 
     # [1][0]
     gs = gridspec.GridSpec(1, 1)
@@ -329,8 +408,37 @@ def plot_paper_rp_guess_map_plot():
     this_axs.set_yticks([])
     this_axs.set_xticklabels([])
     this_axs.set_yticklabels([])
-    this_axs.contour(X, Y, mask, levels=1)
     this_axs.text(0.1, 0.9, r'${}<\log (\tau_{{500}})<{}$'.format(-1, 0), transform=this_axs.transAxes, fontsize=7)
+    mask = get_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=lightblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
+    mask = get_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=mediumdarkblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
+    mask = get_very_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=darkblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
 
     cbaxes = inset_axes(
         this_axs,
@@ -359,9 +467,38 @@ def plot_paper_rp_guess_map_plot():
     this_axs.set_yticks([])
     this_axs.set_xticklabels([])
     this_axs.set_yticklabels([])
-    this_axs.contour(X, Y, mask, levels=1)
     this_axs.text(0.01, 0.9, r'${}<\log (\tau_{{500}})<{}$'.format(-4.5, -3.5), transform=this_axs.transAxes,
                    fontsize=7)
+    mask = get_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=lightblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
+    mask = get_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=mediumdarkblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
+    mask = get_very_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=darkblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
 
     cbaxes = inset_axes(
         this_axs,
@@ -390,9 +527,38 @@ def plot_paper_rp_guess_map_plot():
     this_axs.set_yticks([])
     this_axs.set_xticklabels([])
     this_axs.set_yticklabels([])
-    this_axs.contour(X, Y, mask, levels=1)
     this_axs.text(0.01, 0.9, r'${}<\log (\tau_{{500}})<{}$'.format(-5.5, -4.5), transform=this_axs.transAxes,
                    fontsize=7)
+    mask = get_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=lightblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
+    mask = get_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=mediumdarkblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
+    mask = get_very_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=darkblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
 
     cbaxes = inset_axes(
         this_axs,
@@ -421,7 +587,36 @@ def plot_paper_rp_guess_map_plot():
     this_axs.set_yticks([])
     this_axs.set_xticklabels([])
     this_axs.set_yticklabels([])
-    this_axs.contour(X, Y, mask, levels=1)
+    mask = get_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=lightblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
+    mask = get_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=mediumdarkblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
+    mask = get_very_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=darkblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
 
     cbaxes = inset_axes(
         this_axs,
@@ -450,7 +645,36 @@ def plot_paper_rp_guess_map_plot():
     this_axs.set_yticks([])
     this_axs.set_xticklabels([])
     this_axs.set_yticklabels([])
-    this_axs.contour(X, Y, mask, levels=1)
+    mask = get_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=lightblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
+    mask = get_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=mediumdarkblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
+    mask = get_very_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=darkblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
 
     cbaxes = inset_axes(
         this_axs,
@@ -479,7 +703,36 @@ def plot_paper_rp_guess_map_plot():
     this_axs.set_yticks([])
     this_axs.set_xticklabels([])
     this_axs.set_yticklabels([])
-    this_axs.contour(X, Y, mask, levels=1)
+    mask = get_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=lightblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
+    mask = get_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=mediumdarkblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
+    mask = get_very_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=darkblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
 
     cbaxes = inset_axes(
         this_axs,
@@ -508,7 +761,36 @@ def plot_paper_rp_guess_map_plot():
     this_axs.set_yticks([])
     this_axs.set_xticklabels([])
     this_axs.set_yticklabels([])
-    this_axs.contour(X, Y, mask, levels=1)
+    mask = get_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=lightblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
+    mask = get_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=mediumdarkblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
+    mask = get_very_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=darkblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
 
     cbaxes = inset_axes(
         this_axs,
@@ -537,7 +819,36 @@ def plot_paper_rp_guess_map_plot():
     this_axs.set_yticks([])
     this_axs.set_xticklabels([])
     this_axs.set_yticklabels([])
-    this_axs.contour(X, Y, mask, levels=1)
+    mask = get_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=lightblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
+    mask = get_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=mediumdarkblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
+    mask = get_very_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=darkblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
 
     cbaxes = inset_axes(
         this_axs,
@@ -566,7 +877,36 @@ def plot_paper_rp_guess_map_plot():
     this_axs.set_yticks([])
     this_axs.set_xticklabels([])
     this_axs.set_yticklabels([])
-    this_axs.contour(X, Y, mask, levels=1)
+    mask = get_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=lightblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
+    mask = get_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=mediumdarkblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
+    mask = get_very_very_strong_shocks_mask(labels)
+    mask[np.where(mask >= 1)] = 1
+    this_axs.contour(
+        mask,
+        origin='lower',
+        colors=darkblue,
+        linewidths=lwidth,
+        alpha=1,
+        levels=0
+    )
 
     cbaxes = inset_axes(
         this_axs,

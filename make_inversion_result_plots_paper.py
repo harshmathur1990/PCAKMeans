@@ -6,6 +6,8 @@ import matplotlib.gridspec as gridspec
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from matplotlib.ticker import MultipleLocator
 from matplotlib.patches import Patch
+from calculate_calib_velocity_and_classify_rps import get_shocks_mask, \
+    get_very_strong_shocks_mask, get_very_very_strong_shocks_mask
 
 inversion_out_file = Path('/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/FoVAtoJ.nc')
 
@@ -56,7 +58,7 @@ write_path = Path(
     '/home/harsh/Shocks Paper/InversionMaps/'
 )
 
-def make_line_cut_plots(all_params, time_array, mask, fovName):
+def make_line_cut_plots(all_params, time_array, mask, fovName, vlos_min_lc=None, vlos_max_lc=None):
 
     all_vmin = np.zeros(3)
     all_vmax = np.zeros(3)
@@ -70,8 +72,8 @@ def make_line_cut_plots(all_params, time_array, mask, fovName):
         1
     )
 
-    all_vmin[1] = -8
-    all_vmax[1] = 8
+    all_vmin[1] = -8 if vlos_min_lc is None else vlos_min_lc
+    all_vmax[1] = 8 if vlos_max_lc is None else vlos_max_lc
 
     all_vmin[2] = 0
     all_vmax[2] = 6
@@ -122,9 +124,9 @@ def make_line_cut_plots(all_params, time_array, mask, fovName):
             axs.contour(
                 X, Y,
                 mask[i],
-                levels=0,
-                cmap='gray',
-                linewidths=0.5
+                colors='black',
+                linewidths=0.5,
+                levels=0
             )
 
             axs.set_xticks([])
@@ -197,7 +199,7 @@ def make_line_cut_plots(all_params, time_array, mask, fovName):
     plt.cla()
 
 
-def plot_data_for_result_plots(index, start_t, mark_t, mark_y):
+def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_lc=None, vlos_max_lc=None):
 
     time = np.round(np.arange(0, 826, 8.26), 2)
 
@@ -277,16 +279,7 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y):
                             orientation='vertical'
                         )
                         cbar.ax.tick_params(labelsize=fontsize, colors='black')
-                    # if j == 0:
-                    #     axs.text(
-                    #         0.4, 0.9,
-                    #         'FoV {}'.format(
-                    #             fovNameList[index]
-                    #         ),
-                    #         transform=axs.transAxes,
-                    #         color=color,
-                    #         fontsize='small'
-                    #     )
+
                     axs.text(
                         0.2, 1.1,
                         '{}s'.format(
@@ -351,14 +344,12 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y):
 
                         cbar.ax.tick_params(labelsize=fontsize, colors='black')
 
-                mask = np.zeros((50, 50), dtype=np.int64)
-
-                for profile in list(strong_shocks_profiles):
-                    mask[np.where(labels[j] == profile)] = 1
+                mask = get_shocks_mask(labels[j])
+                mask[np.where(mask >= 1)] = 1
 
                 if j == 0 or j == (mark_t - start_t):
                     axs.axvline(x=mark_y, linestyle='--', color='blue', linewidth=0.5)
-                    if i == 0:
+                    if j == 0:
                         labels_mask[0] = mask[:, mark_y][np.newaxis, :]
                     else:
                         labels_mask[1] = mask[:, mark_y][np.newaxis, :]
@@ -384,8 +375,39 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y):
                         rotation=90
                     )
 
-                X, Y = np.meshgrid(range(50), range(50))
-                axs.contour(X, Y, mask, levels=0, colors='blue', linewidths=0.5)
+                lightblue = '#5089C6'
+                mediumdarkblue = '#035397'
+                darkblue = '#001E6C'
+                mask = get_shocks_mask(labels[j])
+                mask[np.where(mask >= 1)] = 1
+                axs.contour(
+                    mask,
+                    origin='lower',
+                    colors=lightblue,
+                    linewidths=0.7,
+                    alpha=1,
+                    levels=0
+                )
+                mask = get_very_strong_shocks_mask(labels[j])
+                mask[np.where(mask >= 1)] = 1
+                axs.contour(
+                    mask,
+                    origin='lower',
+                    colors=mediumdarkblue,
+                    linewidths=0.7,
+                    alpha=1,
+                    levels=0
+                )
+                mask = get_very_very_strong_shocks_mask(labels[j])
+                mask[np.where(mask >= 1)] = 1
+                axs.contour(
+                    mask,
+                    origin='lower',
+                    colors=darkblue,
+                    linewidths=0.7,
+                    alpha=1,
+                    levels=0
+                )
 
                 axs.set_xticks([])
                 axs.set_yticks([])
@@ -395,7 +417,7 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y):
 
         fig.savefig(
             write_path / 'Inversion_FoV_{}_lt_{}.pdf'.format(
-                fovNameList[index],
+                letter,
                 ltau_val
             ),
             dpi=300,
@@ -408,7 +430,7 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y):
 
     plt.cla()
 
-    fovName = fovNameList[index]
+    fovName = letter
 
     time_array = time[np.array([start_t, mark_t])]
 
@@ -431,10 +453,10 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y):
         axes=(0, 2, 1)
     )
 
-    make_line_cut_plots(all_params, time_array, labels_mask, fovName)
+    make_line_cut_plots(all_params, time_array, labels_mask, fovName, vlos_min_lc, vlos_max_lc)
 
 
-def make_time_evolution_plots(index_f, start_t, mark_x, mark_y):
+def make_time_evolution_plots(index_f, start_t, mark_x, mark_y, letter):
 
     log_t_values = np.array([-4.2, -3, -1])
 
@@ -511,18 +533,6 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y):
                     )
                 )
 
-                # handles, labels = axs.get_legend_handles_labels()
-                #
-                # plt.legend(
-                #     handles,
-                #     labels,
-                #     ncol=3,
-                #     bbox_to_anchor=(0., 1.02, 1., .102),
-                #     loc='lower left',
-                #     mode="expand",
-                #     borderaxespad=0.
-                # )
-
                 axs.set_ylim(tmin, tmax)
                 axs.set_yticks(np.arange(tmin + 0.5, tmax, 0.5))
                 axs.set_yticklabels(np.arange(tmin + 0.5, tmax, 0.5), fontsize=fontsize)
@@ -558,7 +568,7 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y):
 
         axs.text(
             0.1, 0.9,
-            'FoV {}'.format(fovNameList[index_f]),
+            'FoV {}'.format(letter),
             transform=axs.transAxes,
             color='black',
             fontsize=fontsize
@@ -568,13 +578,16 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y):
     fig.tight_layout()
 
     fig.savefig(
-        write_path / 'FoV_{}_param_variation.pdf'.format(fovNameList[index_f]),
+        write_path / 'FoV_{}_param_variation.pdf'.format(letter),
         dpi=300,
         format='pdf'
     )
 
 
 def make_legend():
+    # write_path_2 = Path(
+    #     '/home/harsh/Shocks Paper/InversionStats/'
+    # )
     log_t_values = np.array([-4.2, -3, -1])
     color = ['blue', 'green', 'orange']
     label_list = list()
@@ -592,7 +605,7 @@ def make_legend():
     plt.clf()
     plt.cla()
 
-    fig = plt.figure(figsize=(3.5, 3.5))
+    fig = plt.figure(figsize=(7,7))
     legend = plt.legend(
         handles,
         label_list,
@@ -613,17 +626,316 @@ def make_legend():
     plt.cla()
 
 
+def make_legend_average():
+    write_path_2 = Path(
+        '/home/harsh/Shocks Paper/InversionStats/'
+    )
+    log_t_values = [[-5.5, -4.5], [-4.5, -3.5], [-1, 0]]
+    color = ['blue', 'green', 'orange']
+    label_list = list()
+
+    for log_t in log_t_values:
+        label_list.append(
+            r'${}\leq\log (\tau_{{500}})\leq{}$'.format(
+                log_t[0], log_t[1]
+            )
+        )
+
+    handles = [Patch(color=c, label=l) for l, c in zip(label_list, color)]
+    fontsize = 5
+    plt.close('all')
+    plt.clf()
+    plt.cla()
+
+    fig = plt.figure(figsize=(7, 7))
+    legend = plt.legend(
+        handles,
+        label_list,
+        ncol=3,
+        bbox_to_anchor=(0., 1.02, 1., .102),
+        loc='lower left',
+        mode="expand",
+        borderaxespad=0.,
+        fontsize=fontsize
+    )
+    fig.canvas.draw()
+    bbox = legend.get_window_extent().padded(2)
+    bbox = bbox.transformed(fig.dpi_scale_trans.inverted())
+    fig.savefig(write_path_2 / 'legends_average.pdf', dpi=300, transparent=True, bbox_inches=bbox)
+
+    plt.close('all')
+    plt.clf()
+    plt.cla()
+
+
+def get_data_for_pre_shock_peak_shock_temp_scatter_plot(index_list, mark_t_list):
+    interesting_tau = [-4.2, -3, -1]
+
+    interesting_tau_indice = np.zeros(3, dtype=np.int64)
+
+    for indd, tau in enumerate(interesting_tau):
+        interesting_tau_indice[indd] = np.argmin(np.abs(ltau - tau))
+
+    out_file = Path('/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/FoVAtoJ.nc')
+
+    pre_temp = None
+    peak_temp_delta_t = None
+    vlos_shock = None
+
+    f = h5py.File(out_file, 'r')
+
+    for index, mark_t in zip(index_list, mark_t_list):
+        indices = np.array(
+            [
+                index * 7,
+                index * 7 + mark_t
+            ]
+        )
+
+        all_temp = f['all_temp'][indices][:, :, :, interesting_tau_indice] / 1e3
+
+        all_vlos = f['all_vlos'][indices][:, :, :, interesting_tau_indice]
+
+        labels = f['all_labels'][indices[1]]
+
+        mask_shock = np.zeros((50, 50), dtype=np.int64)
+
+        for profile in list([78, 18]):
+            mask_shock[np.where(labels == profile)] = 1
+
+        a, b = np.where(mask_shock == 1)
+
+        if pre_temp is None:
+            pre_temp = all_temp[0][a, b]
+        else:
+            pre_temp = np.vstack([pre_temp, all_temp[0][a, b]])
+
+        if peak_temp_delta_t is None:
+            peak_temp_delta_t = np.subtract(
+                all_temp[1][a, b],
+                all_temp[0][a, b]
+            )
+        else:
+            peak_temp_delta_t = np.vstack(
+                [
+                    peak_temp_delta_t,
+                    np.subtract(
+                        all_temp[1][a, b],
+                        all_temp[0][a, b]
+                    )
+                ]
+            )
+
+        if vlos_shock is None:
+            vlos_shock = all_vlos[1, a, b]
+        else:
+            vlos_shock = np.vstack([vlos_shock, all_vlos[1, a, b]])
+
+    f.close()
+
+    return pre_temp, peak_temp_delta_t, vlos_shock
+
+
+def get_data_for_pre_shock_peak_shock_temp_scatter_plot_average(index_list, mark_t_list):
+    interesting_tau = [[-5.5, -4.5], [-4.5, -3.5], [-1, 0]]
+
+    interesting_tau_indice = list()
+
+    for indd, tau_l in enumerate(interesting_tau):
+        interesting_tau_indice.append(
+            np.where((ltau >= tau_l[0]) & (ltau <= tau_l[1]))[0]
+        )
+
+    out_file = Path('/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/FoVAtoJ.nc')
+
+    pre_temp = None
+    peak_temp_delta_t = None
+    vlos_shock = None
+
+    f = h5py.File(out_file, 'r')
+
+    for index, mark_t in zip(index_list, mark_t_list):
+        indices = np.array(
+            [
+                index * 7,
+                index * 7 + mark_t
+            ]
+        )
+
+        all_temp = np.zeros((2, 50, 50, 3), dtype=np.float64)
+        all_vlos = np.zeros((2, 50, 50, 3), dtype=np.float64)
+
+        for intt, a_interesting_tau_indice in enumerate(interesting_tau_indice):
+            all_temp[:, :, :, intt] = np.mean(
+                f['all_temp'][indices][:, :, :, a_interesting_tau_indice] / 1e3,
+                3
+            )
+
+            all_vlos[:, :, :, intt] = np.mean(
+                f['all_vlos'][indices][:, :, :, a_interesting_tau_indice],
+                3
+            )
+
+        labels = f['all_labels'][indices[1]]
+
+        mask_shock = np.zeros((50, 50), dtype=np.int64)
+
+        for profile in list([78, 18]):
+            mask_shock[np.where(labels == profile)] = 1
+
+        a, b = np.where(mask_shock == 1)
+
+        if pre_temp is None:
+            pre_temp = all_temp[0][a, b]
+        else:
+            pre_temp = np.vstack([pre_temp, all_temp[0][a, b]])
+
+        if peak_temp_delta_t is None:
+            peak_temp_delta_t = np.subtract(
+                all_temp[1][a, b],
+                all_temp[0][a, b]
+            )
+        else:
+            peak_temp_delta_t = np.vstack(
+                [
+                    peak_temp_delta_t,
+                    np.subtract(
+                        all_temp[1][a, b],
+                        all_temp[0][a, b]
+                    )
+                ]
+            )
+
+        if vlos_shock is None:
+            vlos_shock = all_vlos[1, a, b]
+        else:
+            vlos_shock = np.vstack([vlos_shock, all_vlos[1, a, b]])
+
+    f.close()
+
+    return pre_temp, peak_temp_delta_t, vlos_shock
+
+
+def make_pre_shock_peak_shock_temp_vlos_scatter_plot():
+    write_path = Path('/home/harsh/Shocks Paper/InversionStats/')
+
+    size = plt.rcParams['lines.markersize']
+
+    pre_temp, peak_temp_delta_t, vlos_shock = get_data_for_pre_shock_peak_shock_temp_scatter_plot(
+        [0, 2, 3, 4, 5, 7, 8, 9],
+        [2, 3, 3, 3, 3, 4, 3, 3]
+    )
+
+    fontsize = 8
+
+    plt.close('all')
+
+    plt.clf()
+
+    plt.cla()
+
+    plt.subplots_adjust(left=0.15, right=0.99, bottom=0.18, top=0.99)
+
+    plt.scatter(pre_temp[:, 0], peak_temp_delta_t[:, 0], color='blue', label=r'$log(\tau_{500}) = -4.2$', s=size / 4)
+
+    plt.scatter(pre_temp[:, 1], peak_temp_delta_t[:, 1], color='green', label=r'$log(\tau_{500}) = -3$', s=size / 4)
+
+    plt.scatter(pre_temp[:, 2], peak_temp_delta_t[:, 2], color='orange', label=r'$log(\tau_{500}) = -1$', s=size / 4)
+
+    plt.text(
+        0.05, 0.9,
+        '$(a)$',
+        transform=plt.gca().transAxes,
+        color='black',
+        fontsize=fontsize
+    )
+
+    plt.xlabel(r'$Pre\;Shock\;T\;(kK)$', fontsize=fontsize)
+
+    plt.ylabel(r'$Peak\;Shock\;\Delta T\;(kK)$', fontsize=fontsize)
+
+    fig = plt.gcf()
+
+    fig.set_size_inches(3.5, 2.33, forward=True)
+
+    # fig.tight_layout()
+
+    fig.savefig(write_path / 'PreShockPeakShockTemp.pdf', format='pdf', dpi=300)
+
+    plt.close('all')
+
+    plt.clf()
+
+    plt.cla()
+
+    plt.subplots_adjust(left=0.15, right=0.99, bottom=0.18, top=0.99)
+
+    plt.scatter(vlos_shock[:, 0], peak_temp_delta_t[:, 0], color='blue', label=r'$log(\tau_{500}) = -4.2$', s=size / 4)
+
+    plt.scatter(vlos_shock[:, 1], peak_temp_delta_t[:, 1], color='green', label=r'$log(\tau_{500}) = -3$', s=size / 4)
+
+    plt.scatter(vlos_shock[:, 2], peak_temp_delta_t[:, 2], color='orange', label=r'$log(\tau_{500}) = -1$', s=size / 4)
+
+    plt.text(
+        0.05, 0.9,
+        '$(b)$',
+        transform=plt.gca().transAxes,
+        color='black',
+        fontsize=fontsize
+    )
+
+    plt.xlabel(r'$V_{LOS}\;Shock\;[Kms^{-1}]$', fontsize=fontsize)
+
+    plt.ylabel(r'$Peak\;Shock\;\Delta T\;(kK)$', fontsize=fontsize)
+
+    fig = plt.gcf()
+
+    fig.set_size_inches(3.5, 2.33, forward=True)
+
+    # fig.tight_layout()
+
+    fig.savefig(write_path / 'PeakShockTempVlos.pdf', format='pdf', dpi=300)
+
+    plt.close('all')
+
+    plt.clf()
+
+    plt.cla()
+
+
 if __name__ == '__main__':
-    # plot_data_for_result_plots(0,  4,  6, 18)
-    # plot_data_for_result_plots(1, 14, 16, 15)
-    # plot_data_for_result_plots(2, 17, 20, 27)
-    # plot_data_for_result_plots(3, 32, 35, 20)
-    # plot_data_for_result_plots(4, 12, 15, 22)
-    # plot_data_for_result_plots(5, 57, 59, 28)
-    # plot_data_for_result_plots(6, 93, 97, 22)
-    # plot_data_for_result_plots(7,  7, 11, 16)
-    # plot_data_for_result_plots(8,  8, 11, 21)
-    # plot_data_for_result_plots(9,  9, 12, 28)
+    plot_data_for_result_plots(0, 4, 6, 18, 'A')
+    plot_data_for_result_plots(2, 17, 20, 27, 'B', -4, 4)
+    plot_data_for_result_plots(3, 32, 35, 20, 'C')
+    plot_data_for_result_plots(4, 12, 15, 22, 'D')
+    plot_data_for_result_plots(5, 57, 60, 28, 'E')
+    plot_data_for_result_plots(7, 7, 11, 16, 'F')
+    plot_data_for_result_plots(8, 8, 11, 21, 'G')
+    plot_data_for_result_plots(9, 9, 12, 28, 'H')
+    # make_time_evolution_plots(0, 4, 25, 18, 'A')
+    # make_time_evolution_plots(2, 17, 23, 27, 'B')
+    # make_time_evolution_plots(3, 32, 29, 20, 'C')
+    # make_time_evolution_plots(4, 12, 24, 22, 'D')
+    # make_time_evolution_plots(5, 57, 28, 28, 'E')
+    # make_time_evolution_plots(7, 7, 22, 16, 'F')
+    # make_time_evolution_plots(8, 8, 26, 21, 'G')
+    # make_time_evolution_plots(9, 9, 28, 28, 'H')
+    # make_legend()
+    # make_legend_average()
+    # make_pre_shock_peak_shock_temp_vlos_scatter_plot()
+
+    '''
+    ## OLD NOT USED
+    plot_data_for_result_plots(0,  4,  6, 18)
+    plot_data_for_result_plots(1, 14, 16, 15)
+    plot_data_for_result_plots(2, 17, 20, 27)
+    plot_data_for_result_plots(3, 32, 35, 20)
+    plot_data_for_result_plots(4, 12, 15, 22)
+    plot_data_for_result_plots(5, 57, 59, 28)
+    plot_data_for_result_plots(6, 93, 97, 22)
+    plot_data_for_result_plots(7,  7, 11, 16)
+    plot_data_for_result_plots(8,  8, 11, 21)
+    plot_data_for_result_plots(9,  9, 12, 28)
     make_time_evolution_plots(0,  4, 25, 18)
     make_time_evolution_plots(1, 14, 16, 15)
     make_time_evolution_plots(2, 17, 23, 27)
@@ -634,4 +946,4 @@ if __name__ == '__main__':
     make_time_evolution_plots(7,  7, 22, 16)
     make_time_evolution_plots(8,  8, 26, 21)
     make_time_evolution_plots(9,  9, 28, 28)
-    # make_legend()
+    '''
