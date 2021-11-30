@@ -124,27 +124,67 @@ def do_work(x, y, read_path):
 
     f = tb.open_file(output_file, mode='a')
 
-    populations = f.populations
+    populations = f.root.populations
 
     populations[:, x, y, :] = out.atmos.nH.T
 
-    a_voigt = f.a_voigt
+    a_voigt = f.root.a_voigt
 
     a_voigt[:, x, y, :] = out.damping_H.adamp
 
-    Cul = f.Cul
+    Cul = f.root.Cul
 
     # this is [lower-upper] as RH stores upper->lower in the indice [lower, upper]
-    transition_list = [(0, 3), (0, 1), (0, 7), (0, 4), (1, 5), (1, 5), (3, 5), (3, 8), (6, 8)]
+    transition_list = [(0, 3), (0, 1), (0, 4), (0, 7), (1, 5), (3, 5), (3, 8), (3, 6)]
 
     for indice, (ii, jj) in enumerate(transition_list):
         Cul[indice, x, y, :] = np.array([out.collrate_H.C_rates[kk].C[ii,jj] for kk in range(127)])
 
-    eta_c = f.eta_c
+    eta_c = f.root.eta_c
 
-    
+    wave_indices = [1220, 1241, 827, 821, 3332, 3484, 3422, 3444]
+
+    for indice, wave_indice in enumerate(wave_indices):
+        eta_c[indice, x, y, :] = np.array(out.opacity.opacity[wave_indice].chi)
+
+    eps_c = f.root.eps_c
+
+    for indice, wave_indice in enumerate(wave_indices):
+        eta_c[indice, x, y, :] = np.array(out.opacity.opacity[wave_indice].eta)
+
+    f.close()
+
     os.chdir(cwd)
     return Status.Work_done
+
+
+def make_ray_file():
+
+    os.chdir('/home/harsh/CourseworkRepo/rh/rhv2src/rhf1d/run_3')
+
+    out = rh.readOutFiles()
+
+    wave = np.array(out.spect.lambda0)
+
+    indices = list()
+
+    interesting_waves = [121.5668, 121.5673, 102.5722, 102.5721, 656.275, 656.290, 656.2851, 656.2867, 500]
+
+    for w in interesting_waves:
+        indices.append(
+            np.argmin(np.abs(wave-w))
+        )
+
+    f = open('ray.input', 'w')
+
+    f.write('1.00\n')
+    f.write(
+        '{} {}'.format(
+            len(indices),
+            ' '.join([str(indice) for indice in indices])
+        )
+    )
+    f.close()
 
 
 if __name__ == '__main__':
@@ -153,53 +193,51 @@ if __name__ == '__main__':
     rank = comm.Get_rank()
     size = comm.Get_size()
 
+    if output_file.exists():
+        if rank == 0:
+            f = h5py.File(output_file, 'r')
+            job_matrix = f['job_matrix'][()].astype(np.int64)
+            f.close()
+
+    else:
+        f = h5py.File(output_file, mode='w', driver='mpio', comm=MPI.COMM_WORLD)
+        job_matrix = np.zeros((504, 504), dtype=np.int64)
+        f.create_dataset("job_matrix", job_matrix, "Job Tracker")
+        f.create_dataset(
+           'populations',
+            np.zeros((13, 504, 504, 127), dtype=np.float64),
+            "level Populations"
+        )
+        f.create_dataset(
+           'a_voigt',
+            np.zeros((8, 504, 504, 127), dtype=np.float64),
+            "Damping Parameter"
+        )
+        f.create_dataset(
+            "/",
+            'Cul',
+            np.zeros((8, 504, 504, 127), dtype=np.float64),
+            "Collisional De-excitation rate"
+        )
+        f.create_dataset(
+            "/",
+            'eta_c',
+            np.zeros((8, 504, 504, 127), dtype=np.float64),
+            "Continuum Opacity"
+        )
+        f.create_dataset(
+            "/",
+            'eps_c',
+            np.zeros((8, 504, 504, 127), dtype=np.float64),
+            "Continuum Emissivity"
+        )
+        f.close()
     if rank == 0:
         status = MPI.Status()
         waiting_queue = set()
         running_queue = set()
         finished_queue = set()
         failure_queue = set()
-
-        if output_file.exists():
-            f = h5py.File(output_file, 'r')
-            job_matrix = f['job_matrix'][()].astype(np.int64)
-            f.close()
-
-        else:
-            f = tb.open_file(output_file, mode='w', title='RH Data')
-            job_matrix = np.zeros((504, 504), dtype=np.int64)
-            f.create_array("/", "job_matrix", job_matrix, "Job Tracker")
-            f.create_array(
-                "/",
-                'populations',
-                np.zeros((13, 504, 504, 127), dtype=np.float64),
-                "level Populations"
-            )
-            f.create_array(
-                "/",
-                'a_voigt',
-                np.zeros((8, 504, 504, 127), dtype=np.float64),
-                "Damping Parameter"
-            )
-            f.create_array(
-                "/",
-                'Cul',
-                np.zeros((8, 504, 504, 127), dtype=np.float64),
-                "Collisional De-excitation rate"
-            )
-            f.create_array(
-                "/",
-                'eta_c',
-                np.zeros((8, 504, 504, 127), dtype=np.float64),
-                "Continuum Opacity"
-            )
-            f.create_array(
-                "/",
-                'eps_c',
-                np.zeros((8, 504, 504, 127), dtype=np.float64),
-                "Continuum Emissivity"
-            )
-            f.close()
 
         x, y = np.where(job_matrix == 0)
 
