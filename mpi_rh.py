@@ -122,15 +122,16 @@ def do_work(x, y, read_path):
 
     out = rh.readOutFiles(atoms=['H'])
 
-    populations[:, x, y, :] = out.atmos.nH.T
+    np.savetxt('populations.txt', out.atmos.nH.T)
 
-    a_voigt[:, x, y, :] = out.damping_H.adamp
+    np.savetxt('a_voigt.txt', out.damping_H.adamp)
 
     # this is [lower-upper] as RH stores upper->lower in the indice [lower, upper]
     transition_list = [(0, 3), (0, 1), (0, 4), (0, 7), (1, 5), (3, 5), (3, 8), (3, 6)]
 
+    cularr = np.zeros((8, 127), dtype=np.float64)
     for indice, (ii, jj) in enumerate(transition_list):
-        Cul[indice, x, y, :] = np.array([out.collrate_H.C_rates[kk].C[ii,jj] for kk in range(127)])
+        cularr[indice] = np.array([out.collrate_H.C_rates[kk].C[ii,jj] for kk in range(127)])
 
     wave_indices = [1220, 1241, 827, 821, 3332, 3484, 3422, 3444]
 
@@ -138,7 +139,7 @@ def do_work(x, y, read_path):
         eta_c[indice, x, y, :] = np.array(out.opacity.opacity[wave_indice].chi)
 
     for indice, wave_indice in enumerate(wave_indices):
-        eta_c[indice, x, y, :] = np.array(out.opacity.opacity[wave_indice].eta)
+        eps_c[indice, x, y, :] = np.array(out.opacity.opacity[wave_indice].eta)
 
     job_matrix[x, y] = 1
 
@@ -278,13 +279,6 @@ if __name__ == '__main__':
             comm.send(work_type, dest=worker, tag=1)
 
     if rank > 0:
-        sub_dir_path = rh_run_base_dirs / 'runs'/ sub_dir_format.format(rank)
-        sub_dir_path.mkdir(parents=True, exist_ok=True)
-        for input_file in input_filelist:
-            shutil.copy(
-                rh_run_base_dirs / input_file,
-                sub_dir_path / input_file
-            )
         while 1:
             work_type = comm.recv(source=0, tag=1)
 
@@ -292,6 +286,14 @@ if __name__ == '__main__':
                 break
 
             item, x, y = work_type['item']
+
+            sub_dir_path = rh_run_base_dirs / 'runs' / 'pixel_{}_{}'.format(x, y)
+            sub_dir_path.mkdir(parents=True, exist_ok=True)
+            for input_file in input_filelist:
+                shutil.copy(
+                    rh_run_base_dirs / input_file,
+                    sub_dir_path / input_file
+                )
 
             commands = [
                 'rm -rf *.dat',
@@ -333,6 +335,6 @@ if __name__ == '__main__':
             process.communicate()
 
             status = do_work(x, y, sub_dir_path)
-            comm.send({'status': status, 'item': (item, x, y)}, dest=0, tag=2)
+            comm.send({'status': Status.Work_done, 'item': (item, x, y)}, dest=0, tag=2)
 
     f.close()
