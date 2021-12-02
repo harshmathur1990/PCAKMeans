@@ -300,7 +300,7 @@ if __name__ == '__main__':
 
             item, x, y = work_type['item']
 
-            sub_dir_path = rh_run_base_dirs / 'runs' / 'pixel_{}_{}'.format(x, y)
+            sub_dir_path = rh_run_base_dirs / 'runs' / 'process_{}'.format(rank)
             sub_dir_path.mkdir(parents=True, exist_ok=True)
             for input_file in input_filelist:
                 shutil.copy(
