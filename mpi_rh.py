@@ -13,6 +13,8 @@ import shutil
 from helita.sim import multi
 import subprocess
 import rh
+import time
+
 
 # atmos_file = Path(
 #     '/data/harsh/run_bifrost/Atmos/bifrost_en024048_hion_0_504_0_504_-500000.0_2000000.0.nc'
@@ -122,16 +124,16 @@ def do_work(x, y, read_path):
 
     out = rh.readOutFiles(atoms=['H'])
 
-    np.savetxt('populations.txt', out.atmos.nH.T)
+    populations[:, x, y, :] = out.atmos.nH.T
 
-    np.savetxt('a_voigt.txt', out.damping_H.adamp)
+    a_voigt[:, x, y, :] = out.damping_H.adamp
 
     # this is [lower-upper] as RH stores upper->lower in the indice [lower, upper]
     transition_list = [(0, 3), (0, 1), (0, 4), (0, 7), (1, 5), (3, 5), (3, 8), (3, 6)]
 
-    cularr = np.zeros((8, 127), dtype=np.float64)
+    # cularr = np.zeros((8, 127), dtype=np.float64)
     for indice, (ii, jj) in enumerate(transition_list):
-        cularr[indice] = np.array([out.collrate_H.C_rates[kk].C[ii,jj] for kk in range(127)])
+        Cul[indice, x, y, :] = np.array([out.collrate_H.C_rates[kk].C[ii,jj] for kk in range(127)])
 
     wave_indices = [1220, 1241, 827, 821, 3332, 3484, 3422, 3444]
 
@@ -184,7 +186,8 @@ if __name__ == '__main__':
     size = comm.Get_size()
 
     if output_file.exists():
-        f = h5py.File(output_file, mode='a', driver='mpio', comm=MPI.COMM_WORLD)
+        f = h5py.File(output_file, mode='a', driver='mpio', comm=MPI.COMM_WORLD, libver='latest')
+        # f.swmr_mode = True
         job_matrix = f['job_matrix']
         populations = f['populations']
         a_voigt = f['a_voigt']
@@ -193,7 +196,8 @@ if __name__ == '__main__':
         eps_c = f['eps_c']
 
     else:
-        f = h5py.File(output_file, mode='w', driver='mpio', comm=MPI.COMM_WORLD)
+        f = h5py.File(output_file, mode='w', driver='mpio', comm=MPI.COMM_WORLD, libver='latest')
+        # f.swmr_mode = True
         job_matrix = f.create_dataset("job_matrix", (504, 504), dtype=np.int64)
         populations = f.create_dataset(
            'populations',
@@ -224,7 +228,16 @@ if __name__ == '__main__':
         finished_queue = set()
         failure_queue = set()
 
-        x, y = np.where(job_matrix[()] == 0)
+        start_x = int(sys.argv[1])
+        end_x = int(sys.argv[2])
+        start_y = int(sys.argv[3])
+        end_y = int(sys.argv[4])
+
+        x, y = np.where(job_matrix[start_x:end_x, start_y:end_y] == 0)
+
+        x = x + start_x
+
+        y = y + start_y
 
         for i in range(x.size):
             waiting_queue.add(i)
@@ -304,6 +317,7 @@ if __name__ == '__main__':
                 'rm -rf MAG_FIELD.B'
             ]
 
+            start_time = time.time()
             for cmd in commands:
                 process = subprocess.Popen(
                     cmd,
@@ -314,7 +328,19 @@ if __name__ == '__main__':
                 )
                 process.communicate()
 
+            sys.stdout.write(
+                'Rank: {} RH Remove Files Time: {}\n'.format(
+                    rank, time.time() - start_time
+                )
+            )
+
+            start_time = time.time()
             write_atmos_files(sub_dir_path, x, y)
+            sys.stdout.write(
+                'Rank: {} RH Make Atmosphere Files Time: {}\n'.format(
+                    rank, time.time() - start_time
+                )
+            )
 
             # cmdstr = '/home/harsh/RH-Old/rhf1d/rhf1d'
 
@@ -324,6 +350,7 @@ if __name__ == '__main__':
                 cmdstr
             )
 
+            start_time = time.time()
             process = subprocess.Popen(
                 command,
                 cwd=str(sub_dir_path),
@@ -334,7 +361,19 @@ if __name__ == '__main__':
 
             process.communicate()
 
+            sys.stdout.write(
+                'Rank: {} RH Run Time: {}\n'.format(
+                    rank, time.time() - start_time
+                )
+            )
+
+            start_time = time.time()
             status = do_work(x, y, sub_dir_path)
+            sys.stdout.write(
+                'Rank: {} RH Save Time: {}\n'.format(
+                    rank, time.time() - start_time
+                )
+            )
             comm.send({'status': Status.Work_done, 'item': (item, x, y)}, dest=0, tag=2)
 
     f.close()
