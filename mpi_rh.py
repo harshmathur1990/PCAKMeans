@@ -32,6 +32,8 @@ output_file = Path('/home/harsh/BifrostRun/bifrost_supplementary_outputs_using_R
 
 rh_run_base_dirs = Path('/home/harsh/BifrostRun/run_bifrost_dirs')
 
+stop_file = rh_run_base_dirs / 'stop'
+
 sub_dir_format = 'process_{}'
 
 input_filelist = [
@@ -185,6 +187,8 @@ if __name__ == '__main__':
     rank = comm.Get_rank()
     size = comm.Get_size()
 
+    stop_work = False
+
     if output_file.exists():
         f = h5py.File(output_file, mode='a', driver='mpio', comm=MPI.COMM_WORLD, libver='latest')
         # f.swmr_mode = True
@@ -256,6 +260,11 @@ if __name__ == '__main__':
         sys.stdout.write('Finished First Phase\n')
 
         while len(running_queue) != 0 or len(waiting_queue) != 0:
+
+            if stop_work == False and stop_file.exists():
+                stop_work = True
+                waiting_queue = set()
+                stop_file.unlink()
 
             status_dict = comm.recv(
                 source=MPI.ANY_SOURCE,
