@@ -301,6 +301,14 @@ if __name__ == '__main__':
             comm.send(work_type, dest=worker, tag=1)
 
     if rank > 0:
+        sub_dir_path = rh_run_base_dirs / 'runs' / 'process_{}'.format(rank)
+        sub_dir_path.mkdir(parents=True, exist_ok=True)
+        for input_file in input_filelist:
+            shutil.copy(
+                rh_run_base_dirs / input_file,
+                sub_dir_path / input_file
+            )
+
         while 1:
             work_type = comm.recv(source=0, tag=1)
 
@@ -309,13 +317,11 @@ if __name__ == '__main__':
 
             item, x, y = work_type['item']
 
-            sub_dir_path = rh_run_base_dirs / 'runs' / 'process_{}'.format(rank)
-            sub_dir_path.mkdir(parents=True, exist_ok=True)
-            for input_file in input_filelist:
-                shutil.copy(
-                    rh_run_base_dirs / input_file,
-                    sub_dir_path / input_file
+            sys.stdout.write(
+                'Rank: {} x: {} y: {} start\n'.format(
+                    rank, xx, yy
                 )
+            )
 
             commands = [
                 'rm -rf *.dat',
@@ -326,7 +332,7 @@ if __name__ == '__main__':
                 'rm -rf MAG_FIELD.B'
             ]
 
-            start_time = time.time()
+            # start_time = time.time()
             for cmd in commands:
                 process = subprocess.Popen(
                     cmd,
@@ -337,19 +343,19 @@ if __name__ == '__main__':
                 )
                 process.communicate()
 
-            sys.stdout.write(
-                'Rank: {} RH Remove Files Time: {}\n'.format(
-                    rank, time.time() - start_time
-                )
-            )
+            # sys.stdout.write(
+            #     'Rank: {} RH Remove Files Time: {}\n'.format(
+            #         rank, time.time() - start_time
+            #     )
+            # )
 
-            start_time = time.time()
+            # start_time = time.time()
             write_atmos_files(sub_dir_path, x, y)
-            sys.stdout.write(
-                'Rank: {} RH Make Atmosphere Files Time: {}\n'.format(
-                    rank, time.time() - start_time
-                )
-            )
+            # sys.stdout.write(
+            #     'Rank: {} RH Make Atmosphere Files Time: {}\n'.format(
+            #         rank, time.time() - start_time
+            #     )
+            # )
 
             # cmdstr = '/home/harsh/RH-Old/rhf1d/rhf1d'
 
@@ -359,7 +365,7 @@ if __name__ == '__main__':
                 cmdstr
             )
 
-            start_time = time.time()
+            # start_time = time.time()
             process = subprocess.Popen(
                 command,
                 cwd=str(sub_dir_path),
@@ -370,19 +376,19 @@ if __name__ == '__main__':
 
             process.communicate()
 
-            sys.stdout.write(
-                'Rank: {} RH Run Time: {}\n'.format(
-                    rank, time.time() - start_time
-                )
-            )
+            # sys.stdout.write(
+            #     'Rank: {} RH Run Time: {}\n'.format(
+            #         rank, time.time() - start_time
+            #     )
+            # )
 
-            start_time = time.time()
+            # start_time = time.time()
             status = do_work(x, y, sub_dir_path)
-            sys.stdout.write(
-                'Rank: {} RH Save Time: {}\n'.format(
-                    rank, time.time() - start_time
-                )
-            )
+            # sys.stdout.write(
+            #     'Rank: {} RH Save Time: {}\n'.format(
+            #         rank, time.time() - start_time
+            #     )
+            # )
             comm.send({'status': Status.Work_done, 'item': (item, x, y)}, dest=0, tag=2)
 
     f.close()
