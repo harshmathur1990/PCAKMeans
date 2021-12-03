@@ -319,7 +319,7 @@ if __name__ == '__main__':
 
             sys.stdout.write(
                 'Rank: {} x: {} y: {} start\n'.format(
-                    rank, xx, yy
+                    rank, x, y
                 )
             )
 
