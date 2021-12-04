@@ -26,7 +26,7 @@ atmos_file = Path(
 
 # output_file = Path('/data/harsh/bifrost_supplementary_outputs_using_RH/output.nc')
 
-output_file = Path('/home/harsh/BifrostRun/bifrost_supplementary_outputs_using_RH/output.nc')
+output_path = Path('/home/harsh/BifrostRun/bifrost_supplementary_outputs_using_RH/')
 
 # rh_run_base_dirs = Path('/data/harsh/run_bifrost_dirs')
 
@@ -120,32 +120,55 @@ class Status(enum.Enum):
 
 def do_work(x, y, read_path):
 
+    write_path = output_path / 'pixel_{}_{}'.format(x, y)
+
+    write_path.mkdir(parents=True, exist_ok=True)
+
+    f = h5py.File(write_path / 'data.h5', 'w')
+
     cwd = os.getcwd()
 
     os.chdir(read_path)
 
     out = rh.readOutFiles(atoms=['H'])
 
-    populations[:, x, y, :] = out.atmos.nH.T
+    # populations[:, x, y, :] = out.atmos.nH.T
 
-    a_voigt[:, x, y, :] = out.damping_H.adamp
+    f['populations'] = out.atmos.nH.T
+
+    # a_voigt[:, x, y, :] = out.damping_H.adamp
+
+    f['a_voigt'] = out.damping_H.adamp
 
     # this is [lower-upper] as RH stores upper->lower in the indice [lower, upper]
     transition_list = [(0, 3), (0, 1), (0, 4), (0, 7), (1, 5), (3, 5), (3, 8), (3, 6)]
 
-    # cularr = np.zeros((8, 127), dtype=np.float64)
+    cularr = np.zeros((8, 127), dtype=np.float64)
     for indice, (ii, jj) in enumerate(transition_list):
-        Cul[indice, x, y, :] = np.array([out.collrate_H.C_rates[kk].C[ii,jj] for kk in range(127)])
+            # Cul[indice, x, y, :] = np.array([out.collrate_H.C_rates[kk].C[ii,jj] for kk in range(127)])
+            cularr[indice] = np.array([out.collrate_H.C_rates[kk].C[ii,jj] for kk in range(127)])
+
+    f['cularr'] = cularr
 
     wave_indices = [1220, 1241, 827, 821, 3332, 3484, 3422, 3444]
 
+    eta_c = np.zeros((8, 127), dtype=np.float64)
     for indice, wave_indice in enumerate(wave_indices):
-        eta_c[indice, x, y, :] = np.array(out.opacity.opacity[wave_indice].chi)
+        # eta_c[indice, x, y, :] = np.array(out.opacity.opacity[wave_indice].chi)
+        eta_c[indice] = np.array(out.opacity.opacity[wave_indice].chi)
 
+    f['eta_c'] = eta_c
+
+    eps_c = np.zeros((8, 127), dtype=np.float64)
     for indice, wave_indice in enumerate(wave_indices):
-        eps_c[indice, x, y, :] = np.array(out.opacity.opacity[wave_indice].eta)
+        # eps_c[indice, x, y, :] = np.array(out.opacity.opacity[wave_indice].eta)
+        eps_c[indice] = np.array(out.opacity.opacity[wave_indice].eta)
 
-    job_matrix[x, y] = 1
+    f['eps_c'] = eps_c
+
+    f.close()
+
+    # job_matrix[x, y] = 1
 
     os.chdir(cwd)
 
@@ -189,42 +212,6 @@ if __name__ == '__main__':
 
     stop_work = False
 
-    if output_file.exists():
-        f = h5py.File(output_file, mode='a', driver='mpio', comm=MPI.COMM_WORLD, libver='latest')
-        # f.swmr_mode = True
-        job_matrix = f['job_matrix']
-        populations = f['populations']
-        a_voigt = f['a_voigt']
-        Cul = f['Cul']
-        eta_c = f['eta_c']
-        eps_c = f['eps_c']
-
-    else:
-        f = h5py.File(output_file, mode='w', driver='mpio', comm=MPI.COMM_WORLD, libver='latest')
-        # f.swmr_mode = True
-        job_matrix = f.create_dataset("job_matrix", (504, 504), dtype=np.int64)
-        populations = f.create_dataset(
-           'populations',
-            (13, 504, 504, 127), dtype=np.float64
-        )
-        a_voigt = f.create_dataset(
-           'a_voigt',
-            (8, 504, 504, 127), dtype=np.float64
-        )
-        Cul = f.create_dataset(
-           'Cul',
-            (8, 504, 504, 127), dtype=np.float64
-        )
-        eta_c = f.create_dataset(
-            'eta_c',
-            (8, 504, 504, 127), dtype=np.float64
-        )
-        eps_c = f.create_dataset(
-            'eps_c',
-            (8, 504, 504, 127), dtype=np.float64
-        )
-        job_matrix[:, :] = 0
-
     if rank == 0:
         status = MPI.Status()
         waiting_queue = set()
@@ -237,11 +224,9 @@ if __name__ == '__main__':
         start_y = int(sys.argv[3])
         end_y = int(sys.argv[4])
 
-        x, y = np.where(job_matrix[start_x:end_x, start_y:end_y] == 0)
+        job_matrix = np.zeros((504, 504), dtype=np.int64)
 
-        x = x + start_x
-
-        y = y + start_y
+        x, y = np.where(job_matrix == 0)
 
         for i in range(x.size):
             waiting_queue.add(i)
