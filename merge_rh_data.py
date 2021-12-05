@@ -46,7 +46,7 @@ def merge_data():
 
         t.set_postfix(processed=float(index)/float(x.size))
 
-    fo = h5py.File(write_path / 'bifrost_output.h5')
+    fo = h5py.File(write_path / 'bifrost_output.h5', 'w')
 
     fo['populations'] = populations
 
