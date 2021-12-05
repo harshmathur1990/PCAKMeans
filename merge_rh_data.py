@@ -59,3 +59,7 @@ def merge_data():
     fo['eps_c'] = eps_c
 
     fo.close()
+
+
+if __name__ == '__main__':
+    merge_data()
