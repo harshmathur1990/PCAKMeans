@@ -44,7 +44,7 @@ def merge_data():
 
         f.close()
 
-        t.set_postfix(processed=float(index)/float(xx.size))
+        t.set_postfix(processed=float(index)/float(x.size))
 
     fo = h5py.File(write_path / 'bifrost_output.h5')
 
