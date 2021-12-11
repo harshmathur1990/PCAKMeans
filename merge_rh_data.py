@@ -15,17 +15,17 @@ def merge_data():
 
     x, y = np.where(job_matrix == 0)
 
-    t = tqdm(zip(x, y))
+    t = tqdm(zip(x, y), total=x.size)
 
     populations = np.zeros((13, 504, 504, 127), dtype=np.float64)
 
-    a_voigt = np.zeros((8, 504, 504, 127), dtype=np.float64)
+    a_voigt = np.zeros((11, 504, 504, 127), dtype=np.float64)
 
-    Cul = np.zeros((8, 504, 504, 127), dtype=np.float64)
+    Cul = np.zeros((36, 504, 504, 127), dtype=np.float64)
 
-    eta_c = np.zeros((8, 504, 504, 127), dtype=np.float64)
+    eta_c = np.zeros((11, 504, 504, 127), dtype=np.float64)
 
-    eps_c = np.zeros((8, 504, 504, 127), dtype=np.float64)
+    eps_c = np.zeros((11, 504, 504, 127), dtype=np.float64)
 
     for index, (xx, yy) in enumerate(t):
         read_path = Path(read_path_format.format(xx, yy))
