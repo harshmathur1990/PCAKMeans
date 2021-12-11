@@ -17,14 +17,12 @@ import time
 
 
 # atmos_file = Path(
-#     '/data/harsh/run_bifrost/Atmos/bifrost_en024048_hion_0_504_0_504_-500000.0_2000000.0.nc'
+#     '/data/harsh/run_bifrost/Atmos/bifrost_en024048_hion_0_504_0_504_-500000.0_3000000.0.nc'
 # )
 
 atmos_file = Path(
-    '/home/harsh/BifrostRun/bifrost_en024048_hion_0_504_0_504_-500000.0_2000000.0.nc'
+    '/home/harsh/BifrostRun/bifrost_en024048_hion_0_504_0_504_-500000.0_3000000.0.nc'
 )
-
-# output_file = Path('/data/harsh/bifrost_supplementary_outputs_using_RH/output.nc')
 
 output_path = Path('/home/harsh/BifrostRun/bifrost_supplementary_outputs_using_RH/')
 
@@ -49,7 +47,7 @@ input_filelist = [
 def create_mag_file(
     Bx, By, Bz,
     write_path,
-    shape=(127, )
+    shape=(177, )
 ):
     b_filename = 'MAG_FIELD.B'
     xdr = xdrlib.Packer()
@@ -118,6 +116,49 @@ class Status(enum.Enum):
     Work_failure = 3
 
 
+def reverse_transitions(transitions):
+
+    rev = transitions.copy()
+    i = 0
+    while i < len(rev):
+        rev[i] = transitions[i+1]
+        rev[i+1] = transitions[i]
+        i += 2
+
+    return rev
+
+
+def generate_radiative_transitions():
+    transitions = [3, 0, 1, 0, 5, 1, 5, 3, 7, 0, 4, 0, 7, 2, 4, 2, 6, 1, 8, 3, 6, 3]
+
+    return transitions
+
+
+def collisional_transitions():
+    collisional_transitions = list()
+
+    radiative_transitions = generate_radiative_transitions()
+    for i in range(9):
+        for j in range(9):
+            if i <= j:
+                continue
+
+            rad_p = False
+
+            k = 0
+            while k < len(radiative_transitions):
+                if radiative_transitions[k] == i and radiative_transitions[k + 1] == j:
+                    rad_p = True
+                    break
+                k += 2
+
+            if rad_p is False:
+                collisional_transitions.append(i)
+                collisional_transitions.append(j)
+
+    return collisional_transitions
+
+
 def do_work(x, y, read_path):
 
     write_path = output_path / 'pixel_{}_{}'.format(x, y)
@@ -141,25 +182,27 @@ def do_work(x, y, read_path):
     f['a_voigt'] = out.damping_H.adamp
 
     # this is [lower-upper] as RH stores upper->lower in the indice [lower, upper]
-    transition_list = [(0, 3), (0, 1), (0, 4), (0, 7), (1, 5), (3, 5), (3, 8), (3, 6)]
+    transition_list = reverse_transitions(generate_radiative_transitions()) + reverse_transitions(collisional_transitions())
 
-    cularr = np.zeros((8, 127), dtype=np.float64)
-    for indice, (ii, jj) in enumerate(transition_list):
-            # Cul[indice, x, y, :] = np.array([out.collrate_H.C_rates[kk].C[ii,jj] for kk in range(127)])
-            cularr[indice] = np.array([out.collrate_H.C_rates[kk].C[ii,jj] for kk in range(127)])
+    cularr = np.zeros((len(transition_list)//2, 177), dtype=np.float64)
+    for indd in range(0, len(transition_list), 2):
+        indice = indd // 2
+        ii = transition_list[indd]
+        jj = transition_list[indd + 1]
+        cularr[indice] = np.array([out.collrate_H.C_rates[kk].C[ii,jj] for kk in range(177)])
 
     f['cularr'] = cularr
 
-    wave_indices = [1220, 1241, 827, 821, 3332, 3484, 3422, 3444]
+    wave_indices = [1221, 1244, 3576, 3798, 826, 833, 3529, 3609, 3504, 3717, 3743]
 
-    eta_c = np.zeros((8, 127), dtype=np.float64)
+    eta_c = np.zeros((11, 177), dtype=np.float64)
     for indice, wave_indice in enumerate(wave_indices):
         # eta_c[indice, x, y, :] = np.array(out.opacity.opacity[wave_indice].chi)
         eta_c[indice] = np.array(out.opacity.opacity[wave_indice].chi)
 
     f['eta_c'] = eta_c
 
-    eps_c = np.zeros((8, 127), dtype=np.float64)
+    eps_c = np.zeros((11, 177), dtype=np.float64)
     for indice, wave_indice in enumerate(wave_indices):
         # eps_c[indice, x, y, :] = np.array(out.opacity.opacity[wave_indice].eta)
         eps_c[indice] = np.array(out.opacity.opacity[wave_indice].eta)
@@ -185,7 +228,7 @@ def make_ray_file():
 
     indices = list()
 
-    interesting_waves = [121.5668, 121.5673, 102.5722, 102.5721, 656.275, 656.290, 656.2851, 656.2867, 500]
+    interesting_waves = [121.5668237310, 121.5673644608, 656.275181, 656.290944, 102.572182505, 102.572296565, 656.272483, 656.277153, 	656.270970, 656.285177, 656.286734]
 
     for w in interesting_waves:
         indices.append(
@@ -218,11 +261,6 @@ if __name__ == '__main__':
         running_queue = set()
         finished_queue = set()
         failure_queue = set()
-
-        start_x = int(sys.argv[1])
-        end_x = int(sys.argv[2])
-        start_y = int(sys.argv[3])
-        end_y = int(sys.argv[4])
 
         job_matrix = np.zeros((504, 504), dtype=np.int64)
 
