@@ -192,6 +192,15 @@ def make_line_cut_plots(all_params, time_array, mask, fovName, vlos_min_lc=None,
         bbox_inches='tight'
     )
 
+    fig.savefig(
+        write_path / 'FoV_{}_linecut.png'.format(
+            fovName
+        ),
+        format='png',
+        dpi=300,
+        bbox_inches='tight'
+    )
+
     plt.close('all')
 
     plt.clf()
@@ -282,7 +291,7 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_
 
                     axs.text(
                         0.2, 1.1,
-                        '{}s'.format(
+                        '{}'.format(
                             time[start_t + j]
                         ),
                         transform=axs.transAxes,
@@ -292,7 +301,7 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_
                     if j == 0:
                         axs.text(
                             -1.2, 1.3,
-                            r'$\log(\tau_{{500}})={}$'.format(
+                            r'$\log\tau_{{\mathrm{{500}}}}={}$'.format(
                                 ltau_val
                             ),
                             transform=axs.transAxes,
@@ -302,7 +311,7 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_
                     if j == 3:
                         axs.text(
                             0.3, 1.3,
-                            r'$time$',
+                            r'time [s]',
                             transform=axs.transAxes,
                             color='black',
                             fontsize=fontsize
@@ -355,8 +364,8 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_
                         labels_mask[1] = mask[:, mark_y][np.newaxis, :]
 
                 if j == 0:
-                    labels_text_1 = [r'$T$', r'$V_{LOS}$', r'$V_{turb}$']
-                    labels_text_2 = [r'$[kK]$', r'$[kms^{-1}]$', r'$[kms^{-1}]$']
+                    labels_text_1 = [r'$T$', r'$V_{\mathrm{LOS}}$', r'$V_{\mathrm{turb}}$']
+                    labels_text_2 = [r'$\mathrm{[kK]}$', r'$\mathrm{[km\;s^{-1}]}$', r'$\mathrm{[km\;s^{-1}]}$']
 
                     axs.text(
                         -1.2, 0.3,
@@ -422,6 +431,15 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_
             ),
             dpi=300,
             format='pdf'
+        )
+
+        fig.savefig(
+            write_path / 'Inversion_FoV_{}_lt_{}.png'.format(
+                letter,
+                ltau_val
+            ),
+            dpi=300,
+            format='png'
         )
 
     plt.close('all')
@@ -528,7 +546,7 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y, letter):
                     time[start_t:start_t+7],
                     params[k, index],
                     color=color,
-                    label=r'$\log (\tau_{{500}})={}$'.format(
+                    label=r'$\log \tau_{{\mathrm{{500}}}}={}$'.format(
                         log_t
                     )
                 )
@@ -536,7 +554,7 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y, letter):
                 axs.set_ylim(tmin, tmax)
                 axs.set_yticks(np.arange(tmin + 0.5, tmax, 0.5))
                 axs.set_yticklabels(np.arange(tmin + 0.5, tmax, 0.5), fontsize=fontsize)
-                axs.set_ylabel(r'$\delta T[kK]$', fontsize=fontsize)
+                axs.set_ylabel(r'$\delta$T [kK]', fontsize=fontsize)
                 axs.yaxis.set_minor_locator(MultipleLocator(0.1))
             else:
                 axs.plot(
@@ -548,8 +566,8 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y, letter):
                 axs.set_ylim(vmin, vmax)
                 axs.set_yticks(np.arange(vmin + 2, vmax, 2))
                 axs.set_yticklabels(np.arange(vmin + 2, vmax, 2), fontsize=fontsize)
-                axs.set_ylabel(r'$V_{LOS}[kms^{-1}]$', fontsize=fontsize)
-                axs.set_xlabel(r'$Time\;(s)$', fontsize=fontsize)
+                axs.set_ylabel(r'$V_{\mathrm{LOS}}\mathrm{[km\;s^{-1}]}$', fontsize=fontsize)
+                axs.set_xlabel(r'Time [s]', fontsize=fontsize)
                 axs.yaxis.set_minor_locator(MultipleLocator(0.5))
 
             # axs.grid(True, ls='--', alpha=0.5)
@@ -594,7 +612,7 @@ def make_legend():
 
     for log_t in log_t_values:
         label_list.append(
-            r'$\log (\tau_{{500}})={}$'.format(
+            r'$\log \tau_{{\mathrm{{500}}}}={}$'.format(
                 log_t
             )
         )
@@ -605,7 +623,7 @@ def make_legend():
     plt.clf()
     plt.cla()
 
-    fig = plt.figure(figsize=(7,7))
+    fig = plt.figure(figsize=(3.5,3.5))
     legend = plt.legend(
         handles,
         label_list,
@@ -636,7 +654,7 @@ def make_legend_average():
 
     for log_t in log_t_values:
         label_list.append(
-            r'${}\leq\log (\tau_{{500}})\leq{}$'.format(
+            r'${}\leq\log \tau_{{\mathrm{{500}}}}\leq{}$'.format(
                 log_t[0], log_t[1]
             )
         )
@@ -844,15 +862,15 @@ def make_pre_shock_peak_shock_temp_vlos_scatter_plot():
 
     plt.text(
         0.05, 0.9,
-        '$(a)$',
+        '(a)',
         transform=plt.gca().transAxes,
         color='black',
         fontsize=fontsize
     )
 
-    plt.xlabel(r'$Pre\;Shock\;T\;(kK)$', fontsize=fontsize)
+    plt.xlabel(r'Pre Shock T [kK]', fontsize=fontsize)
 
-    plt.ylabel(r'$Peak\;Shock\;\Delta T\;(kK)$', fontsize=fontsize)
+    plt.ylabel(r'Peak Shock $\Delta$T [kK]', fontsize=fontsize)
 
     fig = plt.gcf()
 
@@ -870,23 +888,23 @@ def make_pre_shock_peak_shock_temp_vlos_scatter_plot():
 
     plt.subplots_adjust(left=0.15, right=0.99, bottom=0.18, top=0.99)
 
-    plt.scatter(vlos_shock[:, 0], peak_temp_delta_t[:, 0], color='blue', label=r'$log(\tau_{500}) = -4.2$', s=size / 4)
+    plt.scatter(vlos_shock[:, 0], peak_temp_delta_t[:, 0], color='blue', label=r'$\log\tau_{\mathrm{500}} = -4.2$', s=size / 4)
 
-    plt.scatter(vlos_shock[:, 1], peak_temp_delta_t[:, 1], color='green', label=r'$log(\tau_{500}) = -3$', s=size / 4)
+    plt.scatter(vlos_shock[:, 1], peak_temp_delta_t[:, 1], color='green', label=r'$\log\tau_{\mathrm{500}} = -3$', s=size / 4)
 
-    plt.scatter(vlos_shock[:, 2], peak_temp_delta_t[:, 2], color='orange', label=r'$log(\tau_{500}) = -1$', s=size / 4)
+    plt.scatter(vlos_shock[:, 2], peak_temp_delta_t[:, 2], color='orange', label=r'$\log\tau_{\mathrm{500}} = -1$', s=size / 4)
 
     plt.text(
         0.05, 0.9,
-        '$(b)$',
+        '(b)',
         transform=plt.gca().transAxes,
         color='black',
         fontsize=fontsize
     )
 
-    plt.xlabel(r'$V_{LOS}\;Shock\;[Kms^{-1}]$', fontsize=fontsize)
+    plt.xlabel(r'$V_{\mathrm{LOS}}$ Shock $\mathrm{[Km\;s^{-1}]}$', fontsize=fontsize)
 
-    plt.ylabel(r'$Peak\;Shock\;\Delta T\;(kK)$', fontsize=fontsize)
+    plt.ylabel(r'Peak Shock $\Delta$T [kK]', fontsize=fontsize)
 
     fig = plt.gcf()
 
@@ -904,14 +922,14 @@ def make_pre_shock_peak_shock_temp_vlos_scatter_plot():
 
 
 if __name__ == '__main__':
-    plot_data_for_result_plots(0, 4, 6, 18, 'A')
-    plot_data_for_result_plots(2, 17, 20, 27, 'B', -4, 4)
-    plot_data_for_result_plots(3, 32, 35, 20, 'C')
-    plot_data_for_result_plots(4, 12, 15, 22, 'D')
-    plot_data_for_result_plots(5, 57, 60, 28, 'E')
-    plot_data_for_result_plots(7, 7, 11, 16, 'F')
-    plot_data_for_result_plots(8, 8, 11, 21, 'G')
-    plot_data_for_result_plots(9, 9, 12, 28, 'H')
+    # plot_data_for_result_plots(0, 4, 6, 18, 'A')
+    # plot_data_for_result_plots(2, 17, 20, 27, 'B', -4, 4)
+    # plot_data_for_result_plots(3, 32, 35, 20, 'C')
+    # plot_data_for_result_plots(4, 12, 15, 22, 'D')
+    # plot_data_for_result_plots(5, 57, 60, 28, 'E')
+    # plot_data_for_result_plots(7, 7, 11, 16, 'F')
+    # plot_data_for_result_plots(8, 8, 11, 21, 'G')
+    # plot_data_for_result_plots(9, 9, 12, 28, 'H')
     # make_time_evolution_plots(0, 4, 25, 18, 'A')
     # make_time_evolution_plots(2, 17, 23, 27, 'B')
     # make_time_evolution_plots(3, 32, 29, 20, 'C')
@@ -922,7 +940,7 @@ if __name__ == '__main__':
     # make_time_evolution_plots(9, 9, 28, 28, 'H')
     # make_legend()
     # make_legend_average()
-    # make_pre_shock_peak_shock_temp_vlos_scatter_plot()
+    make_pre_shock_peak_shock_temp_vlos_scatter_plot()
 
     '''
     ## OLD NOT USED

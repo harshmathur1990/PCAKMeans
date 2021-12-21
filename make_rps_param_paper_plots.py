@@ -282,7 +282,7 @@ def plot_paper_rp_guess_map_plot():
     this_axs.set_yticks([])
     this_axs.set_xticklabels([])
     this_axs.set_yticklabels([])
-    this_axs.text(0.05, 0.9, r'$\;Continuum\;4000\;\AA$', transform=this_axs.transAxes, fontsize=fontsize)
+    this_axs.text(0.05, 0.9, r'Continuum 4000 $\mathrm{\AA}$', transform=this_axs.transAxes, fontsize=fontsize)
     mask = get_shocks_mask(labels)
     mask[np.where(mask >= 1)] = 1
     this_axs.contour(
@@ -408,7 +408,7 @@ def plot_paper_rp_guess_map_plot():
     this_axs.set_yticks([])
     this_axs.set_xticklabels([])
     this_axs.set_yticklabels([])
-    this_axs.text(0.1, 0.9, r'${}<\log (\tau_{{500}})<{}$'.format(-1, 0), transform=this_axs.transAxes, fontsize=7)
+    this_axs.text(0.1, 0.9, r'${}<\log \tau_{{\mathrm{{500}}}}<{}$'.format(-1, 0), transform=this_axs.transAxes, fontsize=7)
     mask = get_shocks_mask(labels)
     mask[np.where(mask >= 1)] = 1
     this_axs.contour(
@@ -467,7 +467,7 @@ def plot_paper_rp_guess_map_plot():
     this_axs.set_yticks([])
     this_axs.set_xticklabels([])
     this_axs.set_yticklabels([])
-    this_axs.text(0.01, 0.9, r'${}<\log (\tau_{{500}})<{}$'.format(-4.5, -3.5), transform=this_axs.transAxes,
+    this_axs.text(0.01, 0.9, r'${}<\log \tau_{{\mathrm{{500}}}}<{}$'.format(-4.5, -3.5), transform=this_axs.transAxes,
                    fontsize=7)
     mask = get_shocks_mask(labels)
     mask[np.where(mask >= 1)] = 1
@@ -527,7 +527,7 @@ def plot_paper_rp_guess_map_plot():
     this_axs.set_yticks([])
     this_axs.set_xticklabels([])
     this_axs.set_yticklabels([])
-    this_axs.text(0.01, 0.9, r'${}<\log (\tau_{{500}})<{}$'.format(-5.5, -4.5), transform=this_axs.transAxes,
+    this_axs.text(0.01, 0.9, r'${}<\log \tau_{{\mathrm{{500}}}}<{}$'.format(-5.5, -4.5), transform=this_axs.transAxes,
                    fontsize=7)
     mask = get_shocks_mask(labels)
     mask[np.where(mask >= 1)] = 1

@@ -9,14 +9,18 @@ import matplotlib.gridspec as gridspec
 from pathlib import Path
 
 
-file = '/data/harsh/sub_fov_result_kmeans_whole_data_inertia_inverted_weights.h5'
-
 selected_frames = np.array([0, 11, 25, 36, 60, 78, 87])
-old_kmeans_file = '/data/harsh/out_100_0.5_0.5_n_iter_10000_tol_1en5.h5'
-mask_file_crisp = '/data/harsh/crisp_chromis_mask_2019-06-06.fits'
-input_file_3950 = '/data/harsh/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits'
-input_file_8542 = '/data/harsh/nb_8542_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
-input_file_6173 = '/data/harsh/nb_6173_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
+# old_kmeans_file = '/data/harsh/out_100_0.5_0.5_n_iter_10000_tol_1en5.h5'
+# mask_file_crisp = '/data/harsh/crisp_chromis_mask_2019-06-06.fits'
+# input_file_3950 = '/data/harsh/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits'
+# input_file_8542 = '/data/harsh/nb_8542_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
+# input_file_6173 = '/data/harsh/nb_6173_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
+
+old_kmeans_file = '/home/harsh/OsloAnalysis/out_100_0.5_0.5_n_iter_10000_tol_1en5.h5'
+mask_file_crisp = '/home/harsh/OsloAnalysis/crisp_chromis_mask_2019-06-06.fits'
+input_file_3950 = '/home/harsh/OsloAnalysis/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits'
+input_file_8542 = '/home/harsh/OsloAnalysis/nb_8542_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
+input_file_6173 = '/home/harsh/OsloAnalysis/nb_6173_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
 
 mask, _  = sunpy.io.fits.read(mask_file_crisp, memmap=True)[0]
 
@@ -265,10 +269,10 @@ def actual_plotting(labels, rps, name='guess'):
 
                 ax1.set_yticks([0.1, 0.3, 0.5, 0.7])
                 ax1.set_yticklabels([0.1, 0.3, 0.5, 0.7], fontsize=fontsize)
-                ax1.set_ylabel(r'$I/I_{c}$', fontsize=fontsize)
+                ax1.set_ylabel(r'$I/I_{\mathrm{c}}$', fontsize=fontsize)
 
                 if i == 3:
-                    ax1.set_xlabel(r'$\Delta \lambda (\AA)$', fontsize=fontsize)
+                    ax1.set_xlabel(r'$\Delta \lambda\;\mathrm{[\AA]}$', fontsize=fontsize)
 
             elif j == 1:
 
@@ -294,7 +298,7 @@ def actual_plotting(labels, rps, name='guess'):
                 ax1.set_yticks([0.3, 0.5, 0.7])
                 ax1.set_yticklabels([0.3, 0.5, 0.7], fontsize=fontsize)
                 if i == 3:
-                    ax1.set_xlabel(r'$\Delta \lambda (\AA)$', fontsize=fontsize)
+                    ax1.set_xlabel(r'$\Delta \lambda\;\mathrm{[\AA]}$', fontsize=fontsize)
 
             else:
 
@@ -320,7 +324,7 @@ def actual_plotting(labels, rps, name='guess'):
                 ax1.set_yticks([0.5, 0.7, 0.9, 1.1])
                 ax1.set_yticklabels([0.5, 0.7, 0.9, 1.1], fontsize=fontsize)
                 if i == 3:
-                    ax1.set_xlabel(r'$\Delta \lambda (\AA)$', fontsize=fontsize)
+                    ax1.set_xlabel(r'$\Delta \lambda\;\mathrm{[\AA]}$', fontsize=fontsize)
 
             k += 1
 
@@ -384,10 +388,10 @@ def make_appendix_plot(rps):
                     else:
                         ax1.set_xticklabels([])
 
-                    ax1.set_ylabel(r'$I/I_{c}$', fontsize=fontsize)
+                    ax1.set_ylabel(r'$I/I_{\mathrm{c}}$', fontsize=fontsize)
 
                     if i == 5:
-                        ax1.set_xlabel(r'$\Delta \lambda (\AA)$', fontsize=fontsize)
+                        ax1.set_xlabel(r'$\Delta \lambda\;\mathrm{[\AA]}$', fontsize=fontsize)
 
                 elif j == 1:
                     for index, rp in enumerate(sel_rps):
@@ -411,7 +415,7 @@ def make_appendix_plot(rps):
                         ax1.set_xticklabels([])
 
                     if i == 5:
-                        ax1.set_xlabel(r'$\Delta \lambda (\AA)$', fontsize=fontsize)
+                        ax1.set_xlabel(r'$\Delta \lambda\;\mathrm{[\AA]}$', fontsize=fontsize)
 
                 else:
                     for index, rp in enumerate(sel_rps):
@@ -442,7 +446,7 @@ def make_appendix_plot(rps):
                         ax1.set_xticklabels([])
 
                     if i == 5:
-                        ax1.set_xlabel(r'$\Delta \lambda (\AA)$', fontsize=fontsize)
+                        ax1.set_xlabel(r'$\Delta \lambda\;\mathrm{[\AA]}$', fontsize=fontsize)
 
                 k += 1
 

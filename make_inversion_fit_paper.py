@@ -167,7 +167,7 @@ def make_inversion_fit_plot(xs, ys, wave_indice, time_steps, ref_x, ref_y, fovNa
                 k += 1
 
         fig.suptitle(
-            r'$Ca\;II\;K\;{}\;m\AA$'.format(
+            r'Ca II K ${0:+.1f}$ m$\mathrm{{\AA}}$'.format(
                 np.round(
                     get_relative_velocity(
                         wave_3933[wave_indice[l]]
@@ -178,15 +178,6 @@ def make_inversion_fit_plot(xs, ys, wave_indice, time_steps, ref_x, ref_y, fovNa
             fontsize=fontsize
         )
         fig.savefig(write_path / 'CaIIk_fit_{}.pdf'.format(l), format='pdf', dpi=300)
-        # if l == 0:
-        #     fig.suptitle(r'$Ca\;II\;K_{2V}$', fontsize=fontsize)
-        #     fig.savefig(write_path / 'CaIIK2v_fit.pdf', format='pdf', dpi=300)
-        # elif l == 1:
-        #     fig.suptitle(r'$Ca\;II\;K_{3}$', fontsize=fontsize)
-        #     fig.savefig(write_path / 'CaIIK3_fit.pdf', format='pdf', dpi=300)
-        # else:
-        #     fig.suptitle(r'$Ca\;II\;K_{2R}$', fontsize=fontsize)
-        #     fig.savefig(write_path / 'CaIIK2r_fit.pdf', format='pdf', dpi=300)
 
     plt.cla()
 
@@ -201,11 +192,11 @@ def make_inversion_fit_plot(xs, ys, wave_indice, time_steps, ref_x, ref_y, fovNa
             if j == 0:
                 axs[i][j].scatter(wave_3933[:-1] - 3933.682, all_profiles[i, ref_x, ref_y, 0:29], color=color[i], s=size/2, marker='+')
                 axs[i][j].plot(wave_3933[:-1] - 3933.682, syn_profiles[i, ref_x, ref_y, 0:29], linestyle='--', color=color[i], linewidth=0.5)
-                axs[i][j].set_ylabel(r'$I/I_{c}$', fontsize=fontsize)
+                axs[i][j].set_ylabel(r'$I/I_{\mathrm{c}}$', fontsize=fontsize)
                 if i == 0:
-                    axs[i][j].set_title(r'$Ca II K$', fontsize=fontsize)
+                    axs[i][j].set_title(r'Ca II K', fontsize=fontsize)
                 if i == 3:
-                    axs[i][j].set_xlabel(r'$\Delta\lambda(\AA)$', fontsize=fontsize)
+                    axs[i][j].set_xlabel(r'$\Delta\lambda\;\mathrm{[\AA]}$', fontsize=fontsize)
                 axs[i][j].set_xticks([-0.5, 0, 0.5])
                 if i == 3:
                     axs[i][j].set_xticklabels([-0.5, 0, 0.5], fontsize=fontsize)
@@ -215,9 +206,9 @@ def make_inversion_fit_plot(xs, ys, wave_indice, time_steps, ref_x, ref_y, fovNa
                 axs[i][j].scatter(wave_8542 - 8542.09, all_profiles[i, ref_x, ref_y, 30:30+20], color=color[i], s=size/2, marker='+')
                 axs[i][j].plot(wave_8542 - 8542.09, syn_profiles[i, ref_x, ref_y, 30:30+20], linestyle='--', color=color[i], linewidth=0.5)
                 if i == 0:
-                    axs[i][j].set_title(r'$Ca\;II\;8542\;\AA$', fontsize=fontsize)
+                    axs[i][j].set_title(r'Ca II 8542 $\mathrm{\AA}$', fontsize=fontsize)
                 if i == 3:
-                    axs[i][j].set_xlabel(r'$\Delta\lambda(\AA)$', fontsize=fontsize)
+                    axs[i][j].set_xlabel(r'$\Delta\lambda\;\mathrm{[\AA]}$', fontsize=fontsize)
                 axs[i][j].set_xticks([-1, 0, 1])
                 if i == 3:
                     axs[i][j].set_xticklabels([-1, 0, 1], fontsize=fontsize)
@@ -228,9 +219,9 @@ def make_inversion_fit_plot(xs, ys, wave_indice, time_steps, ref_x, ref_y, fovNa
                 axs[i][j].scatter(wave_6173 - 6173.3340, all_profiles[i, ref_x, ref_y, 30 + 20:30 + 20 + 14], color=color[i], s=size/2, marker='+')
                 axs[i][j].plot(wave_6173 - 6173.3340, syn_profiles[i, ref_x, ref_y, 30 + 20:30 + 20 + 14], linestyle='--', color=color[i], linewidth=0.5)
                 if i == 0:
-                    axs[i][j].set_title(r'$Fe\;I\;6173\;\AA$', fontsize=fontsize)
+                    axs[i][j].set_title(r'Fe I 6173 $\mathrm{\AA}$', fontsize=fontsize)
                 if i == 3:
-                    axs[i][j].set_xlabel(r'$\Delta\lambda(\AA)$', fontsize=fontsize)
+                    axs[i][j].set_xlabel(r'$\Delta\lambda\;\mathrm{[\AA]}$', fontsize=fontsize)
                 axs[i][j].set_xticks([-0.5, 0, 0.5])
                 if i == 3:
                     axs[i][j].set_xticklabels([-0.5, 0, 0.5], fontsize=fontsize)

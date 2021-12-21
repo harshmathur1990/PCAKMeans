@@ -764,12 +764,12 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
                 )
                 if i == 0:
                     axs[i][j].set_title(
-                        r'(a) $4000\;\AA$',
+                        r'(a) $\mathrm{4000\;\AA}$',
                         fontsize=fontsize
                     )
                 axs[i][j].text(
                     -0.7, 0.4,
-                    r'${}s$'.format(
+                    r'$\mathrm{{{}s}}$'.format(
                         time_arr[time_step[i]]
                     ),
                     transform=axs[i][j].transAxes,
@@ -805,7 +805,7 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
 
                 if i == 0:
                     axs[i][j].set_title(
-                        r'$B_{LOS}$',
+                        r'$B_{\mathrm{LOS}}$',
                         fontsize=fontsize
                     )
 
@@ -840,7 +840,7 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
                 )
                 if i == 0:
                     axs[i][j].set_title(
-                        r'${}\;m\AA$'.format(
+                        r'${0:+.1f}\mathrm{{\;m\AA}}$'.format(
                             np.round(
                                 get_relative_velocity(
                                     wave_3933[wave_indice[j - 2]]
@@ -848,7 +848,7 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
                                 1
                             )
                         ),
-                        fontsize=fontsize
+                        fontsize=fontsize - 1
                     )
                 # if i == 1:
                 #     if j == 4:
@@ -908,6 +908,13 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
         dpi=300,
         format='pdf'
     )
+    fig.savefig(
+        write_path / 'FoV_{}.png'.format(
+            letter
+        ),
+        dpi=300,
+        format='png'
+    )
     plt.close('all')
 
     plt.clf()
@@ -962,7 +969,7 @@ def make_nb_image(ref_x, ref_y, time_step, wave_indice, mark_x, mark_y, letter):
 
     axs.text(
         0.15, 1.005,
-        r'$Ca\;II\;K\;{}\;m\AA$'.format(
+        r'Ca II K ${}$ m$\mathrm{{\AA}}$'.format(
             np.round(
                 get_relative_velocity(
                     wave_3933[wave_indice]
@@ -1025,6 +1032,13 @@ def make_nb_image(ref_x, ref_y, time_step, wave_indice, mark_x, mark_y, letter):
         ),
         dpi=300,
         format='pdf'
+    )
+    fig.savefig(
+        write_path / 'FoV_one_t_step_{}.png'.format(
+            letter
+        ),
+        dpi=300,
+        format='png'
     )
     plt.close('all')
 
@@ -1350,7 +1364,7 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice_1, time_ind
             axs.plot(
                 get_relative_velocity(wave_3933[:-1]),
                 whole_data[t, x, y, 0:29],
-                label=r'$t={}s$'.format(
+                label=r'$\mathrm{{t={}s}}$'.format(
                     time[t]
                 )
             )
@@ -1368,7 +1382,7 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice_1, time_ind
 
     axs.text(
         0.05, 0.85,
-        r'$(d)$',
+        r'(d)',
         transform=axs.transAxes,
         color='black',
         fontsize=fontsize
@@ -1381,9 +1395,9 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice_1, time_ind
 
     axs.yaxis.set_tick_params(labelsize=fontsize)
 
-    axs.set_xlabel(r'$\Delta \lambda\;(\AA)$', fontsize=fontsize)
+    axs.set_xlabel(r'$\Delta \lambda\;\mathrm{[\AA]}$', fontsize=fontsize)
 
-    axs.set_ylabel(r'$I/I_{c}$', fontsize=fontsize)
+    axs.set_ylabel(r'$I/I_{\mathrm{c}}$', fontsize=fontsize)
 
     # axs.set_title(
     #     'FoV {}'.format(
@@ -1398,6 +1412,14 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice_1, time_ind
             letter
         ),
         format='pdf',
+        dpi=300
+    )
+
+    fig.savefig(
+        write_path / 'pixel_evolution_CaK_{}.png'.format(
+            letter
+        ),
+        format='png',
         dpi=300
     )
 
@@ -1430,7 +1452,7 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice_1, time_ind
 
     axs.text(
         0.05, 0.85,
-        r'$(e)$',
+        r'(e)',
         transform=axs.transAxes,
         color='black',
         fontsize=fontsize
@@ -1444,9 +1466,9 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice_1, time_ind
 
     axs.yaxis.set_tick_params(labelsize=fontsize)
 
-    axs.set_xlabel(r'$\Delta \lambda\;(\AA)$', fontsize=fontsize)
+    axs.set_xlabel(r'$\Delta \lambda\;\mathrm{[\AA]}$', fontsize=fontsize)
 
-    axs.set_ylabel(r'$I/I_{c}$', fontsize=fontsize)
+    axs.set_ylabel(r'$I/I_{\mathrm{c}}$', fontsize=fontsize)
 
     # axs.set_title(
     #     'FoV {}'.format(
@@ -1461,6 +1483,14 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice_1, time_ind
             letter
         ),
         format='pdf',
+        dpi=300
+    )
+
+    fig.savefig(
+        write_path / 'pixel_evolution_CaIR_{}.png'.format(
+            letter
+        ),
+        format='png',
         dpi=300
     )
 
@@ -1515,7 +1545,7 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t_1, mark_t_2, color
     if not appendix:
         axs.text(
             0.05, 0.9,
-            r'$(b)$',
+            r'(b)',
             transform=axs.transAxes,
             color='white',
             fontsize=fontsize
@@ -1525,11 +1555,11 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t_1, mark_t_2, color
         axs.set_xticklabels([])
     else:
         axs.set_xticklabels([-0.5, 0, 0.5], fontsize=fontsize)
-        axs.set_xlabel(r'$\Delta \lambda(\AA)$', fontsize=fontsize)
+        axs.set_xlabel(r'$\Delta \lambda\;\mathrm{[\AA]}$', fontsize=fontsize)
     axs.yaxis.set_tick_params(labelsize=fontsize)
-    axs.set_ylabel(r'$time\;(seconds)$', fontsize=fontsize)
+    axs.set_ylabel(r'time (seconds)', fontsize=fontsize)
     axs.set_title(
-        r'$Ca\;II\;K$',
+        r'Ca II K',
         fontsize=fontsize
     )
 
@@ -1544,6 +1574,14 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t_1, mark_t_2, color
             format='pdf',
             # bbox_inches='tight'
         )
+        fig.savefig(
+            write_path / 'lambda_t_FoV_CaK_{}.png'.format(
+                letter
+            ),
+            dpi=300,
+            format='png',
+            # bbox_inches='tight'
+        )
     else:
         fig.savefig(
             write_path / 'lambda_t_FoV_CaK_{}_appendix.pdf'.format(
@@ -1554,6 +1592,14 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t_1, mark_t_2, color
             # bbox_inches='tight'
         )
 
+        fig.savefig(
+            write_path / 'lambda_t_FoV_CaK_{}_appendix.png'.format(
+                letter
+            ),
+            dpi=300,
+            format='png',
+            # bbox_inches='tight'
+        )
     plt.close('all')
     plt.clf()
     plt.cla()
@@ -1577,7 +1623,7 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t_1, mark_t_2, color
     if not appendix:
         axs.text(
             0.05, 0.9,
-            r'$(c)$',
+            r'(c)',
             transform=axs.transAxes,
             color='white',
             fontsize=fontsize
@@ -1587,11 +1633,11 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t_1, mark_t_2, color
         axs.set_xticklabels([])
     else:
         axs.set_xticklabels([-1, 0, 1], fontsize=fontsize)
-        axs.set_xlabel(r'$\Delta \lambda(\AA)$', fontsize=fontsize)
+        axs.set_xlabel(r'$\Delta \lambda\;\mathrm{[\AA]}$', fontsize=fontsize)
     axs.yaxis.set_tick_params(labelsize=fontsize)
-    axs.set_ylabel(r'$time\;(seconds)$', fontsize=fontsize)
+    axs.set_ylabel(r'time (seconds)', fontsize=fontsize)
     axs.set_title(
-        r'$Ca\;II\;8542$',
+        r'Ca II 8542 $\mathrm{\AA}$',
         fontsize=fontsize
     )
 
@@ -1606,6 +1652,14 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t_1, mark_t_2, color
             format='pdf',
             # bbox_inches='tight'
         )
+        fig.savefig(
+            write_path / 'lambda_t_FoV_CaIR_{}.png'.format(
+                letter
+            ),
+            dpi=300,
+            format='png',
+            # bbox_inches='tight'
+        )
     else:
         fig.savefig(
             write_path / 'lambda_t_FoV_CaIR_{}_appendix.pdf'.format(
@@ -1613,6 +1667,14 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t_1, mark_t_2, color
             ),
             dpi=300,
             format='pdf',
+            # bbox_inches='tight'
+        )
+        fig.savefig(
+            write_path / 'lambda_t_FoV_CaIR_{}_appendix.png'.format(
+                letter
+            ),
+            dpi=300,
+            format='png',
             # bbox_inches='tight'
         )
 
@@ -2025,7 +2087,7 @@ def plot_response_functions():
             axs.set_yticks([0,  -1, -2, -3, -4, -5, -6, -7])
 
             if i == 2:
-                axs.set_xlabel(r'$\lambda\;(\AA)$', fontsize=fontsize)
+                axs.set_xlabel(r'$\lambda\;\mathrm{[\AA]}$', fontsize=fontsize)
 
                 axs.set_xticks([-0.5, 0, 0.5])
                 axs.set_xticklabels([-0.5, 0, 0.5], fontsize=fontsize)
@@ -2043,7 +2105,7 @@ def plot_response_functions():
 
             if j == 0:
 
-                axs.set_ylabel(r'$log(\tau_{500})$', fontsize=fontsize)
+                axs.set_ylabel(r'$\log \tau_{\mathrm{500}}$', fontsize=fontsize)
                 axs.set_yticklabels([0, -1, -2, -3, -4, -5, -6, -7], fontsize=fontsize)
 
                 axs.text(
@@ -2063,7 +2125,7 @@ def plot_response_functions():
                         fontsize=fontsize
                     )
                     axs2.set_xticks([-5, 0, 5])
-                    axs2.set_xlabel(r'$V_{LOS}[kms^{-1}]$', fontsize=fontsize)
+                    axs2.set_xlabel(r'$V_{\mathrm{LOS}}\mathrm{[km\;s^{-1}]}$', fontsize=fontsize)
                     axs2.set_xticklabels([-5, 0, 5], fontsize=fontsize)
 
             if j == 1:
@@ -2072,7 +2134,7 @@ def plot_response_functions():
 
                 if i == 0:
                     axs2.set_xticks([0, 1, 2, 3, 4, 5, 6])
-                    axs2.set_xlabel(r'$V_{turb}[kms^{-1}]$', fontsize=fontsize)
+                    axs2.set_xlabel(r'$V_{\mathrm{turb}}\mathrm{[km\;s^{-1}]}$', fontsize=fontsize)
                     axs2.set_xticklabels([0, 1, 2, 3, 4, 5, 6], fontsize=fontsize)
                     
             if j == 2:
@@ -2081,7 +2143,7 @@ def plot_response_functions():
                 
                 if i == 0:
                     axs2.set_xticks([4, 5, 6, 7, 8, 9, 10])
-                    axs2.set_xlabel(r'$T[kK]$', fontsize=fontsize)
+                    axs2.set_xlabel(r'$T\;\mathrm{[kK]}$', fontsize=fontsize)
                     axs2.set_xticklabels([4, 5, 6, 7, 8, 9, 10], fontsize=fontsize)
 
                 axs3 = axs.twinx()
@@ -2096,7 +2158,7 @@ def plot_response_functions():
 
                 axs3.set_ylim(0, 0.4)
 
-                axs3.set_ylabel(r'$I/I_{c\;4000\;\AA}$', fontsize=fontsize)
+                axs3.set_ylabel(r'$I/I_{\mathrm{c\;4000\;\AA}}$', fontsize=fontsize)
                 axs3.set_yticks([0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4])
                 axs3.set_yticklabels([0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4], fontsize=fontsize)
 
@@ -2119,6 +2181,13 @@ def plot_response_functions():
     fig.savefig(
         write_path / 'Response_Functions.pdf',
         format='pdf',
+        dpi=300,
+        bbox_inches='tight'
+    )
+
+    fig.savefig(
+        write_path / 'Response_Functions.png',
+        format='png',
         dpi=300,
         bbox_inches='tight'
     )
@@ -2211,5 +2280,5 @@ def get_all_profile_enhancement_data():
 
 
 if __name__ == '__main__':
-    # plot_response_functions()
-    make_shock_evolution_plots()
+    plot_response_functions()
+    # make_shock_evolution_plots()

@@ -64,7 +64,7 @@ def get_relative_velocity_Ca_8542(wavelength):
     return wavelength - 8542.09
 
 
-def get_data():
+def get_data(hmi=False):
 
     whole_data = np.zeros((selected_frames.shape[0], 64, 1236, 1848))
 
@@ -122,22 +122,93 @@ def get_data():
         axes=(2, 1, 0)
     )
 
-    sh, dt, header = getheader(input_file_hmi_blos)
+    hmi_mag = None
 
-    data = np.memmap(
-        input_file_hmi_blos,
-        mode='r',
-        shape=sh,
-        dtype=dt,
-        order='F',
-        offset=512
-    )
+    if hmi:
+        sh, dt, header = getheader(input_file_hmi_blos)
 
-    hmi_mag = np.transpose(
-        data,
-        axes=(2, 1, 0)
-    )
+        data = np.memmap(
+            input_file_hmi_blos,
+            mode='r',
+            shape=sh,
+            dtype=dt,
+            order='F',
+            offset=512
+        )
+
+        hmi_mag = np.transpose(
+            data,
+            axes=(2, 1, 0)
+        )
     return whole_data, b6173, hmi_mag
+
+
+def plot_one_image():
+    whole_data, b6173, hmi_mag = get_data()
+    plt.close('all')
+    plt.clf()
+    plt.cla()
+
+    fig = plt.figure(figsize=(6, 4))
+
+    gs = gridspec.GridSpec(1, 1)
+
+    gs.update(left=0.1, right=1, top=1, bottom=0.1, wspace=0.0, hspace=0.0)
+
+    axs = fig.add_subplot(gs[0])
+
+    extent = [596.31, 666.312, -35.041, 11.765]
+
+    fov_1_mask = np.zeros((1236, 1848))
+
+    fov_1_mask[662:712, 708:758] = 1
+    axs.text(
+        638 / 1848,
+        662 / 1236,
+        'A',
+        transform=axs.transAxes,
+        color='#4E79A7'
+    )
+
+    ca_k_indice = np.array([14, 12])
+
+    axs.imshow(whole_data[0, ca_k_indice[1], :, :], cmap='gray', origin='lower', extent=extent)
+
+    axs.text(
+        0.05, 0.91,
+        r'$\mathrm{{Ca\;II\;K\;}}{}\mathrm{{\;m\AA}}$'.format(
+            np.round(
+                get_relative_velocity(
+                    wave_3933[ca_k_indice[1]]
+                ) * 1000,
+                1
+            )
+        ),
+        transform=axs.transAxes,
+        color='white'
+    )
+
+    axs.contour(fov_1_mask, levels=0, extent=extent, origin='lower', colors='#4E79A7')
+
+    axs.yaxis.set_minor_locator(MultipleLocator(1))
+
+    axs.xaxis.set_minor_locator(MultipleLocator(1))
+
+    axs.tick_params(direction='in', which='both', color='white')
+
+    axs.set_ylabel('y [arcsec]')
+
+    axs.set_xlabel('x [arcsec]')
+
+    write_path = Path(
+        '/home/harsh/Shocks Paper'
+    )
+    fig.savefig(write_path / 'FOV_one_image.pdf', format='pdf', dpi=300)
+    fig.savefig(write_path / 'FOV_one_image.png', format='png', dpi=300)
+
+    plt.close('all')
+    plt.clf()
+    plt.cla()
 
 
 def plot_fov_images():
@@ -289,16 +360,16 @@ def plot_fov_images():
     axs[2][0].imshow(whole_data[0, 30 + 14 + ca_8_indice[0], :, :], cmap='gray', origin='lower', extent=extent)
     axs[2][1].imshow(whole_data[0, 30 + 14 + ca_8_indice[1], :, :], cmap='gray', origin='lower', extent=extent)
 
-    axs[0][0].text(0.05, 0.91, r'(a) Continuum 4000 $\AA$', transform=axs[0][0].transAxes, color='white')
+    axs[0][0].text(0.05, 0.91, r'(a) Continuum 4000 $\mathrm{\AA}$', transform=axs[0][0].transAxes, color='white')
     axs[0][1].text(
         0.05, 0.91,
-        r'(b) $B_{{LOS}}$',
+        r'(b) $B_{{\mathrm{LOS}}}$',
         transform=axs[0][1].transAxes,
         color='white'
     )
     axs[1][0].text(
         0.05, 0.91,
-        r'(c) $Ca\;II\;K\;{}\;m\AA$'.format(
+        r'(c) $\mathrm{{Ca\;II\;K\;}}+{}\mathrm{{\;m\AA}}$'.format(
             np.round(
                 get_relative_velocity(
                     wave_3933[ca_k_indice[0]]
@@ -311,7 +382,7 @@ def plot_fov_images():
     )
     axs[1][1].text(
         0.05, 0.91,
-        r'(d) $Ca\;II\;K\;{}\;m\AA$'.format(
+        r'(d) $\mathrm{{Ca\;II\;K\;}}{}\mathrm{{\;m\AA}}$'.format(
             np.round(
                 get_relative_velocity(
                     wave_3933[ca_k_indice[1]]
@@ -324,7 +395,7 @@ def plot_fov_images():
     )
     axs[2][0].text(
         0.05, 0.91,
-        r'(e) $Ca\;II\;8542\;{}\;m\AA$'.format(
+        r'(e) $\mathrm{{Ca\;II\;8542\;\AA\;}}+{}\mathrm{{\;m\AA}}$'.format(
             np.round(
                 get_relative_velocity_Ca_8542(
                     wave_8542[ca_8_indice[0]]
@@ -337,7 +408,7 @@ def plot_fov_images():
     )
     axs[2][1].text(
         0.05, 0.91,
-        r'(f) $Ca\;II\;8542\;{}\;m\AA$'.format(
+        r'(f) $\mathrm{{Ca\;II\;8542\;\AA\;}}{}\mathrm{{\;m\AA}}$'.format(
             np.round(
                 get_relative_velocity_Ca_8542(
                     wave_8542[ca_8_indice[1]]
@@ -465,17 +536,18 @@ def plot_fov_images():
     axs[1][1].set_yticklabels([])
     axs[2][1].set_yticklabels([])
 
-    axs[0][0].set_ylabel('y[arcsec]')
-    axs[1][0].set_ylabel('y[arcsec]')
-    axs[2][0].set_ylabel('y[arcsec]')
+    axs[0][0].set_ylabel('y [arcsec]')
+    axs[1][0].set_ylabel('y [arcsec]')
+    axs[2][0].set_ylabel('y [arcsec]')
 
-    axs[2][0].set_xlabel('x[arcsec]')
-    axs[2][1].set_xlabel('x[arcsec]')
+    axs[2][0].set_xlabel('x [arcsec]')
+    axs[2][1].set_xlabel('x [arcsec]')
 
     write_path = Path(
         '/home/harsh/Shocks Paper'
     )
     fig.savefig(write_path / 'FOV.pdf', format='pdf', dpi=300)
+    fig.savefig(write_path / 'FOV.png', format='png', dpi=300)
 
     plt.close('all')
     plt.clf()
@@ -483,4 +555,5 @@ def plot_fov_images():
 
 
 if __name__ == '__main__':
-    plot_fov_images()
+    # plot_fov_images()
+    plot_one_image()
