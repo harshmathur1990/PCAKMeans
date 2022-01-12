@@ -737,8 +737,10 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
     blos_vmin = -1 * blos_lim
     blos_vmax =  blos_lim
 
+    factor = 0.8
+
     im_vmin = whole_data[:, :, :, wave_indice].min()
-    im_vmax = whole_data[:, :, :, wave_indice].max()
+    im_vmax = whole_data[:, :, :, wave_indice].max() * factor
 
     for i in range(7):
         axsi = list()
@@ -2087,7 +2089,7 @@ def plot_response_functions():
             axs.set_yticks([0,  -1, -2, -3, -4, -5, -6, -7])
 
             if i == 2:
-                axs.set_xlabel(r'$\lambda\;\mathrm{[\AA]}$', fontsize=fontsize)
+                axs.set_xlabel(r'$\Delta\lambda\;\mathrm{[\AA]}$', fontsize=fontsize)
 
                 axs.set_xticks([-0.5, 0, 0.5])
                 axs.set_xticklabels([-0.5, 0, 0.5], fontsize=fontsize)

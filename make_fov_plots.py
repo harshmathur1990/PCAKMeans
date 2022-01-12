@@ -219,7 +219,10 @@ def plot_one_image():
 
     ca_k_indice = np.array([14, 12])
 
-    axs.imshow(whole_data[0, ca_k_indice[1], :, :], cmap='gray', origin='lower', extent=extent)
+    minl = whole_data[0, ca_k_indice[1], :, :].min()
+    maxl = whole_data[0, ca_k_indice[1], :, :].max()
+    factor = 0.8
+    axs.imshow(whole_data[0, ca_k_indice[1], :, :], cmap='gray', vmin=minl, vmax=maxl * factor, origin='lower', extent=extent)
 
     axs.text(
         0.05, 0.91,
