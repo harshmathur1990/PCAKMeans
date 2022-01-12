@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+import matplotlib.animation as animation
 
 
 # mask_file_crisp = Path('/home/harsh/OsloAnalysis/crisp_chromis_mask_2019-06-06.fits')
@@ -141,6 +142,52 @@ def get_data(hmi=False):
             axes=(2, 1, 0)
         )
     return whole_data, b6173, hmi_mag
+
+
+def get_data_movie():
+
+    whole_data = np.zeros((100, 6, 1236, 1848))
+
+    data, header = sunpy.io.fits.read(input_file_3950, memmap=True)[0]
+
+    whole_data[:, np.array([0, 2, 3])] = data[:, 0, np.array([29, 14, 12])]
+
+    sh, dt, header = getheader(input_file_8542)
+    data = np.memmap(
+        input_file_8542,
+        mode='r',
+        shape=sh,
+        dtype=dt,
+        order='F',
+        offset=512
+    )
+
+    data = np.transpose(
+        data.reshape(1848, 1236, 100, 4, 20),
+        axes=(2, 3, 4, 1, 0)
+    )
+
+    whole_data[:, np.array([4, 5])] = data[:, 0, np.array([10, 9])]
+
+    sh, dt, header = getheader(input_file_6173_blos)
+
+    data = np.memmap(
+        input_file_6173_blos,
+        mode='r',
+        shape=sh,
+        dtype=dt,
+        order='F',
+        offset=512
+    )
+
+    b6173 = np.transpose(
+        data,
+        axes=(2, 1, 0)
+    )
+
+    whole_data[:, 1] = b6173
+
+    return whole_data
 
 
 def plot_one_image():
@@ -554,6 +601,193 @@ def plot_fov_images():
     plt.cla()
 
 
+def make_fov_movie(animation_path, fps=1):
+    data = get_data_movie()
+
+    plt.close('all')
+    plt.clf()
+    plt.cla()
+
+    fig = plt.figure(figsize=(7, 6.77))
+
+    gs = gridspec.GridSpec(3, 2)
+
+    gs.update(left=0.1, right=1, top=1, bottom=0.07, wspace=0.0, hspace=0.0)
+
+    axs = list()
+
+    k = 0
+
+    for i in range(3):
+        axsi = list()
+        for j in range(2):
+            axsi.append(fig.add_subplot(gs[k]))
+
+            k += 1
+        axs.append(axsi)
+
+    extent = [596.31, 666.312, -35.041, 11.765]
+
+    ca_k_indice = np.array([14, 12])
+    ca_8_indice = np.array([10, 9])
+
+    im00 = axs[0][0].imshow(data[0, 0], cmap='gray', origin='lower', extent=extent)
+    im01 = axs[0][1].imshow(data[0, 1], cmap='gray', origin='lower', extent=extent, vmin=-300, vmax=300)
+
+    im10 = axs[1][0].imshow(data[0, 2], cmap='gray', origin='lower', extent=extent)
+    im11 = axs[1][1].imshow(data[0, 3], cmap='gray', origin='lower', extent=extent)
+
+    im20 = axs[2][0].imshow(data[0, 4], cmap='gray', origin='lower', extent=extent)
+    im21 = axs[2][1].imshow(data[0, 5], cmap='gray', origin='lower', extent=extent)
+
+    axs[0][0].text(0.05, 0.91, r'(a) Continuum 4000 $\mathrm{\AA}$', transform=axs[0][0].transAxes, color='white')
+    axs[0][1].text(
+        0.05, 0.91,
+        r'(b) $B_{{\mathrm{LOS}}}$',
+        transform=axs[0][1].transAxes,
+        color='white'
+    )
+    axs[1][0].text(
+        0.05, 0.91,
+        r'(c) $\mathrm{{Ca\;II\;K\;}}+{}\mathrm{{\;m\AA}}$'.format(
+            np.round(
+                get_relative_velocity(
+                    wave_3933[ca_k_indice[0]]
+                ) * 1000,
+                1
+            )
+        ),
+        transform=axs[1][0].transAxes,
+        color='white'
+    )
+    axs[1][1].text(
+        0.05, 0.91,
+        r'(d) $\mathrm{{Ca\;II\;K\;}}{}\mathrm{{\;m\AA}}$'.format(
+            np.round(
+                get_relative_velocity(
+                    wave_3933[ca_k_indice[1]]
+                ) * 1000,
+                1
+            )
+        ),
+        transform=axs[1][1].transAxes,
+        color='white'
+    )
+    axs[2][0].text(
+        0.05, 0.91,
+        r'(e) $\mathrm{{Ca\;II\;8542\;\AA\;}}+{}\mathrm{{\;m\AA}}$'.format(
+            np.round(
+                get_relative_velocity_Ca_8542(
+                    wave_8542[ca_8_indice[0]]
+                ) * 1000,
+                1
+            )
+        ),
+        transform=axs[2][0].transAxes,
+        color='white'
+    )
+    axs[2][1].text(
+        0.05, 0.91,
+        r'(f) $\mathrm{{Ca\;II\;8542\;\AA\;}}{}\mathrm{{\;m\AA}}$'.format(
+            np.round(
+                get_relative_velocity_Ca_8542(
+                    wave_8542[ca_8_indice[1]]
+                ) * 1000,
+                1
+            )
+        ),
+        transform=axs[2][1].transAxes,
+        color='white'
+    )
+
+    cbaxes = inset_axes(
+        axs[0][1],
+        width="50%",
+        height="8%",
+        loc=1,
+        borderpad=1
+    )
+    cbar = fig.colorbar(
+        im01,
+        cax=cbaxes,
+        ticks=[-300, 300],
+        orientation='horizontal'
+    )
+
+    # cbar.ax.xaxis.set_ticks_position('top')
+    cbar.ax.tick_params(labelsize=8, colors='white')
+
+    axs[0][0].yaxis.set_minor_locator(MultipleLocator(1))
+    axs[0][1].yaxis.set_minor_locator(MultipleLocator(1))
+    axs[1][0].yaxis.set_minor_locator(MultipleLocator(1))
+    axs[1][1].yaxis.set_minor_locator(MultipleLocator(1))
+    axs[2][0].yaxis.set_minor_locator(MultipleLocator(1))
+    axs[2][1].yaxis.set_minor_locator(MultipleLocator(1))
+    #
+    axs[0][0].xaxis.set_minor_locator(MultipleLocator(1))
+    axs[0][1].xaxis.set_minor_locator(MultipleLocator(1))
+    axs[1][0].xaxis.set_minor_locator(MultipleLocator(1))
+    axs[1][1].xaxis.set_minor_locator(MultipleLocator(1))
+    axs[2][0].xaxis.set_minor_locator(MultipleLocator(1))
+    axs[2][1].xaxis.set_minor_locator(MultipleLocator(1))
+
+    axs[0][0].tick_params(direction='in', which='both', color='white')
+    axs[0][1].tick_params(direction='in', which='both', color='white')
+    axs[1][0].tick_params(direction='in', which='both', color='white')
+    axs[1][1].tick_params(direction='in', which='both', color='white')
+    axs[2][0].tick_params(direction='in', which='both', color='white')
+    axs[2][1].tick_params(direction='in', which='both', color='white')
+
+    axs[0][0].set_xticklabels([])
+    axs[0][1].set_xticklabels([])
+    axs[1][0].set_xticklabels([])
+    axs[1][1].set_xticklabels([])
+    axs[0][1].set_yticklabels([])
+    axs[1][1].set_yticklabels([])
+    axs[2][1].set_yticklabels([])
+
+    axs[0][0].set_ylabel('y [arcsec]')
+    axs[1][0].set_ylabel('y [arcsec]')
+    axs[2][0].set_ylabel('y [arcsec]')
+
+    axs[2][0].set_xlabel('x [arcsec]')
+    axs[2][1].set_xlabel('x [arcsec]')
+
+    def updatefig(j):
+        # set the data in the axesimage object
+        im00.set_array(data[j, 0])
+        im01.set_array(data[j, 1])
+        im10.set_array(data[j, 2])
+        im11.set_array(data[j, 3])
+        im20.set_array(data[j, 4])
+        im21.set_array(data[j, 5])
+        # return the artists set
+        return [im00, im01, im10, im11, im20, im21]
+
+    rate = 1000 / fps
+
+    ani = animation.FuncAnimation(
+        fig,
+        updatefig,
+        frames=range(100),
+        interval=rate,
+        blit=True
+    )
+
+    Writer = animation.writers['ffmpeg']
+
+    writer = Writer(
+        fps=fps,
+        metadata=dict(artist='Harsh Mathur'),
+        bitrate=1800
+    )
+
+    ani.save(animation_path, writer=writer)
+
 if __name__ == '__main__':
     # plot_fov_images()
-    plot_one_image()
+    # plot_one_image()
+
+    write_path = Path('/home/harsh/Shocks Paper/')
+    animation_path = write_path / 'FoV_animation.mp4'
+    make_fov_movie(animation_path)
