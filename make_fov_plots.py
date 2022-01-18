@@ -287,7 +287,7 @@ def plot_fov_images():
         axs.append(axsi)
 
 
-    extent = [596.31, 666.312, -35.041, 11.765]
+    extent = [0, 70, 0, 46.806]
 
     fov_1_mask = np.zeros((1236, 1848))
     fov_2_mask = np.zeros((1236, 1848))
@@ -382,7 +382,7 @@ def plot_fov_images():
     #fov I
     fov_9_mask[600:650, 1280:1330] = 1
     axs[1][0].text(
-        1220 / 1848,
+        1200 / 1848,
         600 / 1236,
         'G',
         transform=axs[1][0].transAxes,
@@ -413,7 +413,7 @@ def plot_fov_images():
     axs[0][0].text(0.05, 0.91, r'(a) Continuum 4000 $\mathrm{\AA}$', transform=axs[0][0].transAxes, color='white')
     axs[0][1].text(
         0.05, 0.91,
-        r'(b) $B_{{\mathrm{LOS}}}$',
+        r'(b) $B_{{\mathrm{LOS}}}$ [G]',
         transform=axs[0][1].transAxes,
         color='white'
     )
@@ -480,7 +480,7 @@ def plot_fov_images():
     cbar = fig.colorbar(
         im,
         cax=cbaxes,
-        ticks=[-300, 300],
+        ticks=[-300, 0, 300],
         orientation='horizontal'
     )
 
@@ -582,6 +582,16 @@ def plot_fov_images():
     axs[0][1].set_xticklabels([])
     axs[1][0].set_xticklabels([])
     axs[1][1].set_xticklabels([])
+    axs[2][0].set_xticks([0, 10, 20, 30, 40, 50, 60])
+    axs[2][0].set_xticklabels([0, 10, 20, 30, 40, 50, 60])
+    axs[2][1].set_xticks([0, 10, 20, 30, 40, 50, 60])
+    axs[2][1].set_xticklabels([0, 10, 20, 30, 40, 50, 60])
+    axs[0][0].set_yticks([0, 10, 20, 30, 40])
+    axs[0][0].set_yticklabels([0, 10, 20, 30, 40])
+    axs[1][0].set_yticks([0, 10, 20, 30, 40])
+    axs[1][0].set_yticklabels([0, 10, 20, 30, 40])
+    axs[2][0].set_yticks([0, 10, 20, 30, 40])
+    axs[2][0].set_yticklabels([0, 10, 20, 30, 40])
     axs[0][1].set_yticklabels([])
     axs[1][1].set_yticklabels([])
     axs[2][1].set_yticklabels([])
@@ -615,7 +625,7 @@ def make_fov_movie(animation_path, fps=1):
 
     gs = gridspec.GridSpec(3, 2)
 
-    gs.update(left=0.1, right=1, top=1, bottom=0.07, wspace=0.0, hspace=0.0)
+    gs.update(left=0.09, right=0.99, top=0.99, bottom=0.06, wspace=0.0, hspace=0.0)
 
     axs = list()
 
@@ -629,7 +639,7 @@ def make_fov_movie(animation_path, fps=1):
             k += 1
         axs.append(axsi)
 
-    extent = [596.31, 666.312, -35.041, 11.765]
+    extent = [0, 70, 0, 46.806]
 
     ca_k_indice = np.array([14, 12])
     ca_8_indice = np.array([10, 9])
@@ -646,7 +656,7 @@ def make_fov_movie(animation_path, fps=1):
     axs[0][0].text(0.05, 0.91, r'(a) Continuum 4000 $\mathrm{\AA}$', transform=axs[0][0].transAxes, color='white')
     axs[0][1].text(
         0.05, 0.91,
-        r'(b) $B_{{\mathrm{LOS}}}$',
+        r'(b) $B_{{\mathrm{LOS}}}$ [G]',
         transform=axs[0][1].transAxes,
         color='white'
     )
@@ -713,7 +723,7 @@ def make_fov_movie(animation_path, fps=1):
     cbar = fig.colorbar(
         im01,
         cax=cbaxes,
-        ticks=[-300, 300],
+        ticks=[-300, 0, 300],
         orientation='horizontal'
     )
 
@@ -745,6 +755,16 @@ def make_fov_movie(animation_path, fps=1):
     axs[0][1].set_xticklabels([])
     axs[1][0].set_xticklabels([])
     axs[1][1].set_xticklabels([])
+    axs[2][0].set_xticks([0, 10, 20, 30, 40, 50, 60])
+    axs[2][0].set_xticklabels([0, 10, 20, 30, 40, 50, 60])
+    axs[2][1].set_xticks([0, 10, 20, 30, 40, 50, 60])
+    axs[2][1].set_xticklabels([0, 10, 20, 30, 40, 50, 60])
+    axs[0][0].set_yticks([0, 10, 20, 30, 40])
+    axs[0][0].set_yticklabels([0, 10, 20, 30, 40])
+    axs[1][0].set_yticks([0, 10, 20, 30, 40])
+    axs[1][0].set_yticklabels([0, 10, 20, 30, 40])
+    axs[2][0].set_yticks([0, 10, 20, 30, 40])
+    axs[2][0].set_yticklabels([0, 10, 20, 30, 40])
     axs[0][1].set_yticklabels([])
     axs[1][1].set_yticklabels([])
     axs[2][1].set_yticklabels([])
@@ -758,6 +778,7 @@ def make_fov_movie(animation_path, fps=1):
 
     def updatefig(j):
         # set the data in the axesimage object
+        print (j)
         im00.set_array(data[j, 0])
         im01.set_array(data[j, 1])
         im10.set_array(data[j, 2])
@@ -788,9 +809,9 @@ def make_fov_movie(animation_path, fps=1):
     ani.save(animation_path, writer=writer)
 
 if __name__ == '__main__':
-    # plot_fov_images()
+    plot_fov_images()
     # plot_one_image()
 
-    write_path = Path('/home/harsh/Shocks Paper/')
-    animation_path = write_path / 'FoV_animation.mp4'
-    make_fov_movie(animation_path)
+    # write_path = Path('/home/harsh/Shocks Paper/')
+    # animation_path = write_path / 'FoV_animation.mp4'
+    # make_fov_movie(animation_path, fps=18)

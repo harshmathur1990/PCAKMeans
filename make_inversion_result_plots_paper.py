@@ -8,6 +8,7 @@ from matplotlib.ticker import MultipleLocator
 from matplotlib.patches import Patch
 from calculate_calib_velocity_and_classify_rps import get_shocks_mask, \
     get_very_strong_shocks_mask, get_very_very_strong_shocks_mask
+from matplotlib.ticker import AutoMinorLocator
 
 inversion_out_file = Path('/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/FoVAtoJ.nc')
 
@@ -65,11 +66,11 @@ def make_line_cut_plots(all_params, time_array, mask, fovName, vlos_min_lc=None,
 
     all_vmin[0] = np.round(
         all_params[:, 0].min(),
-        1
+        0
     )
     all_vmax[0] = np.round(
         all_params[:, 0].max(),
-        1
+        0
     )
 
     all_vmin[1] = -8 if vlos_min_lc is None else vlos_min_lc
@@ -86,11 +87,11 @@ def make_line_cut_plots(all_params, time_array, mask, fovName, vlos_min_lc=None,
 
     plt.cla()
 
-    fig = plt.figure(figsize=(3.5, 1.5))
+    fig = plt.figure(figsize=(3.5, 2.236))
 
     gs = gridspec.GridSpec(2, 3)
 
-    gs.update(wspace=0.0, hspace=0.0)
+    gs.update(wspace=0.0, hspace=0.0, left=0.25, right=0.82, bottom=0.23, top=0.8)
 
     X, Y = np.meshgrid(range(50), ltau)
 
@@ -139,15 +140,15 @@ def make_line_cut_plots(all_params, time_array, mask, fovName, vlos_min_lc=None,
 
                 cbaxes = inset_axes(
                     axs,
-                    width="80%",
+                    width="60%",
                     height="5%",
                     loc='upper center',
-                    borderpad=-1
+                    borderpad=-0.5
                 )
                 cbar = fig.colorbar(
                     im,
                     cax=cbaxes,
-                    ticks=[all_vmin[j], all_vmax[j]],
+                    ticks=[all_vmin[j], (all_vmin[j] + all_vmax[j]) // 2, all_vmax[j]],
                     orientation='horizontal'
                 )
                 cbar.ax.xaxis.set_ticks_position('top')
@@ -167,8 +168,14 @@ def make_line_cut_plots(all_params, time_array, mask, fovName, vlos_min_lc=None,
                 axs.set_yticks([-6, -4, -2, 0])
                 axs.set_yticklabels([-6, -4, -2, 0], fontsize=fontsize)
                 axs.yaxis.set_minor_locator(MultipleLocator(1))
-
+                axs.set_ylabel(r'$\log\tau_{\mathrm{500}}$', fontsize=fontsize)
                 if i == 0:
+                    axs.text(
+                        -1.3, 1.45, '(d) Vertical Cut',
+                        transform=axs.transAxes,
+                        fontsize=fontsize + 2
+                    )
+
                     axs.text(
                         0.05, 0.8, r'FoV {}'.format(
                             fovName
@@ -180,16 +187,23 @@ def make_line_cut_plots(all_params, time_array, mask, fovName, vlos_min_lc=None,
             k += 1
 
             if i == 1:
-                axs.set_xticks([10, 20, 30, 40])
-                axs.set_xticklabels([10, 20, 30, 40], fontsize=fontsize)
+                axs.set_xticks([50 / 1.85])
+                axs.xaxis.set_minor_locator(MultipleLocator(25/1.85))
+                if j == 1:
+                    axs.set_xticklabels([1], fontsize=fontsize)
+                    axs.text(
+                        0.15, -0.45,
+                        r'$\Delta y$ [arcsec]',
+                        transform=axs.transAxes,
+                        fontsize=fontsize
+                    )
 
     fig.savefig(
         write_path / 'FoV_{}_linecut.pdf'.format(
             fovName
         ),
         format='pdf',
-        dpi=300,
-        bbox_inches='tight'
+        dpi=300
     )
 
     fig.savefig(
@@ -197,8 +211,7 @@ def make_line_cut_plots(all_params, time_array, mask, fovName, vlos_min_lc=None,
             fovName
         ),
         format='png',
-        dpi=300,
-        bbox_inches='tight'
+        dpi=300
     )
 
     plt.close('all')
@@ -218,7 +231,7 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_
 
     fontsize = 6
 
-    for ltau_val in [-4.2, -3, -1]:
+    for ltau_val, ltt in zip([-4.2, -3, -1], ['a', 'b', 'c']):
 
         ltau_index = np.argmin(np.abs(ltau - ltau_val))
 
@@ -228,11 +241,11 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_
 
         plt.cla()
 
-        fig = plt.figure(figsize=(3.5, 1.5))
+        fig = plt.figure(figsize=(3.5, 2.236))
 
         gs = gridspec.GridSpec(3, 7)
 
-        gs.update(left=0.15, right=1, top=0.85, bottom=0, wspace=0.0, hspace=0.0)
+        gs.update(left=0.15, right=1, top=0.8, bottom=0.23, wspace=0.0, hspace=0.0)
 
         temp = f['all_temp'][index * 7:index * 7 + 7, :, :, ltau_index] / 1e3
         vlos = f['all_vlos'][index * 7:index * 7 + 7, :, :, ltau_index]
@@ -300,13 +313,13 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_
                     )
                     if j == 0:
                         axs.text(
-                            -1.2, 1.3,
-                            r'$\log\tau_{{\mathrm{{500}}}}={}$'.format(
-                                ltau_val
+                            -1.2, 1.75,
+                            r'({}) $\log\tau_{{\mathrm{{500}}}}={}$'.format(
+                                 ltt, ltau_val
                             ),
                             transform=axs.transAxes,
                             color='black',
-                            fontsize=fontsize
+                            fontsize=fontsize + 3,
                         )
                     if j == 3:
                         axs.text(
@@ -422,6 +435,21 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_
                 axs.set_yticks([])
                 axs.set_xticklabels([])
                 axs.set_yticklabels([])
+
+                if j == 0:
+                    axs.set_yticks([50 / 1.85])
+                    axs.yaxis.set_minor_locator(MultipleLocator(25 / 1.85))
+                if i == 2:
+                    axs.set_xticks([50 / 1.85])
+                    axs.xaxis.set_minor_locator(MultipleLocator(25 / 1.85))
+                    if j == 3:
+                        axs.text(
+                            0.06, -0.63,
+                            r'$\Delta x$ [arcsec]',
+                            transform=axs.transAxes,
+                            fontsize=fontsize - 1
+                        )
+                        axs.set_xticklabels([1], fontsize=fontsize - 1)
                 k += 1
 
         fig.savefig(
@@ -552,10 +580,10 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y, letter):
                 )
 
                 axs.set_ylim(tmin, tmax)
-                axs.set_yticks(np.arange(tmin + 0.5, tmax, 0.5))
-                axs.set_yticklabels(np.arange(tmin + 0.5, tmax, 0.5), fontsize=fontsize)
+                axs.set_yticks(np.arange(tmin + 0.5, tmax, 2))
+                axs.set_yticklabels(np.arange(tmin + 0.5, tmax, 2), fontsize=fontsize)
                 axs.set_ylabel(r'$\delta$T [kK]', fontsize=fontsize)
-                axs.yaxis.set_minor_locator(MultipleLocator(0.1))
+                axs.yaxis.set_minor_locator(MultipleLocator(0.5))
             else:
                 axs.plot(
                     time[start_t:start_t+7],
@@ -566,7 +594,7 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y, letter):
                 axs.set_ylim(vmin, vmax)
                 axs.set_yticks(np.arange(vmin + 2, vmax, 2))
                 axs.set_yticklabels(np.arange(vmin + 2, vmax, 2), fontsize=fontsize)
-                axs.set_ylabel(r'$V_{\mathrm{LOS}}\mathrm{[km\;s^{-1}]}$', fontsize=fontsize)
+                axs.set_ylabel(r'$V_{\mathrm{LOS}}\;\mathrm{[km\;s^{-1}]}$', fontsize=fontsize)
                 axs.set_xlabel(r'Time [s]', fontsize=fontsize)
                 axs.yaxis.set_minor_locator(MultipleLocator(0.5))
 
@@ -930,14 +958,14 @@ if __name__ == '__main__':
     # plot_data_for_result_plots(7, 7, 11, 16, 'F')
     # plot_data_for_result_plots(8, 8, 11, 21, 'G')
     # plot_data_for_result_plots(9, 9, 12, 28, 'H')
-    # make_time_evolution_plots(0, 4, 25, 18, 'A')
-    # make_time_evolution_plots(2, 17, 23, 27, 'B')
-    # make_time_evolution_plots(3, 32, 29, 20, 'C')
-    # make_time_evolution_plots(4, 12, 24, 22, 'D')
-    # make_time_evolution_plots(5, 57, 28, 28, 'E')
-    # make_time_evolution_plots(7, 7, 22, 16, 'F')
-    # make_time_evolution_plots(8, 8, 26, 21, 'G')
-    # make_time_evolution_plots(9, 9, 28, 28, 'H')
+    make_time_evolution_plots(0, 4, 25, 18, 'A')
+    make_time_evolution_plots(2, 17, 23, 27, 'B')
+    make_time_evolution_plots(3, 32, 29, 20, 'C')
+    make_time_evolution_plots(4, 12, 24, 22, 'D')
+    make_time_evolution_plots(5, 57, 28, 28, 'E')
+    make_time_evolution_plots(7, 7, 22, 16, 'F')
+    make_time_evolution_plots(8, 8, 26, 21, 'G')
+    make_time_evolution_plots(9, 9, 28, 28, 'H')
     # make_legend()
     # make_legend_average()
     make_pre_shock_peak_shock_temp_vlos_scatter_plot()

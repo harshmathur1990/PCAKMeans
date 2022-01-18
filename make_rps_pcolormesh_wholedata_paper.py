@@ -22,6 +22,8 @@ input_file_3950 = '/home/harsh/OsloAnalysis/nb_3950_2019-06-06T10:26:20_scans=0-
 input_file_8542 = '/home/harsh/OsloAnalysis/nb_8542_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
 input_file_6173 = '/home/harsh/OsloAnalysis/nb_6173_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
 
+write_path = Path('/home/harsh/Shocks Paper/KMeans/')
+
 mask, _  = sunpy.io.fits.read(mask_file_crisp, memmap=True)[0]
 
 mask = np.transpose(mask, axes=(2, 1, 0))
@@ -214,6 +216,7 @@ def actual_plotting(labels, rps, name='guess'):
                 H1, xedge1, yedge1 = np.histogram2d(
                     np.tile(wave_3933, a.shape[0]),
                     whole_data[a, 0:29].flatten() / cont_value[0],
+                    range=[[wave_3933[0], wave_3933[-1]], [0, 0.7]],
                     bins=(wave_3933, in_bins_3950)
                 )
 
@@ -236,7 +239,10 @@ def actual_plotting(labels, rps, name='guess'):
 
                 X1, Y1 = np.meshgrid(xedge1, yedge1)
 
-                ax1.pcolormesh(X1, Y1, H1.T, cmap=cm)
+                H1 /= H1.max()
+
+                np.savetxt(write_path / 'histogram_{}.txt'.format(i), H1.T)
+                ax1.pcolormesh(X1, Y1, H1.T, cmap=cm, vmin=0.1, vmax=0.2)
 
                 ax1.set_ylim(min_3950, max_3950)
 
@@ -330,7 +336,7 @@ def actual_plotting(labels, rps, name='guess'):
 
         # fig.tight_layout()
         fig.savefig(
-            'RPs_paper.pdf'.format(k),
+            write_path / 'RPs_paper.pdf'.format(k),
             format='pdf',
             dpi=300
         )
@@ -453,7 +459,7 @@ def make_appendix_plot(rps):
         # fig.tight_layout()
 
         fig.savefig(
-            'RPs_appemdix_{}.pdf'.format(name),
+            write_path / 'RPs_appemdix_{}.pdf'.format(name),
             format='pdf',
             dpi=300
         )
@@ -482,8 +488,8 @@ def plot_profiles():
         ind = np.where(labels == i)[0]
         rps[i] = np.mean(whole_data[ind], 0)
 
-    # actual_plotting(labels, rps, name='guess')
-    make_appendix_plot(rps)
+    actual_plotting(labels, rps, name='guess')
+    # make_appendix_plot(rps)
     f.close()
 
 

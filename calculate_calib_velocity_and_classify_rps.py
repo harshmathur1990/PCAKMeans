@@ -756,6 +756,20 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
             axs[i][j].set_yticks([])
             axs[i][j].set_xticklabels([])
             axs[i][j].set_yticklabels([])
+            axs[i][j].set_xticks([int(50 / 1.85), 49])
+            axs[i][j].set_yticks([int(50 / 1.85), 49])
+            if i == 6 and j == 0:
+                axs[i][j].set_xticks([0, int(50 / 1.85), 49])
+                axs[i][j].set_yticks([0, int(50 / 1.85), 49])
+                axs[i][j].set_xticklabels([0, 1, 1.85], fontsize=fontsize)
+                axs[i][j].set_yticklabels([0, 1, 1.85], fontsize=fontsize)
+                axs[i][j].text(
+                    0.0, -0.55,
+                    r'$\mathrm{\Delta x}$ [arcsec]',
+                    transform=axs[i][j].transAxes,
+                    fontsize=fontsize
+                )
+                axs[i][j].set_ylabel(r'$\mathrm{\Delta y}$ [arcsec]', fontsize=fontsize)
             if j == 0:
                 axs[i][j].imshow(
                     whole_data[i, :, :, 29],
@@ -765,37 +779,26 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
                     vmax=wb_vmax
                 )
                 if i == 0:
-                    axs[i][j].set_title(
-                        r'(a) $\mathrm{4000\;\AA}$',
+                    axs[i][j].text(
+                        -0.4, 1.1,
+                        r'(a)',
+                        transform=axs[i][j].transAxes,
+                        fontsize=fontsize + 2
+                    )
+                    axs[i][j].text(
+                        0.15, 1.1,
+                        r'$\mathrm{4000\;\AA}$',
+                        transform=axs[i][j].transAxes,
                         fontsize=fontsize
                     )
-                axs[i][j].text(
-                    -0.7, 0.4,
-                    r'$\mathrm{{{}s}}$'.format(
-                        time_arr[time_step[i]]
-                    ),
-                    transform=axs[i][j].transAxes,
-                    fontsize=fontsize,
-                    # rotation=0,
-                    # labelpad=20
-                )
-                if i == 3:
-                    axs[i][j].text(
-                        -0.95, 0.3,
-                        'time',
-                        transform=axs[i][j].transAxes,
-                        fontsize=fontsize,
-                        rotation=90
-                    )
-                if i == 5:
-                    axs[i][j].set_yticks([0])
-                    axs[i][j].set_yticklabels([1.85], fontsize=fontsize)
 
-                if i == 6:
-                    axs[i][j].set_xticks([0])
-                    axs[i][j].set_xticklabels([0], fontsize=fontsize)
-                    axs[i][j].set_yticks([0])
-                    axs[i][j].set_yticklabels([0], fontsize=fontsize)
+                # if i == 3:
+                #     axs[i][j].set_ylabel(
+                #         'time [s]',
+                #         fontsize=fontsize,
+                #         color=time_color
+                #     )
+
             elif j == 1:
                 im = axs[i][j].imshow(
                     blos_6173[i, :, :],
@@ -828,10 +831,6 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
                     cbar.ax.xaxis.set_ticks_position('top')
                     cbar.ax.tick_params(colors='white', labelsize=fontsize)
 
-                if i == 6:
-                    axs[i][j].set_xticks([0])
-                    axs[i][j].set_xticklabels([1.85], fontsize=fontsize)
-
             else:
                 axs[i][j].imshow(
                     whole_data[i, :, :, wave_indice[j - 2]],
@@ -852,21 +851,26 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
                         ),
                         fontsize=fontsize - 1
                     )
-                # if i == 1:
-                #     if j == 4:
-                #         fig.suptitle(
-                #             r'$FOV\;{}$'.format(
-                #                 letter
-                #             ),
-                #             fontsize=fontsize
-                #         )
+                if j == 4:
+                    time_color = 'white'
+                    axs[i][j].text(
+                        0.3, 0.05,
+                        r'{} s'.format(
+                            time_arr[time_step[i]]
+                        ),
+                        transform=axs[i][j].transAxes,
+                        fontsize=fontsize,
+                        color=time_color,
+                        rotation=0,
+                        # labelpad=20
+                    )
 
             if mark_t == time_step[i] and j == 2:
                 axs[i][j].scatter(
                     mark_y, mark_x,
                     marker='+',
-                    color='blue',
-                    linewidths=0.5
+                    color='red',
+                    linewidths=0.8
                 )
 
             lightblue = '#5089C6'
@@ -987,8 +991,8 @@ def make_nb_image(ref_x, ref_y, time_step, wave_indice, mark_x, mark_y, letter):
     axs.scatter(
         mark_y, mark_x,
         marker='+',
-        color='blue',
-        linewidths=0.5
+        color='red',
+        linewidths=0.8
     )
 
     lightblue = '#5089C6'
@@ -1387,7 +1391,7 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice_1, time_ind
         r'(d)',
         transform=axs.transAxes,
         color='black',
-        fontsize=fontsize
+        fontsize=fontsize + 2
     )
     axs.set_xticks([-0.5, 0, 0.5])
 
@@ -1397,7 +1401,12 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice_1, time_ind
 
     axs.yaxis.set_tick_params(labelsize=fontsize)
 
-    axs.set_xlabel(r'$\Delta \lambda\;\mathrm{[\AA]}$', fontsize=fontsize)
+    axs.text(
+        0.36, -0.35,
+        r'$\Delta \lambda\;\mathrm{[\AA]}$',
+        transform=axs.transAxes,
+        fontsize=fontsize
+    )
 
     axs.set_ylabel(r'$I/I_{\mathrm{c}}$', fontsize=fontsize)
 
@@ -1457,7 +1466,7 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice_1, time_ind
         r'(e)',
         transform=axs.transAxes,
         color='black',
-        fontsize=fontsize
+        fontsize=fontsize + 2
     )
 
     axs.set_xticks([-1, 0, 1])
@@ -1468,7 +1477,12 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice_1, time_ind
 
     axs.yaxis.set_tick_params(labelsize=fontsize)
 
-    axs.set_xlabel(r'$\Delta \lambda\;\mathrm{[\AA]}$', fontsize=fontsize)
+    axs.text(
+        0.36, -0.35,
+        r'$\Delta \lambda\;\mathrm{[\AA]}$',
+        transform=axs.transAxes,
+        fontsize=fontsize
+    )
 
     axs.set_ylabel(r'$I/I_{\mathrm{c}}$', fontsize=fontsize)
 
@@ -1550,7 +1564,7 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t_1, mark_t_2, color
             r'(b)',
             transform=axs.transAxes,
             color='white',
-            fontsize=fontsize
+            fontsize=fontsize + 2
         )
     axs.set_xticks([-0.5, 0, 0.5])
     if not appendix:
@@ -1559,7 +1573,7 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t_1, mark_t_2, color
         axs.set_xticklabels([-0.5, 0, 0.5], fontsize=fontsize)
         axs.set_xlabel(r'$\Delta \lambda\;\mathrm{[\AA]}$', fontsize=fontsize)
     axs.yaxis.set_tick_params(labelsize=fontsize)
-    axs.set_ylabel(r'time (seconds)', fontsize=fontsize)
+    axs.set_ylabel(r'time [s]', fontsize=fontsize)
     axs.set_title(
         r'Ca II K',
         fontsize=fontsize
@@ -1628,7 +1642,7 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t_1, mark_t_2, color
             r'(c)',
             transform=axs.transAxes,
             color='white',
-            fontsize=fontsize
+            fontsize=fontsize + 2
         )
     axs.set_xticks([-1, 0, 1])
     if not appendix:
@@ -1637,7 +1651,7 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t_1, mark_t_2, color
         axs.set_xticklabels([-1, 0, 1], fontsize=fontsize)
         axs.set_xlabel(r'$\Delta \lambda\;\mathrm{[\AA]}$', fontsize=fontsize)
     axs.yaxis.set_tick_params(labelsize=fontsize)
-    axs.set_ylabel(r'time (seconds)', fontsize=fontsize)
+    axs.set_ylabel(r'time [s]', fontsize=fontsize)
     axs.set_title(
         r'Ca II 8542 $\mathrm{\AA}$',
         fontsize=fontsize
@@ -1743,98 +1757,98 @@ def make_shock_evolution_plots():
             blos_lim
         )
 
-        make_evolution_single_pixel_plot(
-            ref_x_list[i],
-            ref_y_list[i],
-            mark_list[i][1],
-            mark_list[i][2],
-            np.array(
-                [
-                    mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
-                    mark_list[i][0] - 2 if (mark_list[i][0] - 4) >= 0 else 0,
-                    mark_list[i][0],
-                    mark_list[i][0] + 2 if (mark_list[i][0] + 4) < 100 else 99,
-                    mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
-                ]
-            ),
-            np.array(
-                [
-                    mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
-                    mark_list[i][0],
-                    mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
-                ]
-            ),
-            FoV_letter_list[i],
-            wave_indice,
-            color_list_1,
-            color_list_2
-        )
-
-        start_t = time_step_list[i][0]
-        end_t = time_step_list[i][-1]
-
-        begin_seq = np.arange(start_t-14 if (start_t-14) >= 0 else 0, start_t)
-        end_seq = np.arange(end_t, end_t + 14 if (end_t + 14) < 100 else 99)
-
-        time_step = np.array(list(begin_seq) + list(time_step_list[i]) + list(end_seq))
-        make_lambda_t_curve(
-            ref_x_list[i],
-            ref_y_list[i],
-            mark_list[i][1],
-            mark_list[i][2],
-            time_step,
-            np.array(
-                [
-                    mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
-                    mark_list[i][0] - 2 if (mark_list[i][0] - 4) >= 0 else 0,
-                    mark_list[i][0],
-                    mark_list[i][0] + 2 if (mark_list[i][0] + 4) < 100 else 99,
-                    mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
-                ]
-            ),
-            np.array(
-                [
-                    mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
-                    mark_list[i][0],
-                    mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
-                ]
-            ),
-            color_list_1,
-            color_list_2,
-            FoV_letter_list[i]
-        )
-
-        make_nb_image(
-            ref_x_list[i],
-            ref_y_list[i],
-            np.array([mark_list[i][0]]),
-            wave_indice[0],
-            mark_list[i][1],
-            mark_list[i][2],
-            FoV_letter_list[i]
-        )
-
-        make_lambda_t_curve(
-            ref_x_list[i],
-            ref_y_list[i],
-            mark_list[i][1],
-            mark_list[i][2],
-            time_step,
-            np.array(
-                [
-                    mark_list[i][0]
-                ]
-            ),
-            np.array(
-                [
-                    mark_list[i][0]
-                ]
-            ),
-            [color_list_2[0]],
-            [color_list_2[0]],
-            FoV_letter_list[i],
-            appendix=True
-        )
+        # make_evolution_single_pixel_plot(
+        #     ref_x_list[i],
+        #     ref_y_list[i],
+        #     mark_list[i][1],
+        #     mark_list[i][2],
+        #     np.array(
+        #         [
+        #             mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
+        #             mark_list[i][0] - 2 if (mark_list[i][0] - 4) >= 0 else 0,
+        #             mark_list[i][0],
+        #             mark_list[i][0] + 2 if (mark_list[i][0] + 4) < 100 else 99,
+        #             mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
+        #         ]
+        #     ),
+        #     np.array(
+        #         [
+        #             mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
+        #             mark_list[i][0],
+        #             mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
+        #         ]
+        #     ),
+        #     FoV_letter_list[i],
+        #     wave_indice,
+        #     color_list_1,
+        #     color_list_2
+        # )
+        #
+        # start_t = time_step_list[i][0]
+        # end_t = time_step_list[i][-1]
+        #
+        # begin_seq = np.arange(start_t-14 if (start_t-14) >= 0 else 0, start_t)
+        # end_seq = np.arange(end_t, end_t + 14 if (end_t + 14) < 100 else 99)
+        #
+        # time_step = np.array(list(begin_seq) + list(time_step_list[i]) + list(end_seq))
+        # make_lambda_t_curve(
+        #     ref_x_list[i],
+        #     ref_y_list[i],
+        #     mark_list[i][1],
+        #     mark_list[i][2],
+        #     time_step,
+        #     np.array(
+        #         [
+        #             mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
+        #             mark_list[i][0] - 2 if (mark_list[i][0] - 4) >= 0 else 0,
+        #             mark_list[i][0],
+        #             mark_list[i][0] + 2 if (mark_list[i][0] + 4) < 100 else 99,
+        #             mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
+        #         ]
+        #     ),
+        #     np.array(
+        #         [
+        #             mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
+        #             mark_list[i][0],
+        #             mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
+        #         ]
+        #     ),
+        #     color_list_1,
+        #     color_list_2,
+        #     FoV_letter_list[i]
+        # )
+        #
+        # make_nb_image(
+        #     ref_x_list[i],
+        #     ref_y_list[i],
+        #     np.array([mark_list[i][0]]),
+        #     wave_indice[0],
+        #     mark_list[i][1],
+        #     mark_list[i][2],
+        #     FoV_letter_list[i]
+        # )
+        #
+        # make_lambda_t_curve(
+        #     ref_x_list[i],
+        #     ref_y_list[i],
+        #     mark_list[i][1],
+        #     mark_list[i][2],
+        #     time_step,
+        #     np.array(
+        #         [
+        #             mark_list[i][0]
+        #         ]
+        #     ),
+        #     np.array(
+        #         [
+        #             mark_list[i][0]
+        #         ]
+        #     ),
+        #     [color_list_2[0]],
+        #     [color_list_2[0]],
+        #     FoV_letter_list[i],
+        #     appendix=True
+        # )
 
 
 def make_fov_contour():
@@ -2282,5 +2296,5 @@ def get_all_profile_enhancement_data():
 
 
 if __name__ == '__main__':
-    plot_response_functions()
-    # make_shock_evolution_plots()
+    make_shock_evolution_plots()
+    # plot_response_functions()
