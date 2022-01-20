@@ -206,8 +206,8 @@ def actual_plotting(labels, rps, name='guess'):
             max_8542, min_8542  = c, f
             max_6173, min_6173  = d, g
 
-            min_3950 = min_3950 * 0.9
-            max_3950 = max_3950 * 1.1
+            min_3950 = 0  # min_3950 * 0.9
+            max_3950 = 0.7  # max_3950 * 1.1
 
             if j == 0:
 
@@ -242,7 +242,10 @@ def actual_plotting(labels, rps, name='guess'):
                 H1 /= H1.max()
 
                 np.savetxt(write_path / 'histogram_{}.txt'.format(i), H1.T)
-                ax1.pcolormesh(X1, Y1, H1.T, cmap=cm, vmin=0.1, vmax=0.2)
+                if i == 3:
+                    ax1.pcolormesh(X1, Y1, H1.T, cmap=cm, vmin=0.1, vmax=0.15)
+                else:
+                    ax1.pcolormesh(X1, Y1, H1.T, cmap=cm, vmin=0.1, vmax=0.2)
 
                 ax1.set_ylim(min_3950, max_3950)
 

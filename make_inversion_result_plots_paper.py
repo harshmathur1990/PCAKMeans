@@ -189,7 +189,7 @@ def make_line_cut_plots(all_params, time_array, mask, fovName, vlos_min_lc=None,
             if i == 1:
                 axs.set_xticks([50 / 1.85])
                 axs.xaxis.set_minor_locator(MultipleLocator(25/1.85))
-                if j == 1:
+                if j == 0:
                     axs.set_xticklabels([1], fontsize=fontsize)
                     axs.text(
                         0.15, -0.45,
@@ -442,7 +442,7 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_
                 if i == 2:
                     axs.set_xticks([50 / 1.85])
                     axs.xaxis.set_minor_locator(MultipleLocator(25 / 1.85))
-                    if j == 3:
+                    if j == 0:
                         axs.text(
                             0.06, -0.63,
                             r'$\Delta x$ [arcsec]',
@@ -579,9 +579,18 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y, letter):
                     )
                 )
 
+                if tmax <= 2:
+                    tmin = -2.5
+                    tmax = 2.5
+                ticks = [0]
+                tt = 2
+                while tt < tmax:
+                    ticks.insert(0, -tt)
+                    ticks.append(tt)
+                    tt += 2
                 axs.set_ylim(tmin, tmax)
-                axs.set_yticks(np.arange(tmin + 0.5, tmax, 2))
-                axs.set_yticklabels(np.arange(tmin + 0.5, tmax, 2), fontsize=fontsize)
+                axs.set_yticks(ticks)
+                axs.set_yticklabels(ticks, fontsize=fontsize)
                 axs.set_ylabel(r'$\delta$T [kK]', fontsize=fontsize)
                 axs.yaxis.set_minor_locator(MultipleLocator(0.5))
             else:
@@ -591,9 +600,15 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y, letter):
                     color=color
                 )
 
+                ticks = [0]
+                tt = 2
+                while tt < vmax:
+                    ticks.insert(0, -tt)
+                    ticks.append(tt)
+                    tt += 2
                 axs.set_ylim(vmin, vmax)
-                axs.set_yticks(np.arange(vmin + 2, vmax, 2))
-                axs.set_yticklabels(np.arange(vmin + 2, vmax, 2), fontsize=fontsize)
+                axs.set_yticks(ticks)
+                axs.set_yticklabels(ticks, fontsize=fontsize)
                 axs.set_ylabel(r'$V_{\mathrm{LOS}}\;\mathrm{[km\;s^{-1}]}$', fontsize=fontsize)
                 axs.set_xlabel(r'Time [s]', fontsize=fontsize)
                 axs.yaxis.set_minor_locator(MultipleLocator(0.5))
@@ -867,9 +882,9 @@ def make_pre_shock_peak_shock_temp_vlos_scatter_plot():
 
     size = plt.rcParams['lines.markersize']
 
-    pre_temp, peak_temp_delta_t, vlos_shock = get_data_for_pre_shock_peak_shock_temp_scatter_plot_average(
+    pre_temp, peak_temp_delta_t, vlos_shock = get_data_for_pre_shock_peak_shock_temp_scatter_plot(
         [0, 2, 3, 4, 5, 7, 8, 9],
-        [2, 3, 3, 3, 3, 4, 3, 3]
+        [3, 3, 3, 3, 3, 4, 3, 3]
     )
 
     fontsize = 8
@@ -950,14 +965,14 @@ def make_pre_shock_peak_shock_temp_vlos_scatter_plot():
 
 
 if __name__ == '__main__':
-    plot_data_for_result_plots(0, 4, 6, 18, 'A')
-    plot_data_for_result_plots(2, 17, 20, 27, 'B', -4, 4)
-    plot_data_for_result_plots(3, 32, 35, 20, 'C')
-    plot_data_for_result_plots(4, 12, 15, 22, 'D')
-    plot_data_for_result_plots(5, 57, 60, 28, 'E')
-    plot_data_for_result_plots(7, 7, 11, 16, 'F')
-    plot_data_for_result_plots(8, 8, 11, 21, 'G')
-    plot_data_for_result_plots(9, 9, 12, 28, 'H')
+    # plot_data_for_result_plots(0, 4, 6, 18, 'A')
+    # plot_data_for_result_plots(2, 17, 20, 27, 'B', -4, 4)
+    # plot_data_for_result_plots(3, 32, 35, 20, 'C')
+    # plot_data_for_result_plots(4, 12, 15, 22, 'D')
+    # plot_data_for_result_plots(5, 57, 60, 28, 'E')
+    # plot_data_for_result_plots(7, 7, 11, 16, 'F')
+    # plot_data_for_result_plots(8, 8, 11, 21, 'G')
+    # plot_data_for_result_plots(9, 9, 12, 28, 'H')
     make_time_evolution_plots(0, 4, 25, 18, 'A')
     make_time_evolution_plots(2, 17, 23, 27, 'B')
     make_time_evolution_plots(3, 32, 29, 20, 'C')

@@ -762,7 +762,7 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
             if j == 0:
                 axs[i][j].set_yticks([int(50 / 1.85)])
                 axs[i][j].yaxis.set_minor_locator(MultipleLocator(25 / 1.85))
-            if i == 6 and j == 2:
+            if i == 6 and j == 0:
                 axs[i][j].set_xticklabels([1])
                 axs[i][j].text(
                     0.0, -0.55,
@@ -770,7 +770,6 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
                     transform=axs[i][j].transAxes,
                     fontsize=fontsize
                 )
-            if i == 3 and j == 0:
                 axs[i][j].set_yticklabels([1])
                 axs[i][j].set_ylabel(r'$\mathrm{\Delta y}$ [arcsec]', fontsize=fontsize)
             if j == 0:
@@ -794,13 +793,6 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
                         transform=axs[i][j].transAxes,
                         fontsize=fontsize
                     )
-
-                # if i == 3:
-                #     axs[i][j].set_ylabel(
-                #         'time [s]',
-                #         fontsize=fontsize,
-                #         color=time_color
-                #     )
 
             elif j == 1:
                 im = axs[i][j].imshow(

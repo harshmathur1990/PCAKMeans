@@ -31,11 +31,11 @@ mid_chromosphere_indices = np.array([5])
 
 upper_chromosphere_indices = np.array([12])
 
-photosphere_tau = np.array([-0.5])
+photosphere_tau = np.array([-1])
 
-mid_chromosphere_tau = np.array([-3.8])
+mid_chromosphere_tau = np.array([-3])
 
-upper_chromosphere_tau = np.array([-5])
+upper_chromosphere_tau = np.array([-4.2])
 
 cont_value = [2.4434714e-05, 4.2277254e-08, 4.054384e-08]
 
@@ -77,10 +77,21 @@ ltau = np.array(
 )
 
 
+wave_3933 = np.array(
+    [
+        3932.78952, 3932.85488, 3932.92024, 3932.9856 , 3933.05096,
+        3933.11632, 3933.18168, 3933.24704, 3933.3124 , 3933.37776,
+        3933.44312, 3933.50848, 3933.57384, 3933.6392 , 3933.70456,
+        3933.76992, 3933.83528, 3933.90064, 3933.966  , 3934.03136,
+        3934.09672, 3934.16208, 3934.22744, 3934.2928 , 3934.35816,
+        3934.42352, 3934.48888, 3934.55424, 3934.6196, 4001.14744
+    ]
+)
+
 def get_atmos_values_for_lables(ltau_val_min, ltau_val_max=None):
 
     if ltau_val_max is None:
-        indices = np.argmin(np.abs(ltau - ltau_val_min))
+        indices = np.array([np.argmin(np.abs(ltau - ltau_val_min))])
     else:
         indices = np.where((ltau >= ltau_val_min) & (ltau <= ltau_val_max))[0]
 
@@ -327,7 +338,7 @@ def plot_paper_rp_guess_map_plot():
     this_axs.set_yticks([])
     this_axs.set_xticklabels([])
     this_axs.set_yticklabels([])
-    this_axs.text(0.1, 0.9, r'Ca II K wing', transform=this_axs.transAxes, fontsize=fontsize)
+    this_axs.text(0.1, 0.9, r'Ca II K ${}$ $\mathrm{{m\AA}}$'.format(np.round(wave_3933[5] - 3933.682, 1)), transform=this_axs.transAxes, fontsize=fontsize)
     mask = get_shocks_mask(labels)
     mask[np.where(mask >= 1)] = 1
     this_axs.contour(
@@ -369,7 +380,7 @@ def plot_paper_rp_guess_map_plot():
     this_axs.set_yticks([])
     this_axs.set_xticklabels([])
     this_axs.set_yticklabels([])
-    this_axs.text(0.1, 0.9, r'Ca II K inner core', transform=this_axs.transAxes, fontsize=fontsize)
+    this_axs.text(0.1, 0.9, r'Ca II K ${}$ $\mathrm{{m\AA}}$'.format(np.round(wave_3933[12] - 3933.682, 1)), transform=this_axs.transAxes, fontsize=fontsize)
     mask = get_shocks_mask(labels)
     mask[np.where(mask >= 1)] = 1
     this_axs.contour(
@@ -401,17 +412,20 @@ def plot_paper_rp_guess_map_plot():
         levels=0
     )
 
+    tmin = np.round(params[1].min(), 0)
+    tmax = np.round(params[1].max(), 0)
+
     # [1][0]
     gs = gridspec.GridSpec(1, 1)
     gs.update(left=0, right=0.333, bottom=0.466, top=0.732, wspace=0.0, hspace=0.0)
     this_axs = fig.add_subplot(gs[0])
-    im = this_axs.imshow(params[1][0], cmap='hot', origin='lower', vmin=5.7, vmax=5.9)
+    im = this_axs.imshow(params[1][0], cmap='hot', origin='lower', vmin=tmin, vmax=tmax)
     this_axs.set_ylim(0, 80)
     this_axs.set_xticks([])
     this_axs.set_yticks([])
     this_axs.set_xticklabels([])
     this_axs.set_yticklabels([])
-    this_axs.text(0.1, 0.9, r'${}<\log \tau_{{\mathrm{{500}}}}<{}$'.format(-1, 0), transform=this_axs.transAxes, fontsize=7)
+    this_axs.text(0.2, 0.9, r'$\log \tau_{{\mathrm{{500}}}}={}$'.format(-1), transform=this_axs.transAxes, fontsize=7)
     mask = get_shocks_mask(labels)
     mask[np.where(mask >= 1)] = 1
     this_axs.contour(
@@ -453,7 +467,7 @@ def plot_paper_rp_guess_map_plot():
     cbar = fig.colorbar(
         im,
         cax=cbaxes,
-        ticks=[5.7, 5.9],
+        ticks=[tmin, (tmin + tmax)/2, tmax],
         orientation='horizontal'
     )
 
@@ -464,13 +478,13 @@ def plot_paper_rp_guess_map_plot():
     gs = gridspec.GridSpec(1, 1)
     gs.update(left=0.333, right=0.666, bottom=0.466, top=0.732, wspace=0.0, hspace=0.0)
     this_axs = fig.add_subplot(gs[0])
-    im = this_axs.imshow(params[1][1], cmap='hot', origin='lower', vmin=4.2, vmax=5.8)
+    im = this_axs.imshow(params[1][1], cmap='hot', origin='lower', vmin=tmin, vmax=tmax)
     this_axs.set_ylim(0, 80)
     this_axs.set_xticks([])
     this_axs.set_yticks([])
     this_axs.set_xticklabels([])
     this_axs.set_yticklabels([])
-    this_axs.text(0.01, 0.9, r'${}<\log \tau_{{\mathrm{{500}}}}<{}$'.format(-4.5, -3.5), transform=this_axs.transAxes,
+    this_axs.text(0.2, 0.9, r'$\log \tau_{{\mathrm{{500}}}}={}$'.format(-3), transform=this_axs.transAxes,
                    fontsize=7)
     mask = get_shocks_mask(labels)
     mask[np.where(mask >= 1)] = 1
@@ -513,7 +527,7 @@ def plot_paper_rp_guess_map_plot():
     cbar = fig.colorbar(
         im,
         cax=cbaxes,
-        ticks=[4.2, 5.8],
+        ticks=[tmin, (tmin + tmax)/2, tmax],
         orientation='horizontal'
     )
 
@@ -524,13 +538,13 @@ def plot_paper_rp_guess_map_plot():
     gs = gridspec.GridSpec(1, 1)
     gs.update(left=0.666, right=1.0, bottom=0.466, top=0.732, wspace=0.0, hspace=0.0)
     this_axs = fig.add_subplot(gs[0])
-    im = this_axs.imshow(params[1][2], cmap='hot', origin='lower', vmin=4.7, vmax=6.9)
+    im = this_axs.imshow(params[1][2], cmap='hot', origin='lower', vmin=tmin, vmax=tmax)
     this_axs.set_ylim(0, 80)
     this_axs.set_xticks([])
     this_axs.set_yticks([])
     this_axs.set_xticklabels([])
     this_axs.set_yticklabels([])
-    this_axs.text(0.01, 0.9, r'${}<\log \tau_{{\mathrm{{500}}}}<{}$'.format(-5.5, -4.5), transform=this_axs.transAxes,
+    this_axs.text(0.2, 0.9, r'$\log \tau_{{\mathrm{{500}}}}={}$'.format(-4.2), transform=this_axs.transAxes,
                    fontsize=7)
     mask = get_shocks_mask(labels)
     mask[np.where(mask >= 1)] = 1
@@ -573,7 +587,7 @@ def plot_paper_rp_guess_map_plot():
     cbar = fig.colorbar(
         im,
         cax=cbaxes,
-        ticks=[4.7, 6.9],
+        ticks=[tmin, (tmin + tmax)/2, tmax],
         orientation='horizontal'
     )
 
@@ -584,7 +598,7 @@ def plot_paper_rp_guess_map_plot():
     gs = gridspec.GridSpec(1, 1)
     gs.update(left=0, right=0.333, bottom=0.233, top=0.466, wspace=0.0, hspace=0.0)
     this_axs = fig.add_subplot(gs[0])
-    im = this_axs.imshow(params[2][0], cmap='bwr', origin='lower', vmin=-2, vmax=2)
+    im = this_axs.imshow(params[2][0], cmap='bwr', origin='lower', vmin=-6, vmax=6)
     this_axs.set_ylim(0, 70)
     this_axs.set_xticks([])
     this_axs.set_yticks([])
@@ -631,7 +645,7 @@ def plot_paper_rp_guess_map_plot():
     cbar = fig.colorbar(
         im,
         cax=cbaxes,
-        ticks=[-2, 2],
+        ticks=[-6, 0, 6],
         orientation='horizontal'
     )
 
@@ -642,7 +656,7 @@ def plot_paper_rp_guess_map_plot():
     gs = gridspec.GridSpec(1, 1)
     gs.update(left=0.333, right=0.666, bottom=0.233, top=0.466, wspace=0.0, hspace=0.0)
     this_axs = fig.add_subplot(gs[0])
-    im = this_axs.imshow(params[2][1], cmap='bwr', origin='lower', vmin=-2, vmax=2)
+    im = this_axs.imshow(params[2][1], cmap='bwr', origin='lower', vmin=-6, vmax=6)
     this_axs.set_ylim(0, 70)
     this_axs.set_xticks([])
     this_axs.set_yticks([])
@@ -689,7 +703,7 @@ def plot_paper_rp_guess_map_plot():
     cbar = fig.colorbar(
         im,
         cax=cbaxes,
-        ticks=[-2, 2],
+        ticks=[-6, 0, 6],
         orientation='horizontal'
     )
 
@@ -747,7 +761,7 @@ def plot_paper_rp_guess_map_plot():
     cbar = fig.colorbar(
         im,
         cax=cbaxes,
-        ticks=[-6, 6],
+        ticks=[-6, 0, 6],
         orientation='horizontal'
     )
 
