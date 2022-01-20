@@ -248,7 +248,7 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_
         gs.update(left=0.15, right=1, top=0.8, bottom=0.23, wspace=0.0, hspace=0.0)
 
         temp = f['all_temp'][index * 7:index * 7 + 7, :, :, ltau_index] / 1e3
-        vlos = f['all_vlos'][index * 7:index * 7 + 7, :, :, ltau_index]
+        vlos = f['all_vlos'][index * 7:index * 7 + 7, :, :, ltau_index] - 0.18
         vturb = f['all_vturb'][index * 7:index * 7 + 7, :, :, ltau_index]
         labels = f['all_labels'][index * 7:index * 7 + 7]
 
@@ -492,7 +492,7 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_
     all_params[:, 1] = np.transpose(
         f['all_vlos'][indice, :, mark_y],
         axes=(0, 2, 1)
-    )
+    ) - 0.18
 
     all_params[:, 2] = np.transpose(
         f['all_vturb'][indice, :, mark_y],
@@ -525,7 +525,7 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y, letter):
     params[1] = np.transpose(
         f['all_vlos'][index_f * 7:index_f * 7 + 7, mark_x, mark_y, ind_lt],
         axes=(1, 0)
-    )
+    ) - 0.18
 
     vmin = -np.ceil(np.abs(params[1]).max())
     vmax = np.ceil(np.abs(params[1]).max())
@@ -740,7 +740,7 @@ def get_data_for_pre_shock_peak_shock_temp_scatter_plot(index_list, mark_t_list)
 
         all_temp = f['all_temp'][indices][:, :, :, interesting_tau_indice] / 1e3
 
-        all_vlos = f['all_vlos'][indices][:, :, :, interesting_tau_indice]
+        all_vlos = f['all_vlos'][indices][:, :, :, interesting_tau_indice] - 0.18
 
         labels = f['all_labels'][indices[1]]
 
@@ -820,7 +820,7 @@ def get_data_for_pre_shock_peak_shock_temp_scatter_plot_average(index_list, mark
             all_vlos[:, :, :, intt] = np.mean(
                 f['all_vlos'][indices][:, :, :, a_interesting_tau_indice],
                 3
-            )
+            ) - 0.18
 
         labels = f['all_labels'][indices[1]]
 
@@ -867,7 +867,7 @@ def make_pre_shock_peak_shock_temp_vlos_scatter_plot():
 
     size = plt.rcParams['lines.markersize']
 
-    pre_temp, peak_temp_delta_t, vlos_shock = get_data_for_pre_shock_peak_shock_temp_scatter_plot(
+    pre_temp, peak_temp_delta_t, vlos_shock = get_data_for_pre_shock_peak_shock_temp_scatter_plot_average(
         [0, 2, 3, 4, 5, 7, 8, 9],
         [2, 3, 3, 3, 3, 4, 3, 3]
     )
@@ -950,14 +950,14 @@ def make_pre_shock_peak_shock_temp_vlos_scatter_plot():
 
 
 if __name__ == '__main__':
-    # plot_data_for_result_plots(0, 4, 6, 18, 'A')
-    # plot_data_for_result_plots(2, 17, 20, 27, 'B', -4, 4)
-    # plot_data_for_result_plots(3, 32, 35, 20, 'C')
-    # plot_data_for_result_plots(4, 12, 15, 22, 'D')
-    # plot_data_for_result_plots(5, 57, 60, 28, 'E')
-    # plot_data_for_result_plots(7, 7, 11, 16, 'F')
-    # plot_data_for_result_plots(8, 8, 11, 21, 'G')
-    # plot_data_for_result_plots(9, 9, 12, 28, 'H')
+    plot_data_for_result_plots(0, 4, 6, 18, 'A')
+    plot_data_for_result_plots(2, 17, 20, 27, 'B', -4, 4)
+    plot_data_for_result_plots(3, 32, 35, 20, 'C')
+    plot_data_for_result_plots(4, 12, 15, 22, 'D')
+    plot_data_for_result_plots(5, 57, 60, 28, 'E')
+    plot_data_for_result_plots(7, 7, 11, 16, 'F')
+    plot_data_for_result_plots(8, 8, 11, 21, 'G')
+    plot_data_for_result_plots(9, 9, 12, 28, 'H')
     make_time_evolution_plots(0, 4, 25, 18, 'A')
     make_time_evolution_plots(2, 17, 23, 27, 'B')
     make_time_evolution_plots(3, 32, 29, 20, 'C')

@@ -363,7 +363,7 @@ def classify_rps_in_other_emissions_and_quiet_profiles():
     return shock_list, quiet_profiles
 
 
-calib_velocity = -94841.87483891034
+calib_velocity = -94841.87483891034 -18000
 
 
 # Classification Criteria:
@@ -756,19 +756,22 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
             axs[i][j].set_yticks([])
             axs[i][j].set_xticklabels([])
             axs[i][j].set_yticklabels([])
-            axs[i][j].set_xticks([int(50 / 1.85), 49])
-            axs[i][j].set_yticks([int(50 / 1.85), 49])
-            if i == 6 and j == 0:
-                axs[i][j].set_xticks([0, int(50 / 1.85), 49])
-                axs[i][j].set_yticks([0, int(50 / 1.85), 49])
-                axs[i][j].set_xticklabels([0, 1, 1.85], fontsize=fontsize)
-                axs[i][j].set_yticklabels([0, 1, 1.85], fontsize=fontsize)
+            if i == 6:
+                axs[i][j].set_xticks([int(50 / 1.85)])
+                axs[i][j].xaxis.set_minor_locator(MultipleLocator(25/1.85))
+            if j == 0:
+                axs[i][j].set_yticks([int(50 / 1.85)])
+                axs[i][j].yaxis.set_minor_locator(MultipleLocator(25 / 1.85))
+            if i == 6 and j == 2:
+                axs[i][j].set_xticklabels([1])
                 axs[i][j].text(
                     0.0, -0.55,
                     r'$\mathrm{\Delta x}$ [arcsec]',
                     transform=axs[i][j].transAxes,
                     fontsize=fontsize
                 )
+            if i == 3 and j == 0:
+                axs[i][j].set_yticklabels([1])
                 axs[i][j].set_ylabel(r'$\mathrm{\Delta y}$ [arcsec]', fontsize=fontsize)
             if j == 0:
                 axs[i][j].imshow(
@@ -865,12 +868,14 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
                         # labelpad=20
                     )
 
+            size = plt.rcParams['lines.markersize']
             if mark_t == time_step[i] and j == 2:
                 axs[i][j].scatter(
                     mark_y, mark_x,
                     marker='+',
                     color='red',
-                    linewidths=0.8
+                    linewidths=1,
+                    s=(size**2) * 8
                 )
 
             lightblue = '#5089C6'
@@ -2174,7 +2179,7 @@ def plot_response_functions():
 
                 axs3.set_ylim(0, 0.4)
 
-                axs3.set_ylabel(r'$I/I_{\mathrm{c\;4000\;\AA}}$', fontsize=fontsize)
+                axs3.set_ylabel(r'$I/I_{\mathrm{c}}$', fontsize=fontsize)
                 axs3.set_yticks([0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4])
                 axs3.set_yticklabels([0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4], fontsize=fontsize)
 

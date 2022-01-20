@@ -27,15 +27,15 @@ strong_shocks_profiles = np.array(
 
 photosphere_indices = np.array([29])
 
-mid_chromosphere_indices = np.array([4, 5, 6, 23, 24, 25])
+mid_chromosphere_indices = np.array([5])
 
-upper_chromosphere_indices = np.arange(12, 18)
+upper_chromosphere_indices = np.array([12])
 
-photosphere_tau = np.array([-1, 0])
+photosphere_tau = np.array([-0.5])
 
-mid_chromosphere_tau = np.array([-4.5, -3.5])
+mid_chromosphere_tau = np.array([-3.8])
 
-upper_chromosphere_tau = np.array([-5.5, -4.5])
+upper_chromosphere_tau = np.array([-5])
 
 cont_value = [2.4434714e-05, 4.2277254e-08, 4.054384e-08]
 
@@ -77,9 +77,12 @@ ltau = np.array(
 )
 
 
-def get_atmos_values_for_lables(ltau_val_min, ltau_val_max):
+def get_atmos_values_for_lables(ltau_val_min, ltau_val_max=None):
 
-    indices = np.where((ltau >= ltau_val_min) & (ltau <= ltau_val_max))[0]
+    if ltau_val_max is None:
+        indices = np.argmin(np.abs(ltau - ltau_val_min))
+    else:
+        indices = np.where((ltau >= ltau_val_min) & (ltau <= ltau_val_max))[0]
 
     temp = np.zeros((100, 150))
 
