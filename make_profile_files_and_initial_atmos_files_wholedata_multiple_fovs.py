@@ -258,42 +258,42 @@ def get_filepath_and_content_list(rp):
 
 def get_name_string(fov_list):
 
-    str_list = list()
+    # str_list = list()
+    #
+    # for fov in fov_list:
+    #     x = fov[0]
+    #
+    #     y = fov[1]
+    #
+    #     t = fov[2]
+    #
+    #     strs = 'x_{}_{}_y_{}_{}_frame_{}_{}'.format(
+    #         x[0], x[1], y[0], y[1], t[0], t[1]
+    #     )
+    #
+    #     str_list.append(strs)
+    #
+    # return '_'.join(str_list)
 
-    for fov in fov_list:
-        x = fov[0]
-
-        y = fov[1]
-
-        t = fov[2]
-
-        strs = 'x_{}_{}_y_{}_{}_frame_{}_{}'.format(
-            x[0], x[1], y[0], y[1], t[0], t[1]
-        )
-
-        str_list.append(strs)
-
-    return '_'.join(str_list)
-
-    # return 'rest_8_retry_fov'
+    return 'more_frames_for_fov'
 
 
-def get_data_for_inversions(fov_list):
+def get_data_for_inversions(fov_list, total_frames=23):
     input_profiles = np.zeros(
-        (7 * len(fov_list), 50, 50, 64),
+        (total_frames, 50, 50, 64),
         dtype=np.float64
     )
 
     input_labels = np.zeros(
-        (7 * len(fov_list), 50, 50),
+        (total_frames, 50, 50),
         dtype=np.int64
     )
 
     data_3950, data_8542, data_6173 = get_data()
 
-    k = 7
-
     f = h5py.File(label_file, 'r')
+
+    k = 0
 
     for index, fov in enumerate(fov_list):
         x = fov[0]
@@ -302,31 +302,33 @@ def get_data_for_inversions(fov_list):
 
         t = fov[2]
 
-        input_profiles[index * k: (index + 1) * k, :, :, 0:30] = np.transpose(
+        input_profiles[k: k + t[1]-t[0], :, :, 0:30] = np.transpose(
             data_3950[t[0]:t[1], 0, :, x[0]:x[1], y[0]:y[1]],
             axes=(0, 2, 3, 1)
         )
-        input_profiles[index * k: (index + 1) * k, :, :, 30:30 + 14] = np.transpose(
+        input_profiles[k: k + t[1]-t[0], :, :, 30:30 + 14] = np.transpose(
             data_6173[t[0]:t[1], 0, :, x[0]:x[1], y[0]:y[1]],
             axes=(0, 2, 3, 1)
         )
-        input_profiles[index * k: (index + 1) * k, :, :, 30 + 14:30 + 14 + 20] = np.transpose(
+        input_profiles[k: k + t[1]-t[0], :, :, 30 + 14:30 + 14 + 20] = np.transpose(
             data_8542[t[0]:t[1], 0, :, x[0]:x[1], y[0]:y[1]],
             axes=(0, 2, 3, 1)
         )
 
-        input_labels[index * k: (index + 1) * k] = f['new_final_labels'][t[0]:t[1], x[0]:x[1], y[0]:y[1]]
+        input_labels[k: k + t[1]-t[0]] = f['new_final_labels'][t[0]:t[1], x[0]:x[1], y[0]:y[1]]
+
+        k += t[1] - t[0]
 
     f.close()
 
     return input_profiles, input_labels
 
 
-def make_files(fov_list, frs):
+def make_files(fov_list, frs, total_frames=23):
 
     global write_path
 
-    input_profiles, input_labels = get_data_for_inversions(fov_list)
+    input_profiles, input_labels = get_data_for_inversions(fov_list, total_frames)
 
     name_string = get_name_string(fov_list)
 
@@ -459,20 +461,35 @@ if __name__ == '__main__':
     #     ([535, 585], [715, 765], [9, 16]),
     # ]
 
-    fov_list = [
-        ([810, 860], [335, 385], [10, 12])
-    ]
+    # fov_list = [
+    #     ([810, 860], [335, 385], [10, 12])
+    # ]
 
+    fov_list = [
+        ([662, 712], [708, 758], [3, 4]),  # A
+        ([662, 712], [708, 758], [11, 13]),  # A
+        ([582, 632], [627, 677], [30, 32]),  # C
+        ([582, 632], [627, 677], [39, 41]),  # C
+        ([810, 860], [335, 385], [11, 12]),  # D
+        ([810, 860], [335, 385], [19, 22]),  # D
+        ([315, 365], [855, 905], [6, 7]),  # F
+        ([315, 365], [855, 905], [14, 17]),  # F
+        ([600, 650], [1280, 1330], [6, 8]),  # G
+        ([600, 650], [1280, 1330], [15, 18]),  # G
+        ([535, 585], [715, 765], [8, 9]),  # H
+        ([535, 585], [715, 765], [16, 18]),  # H
+    ]
     write_path = base_path / 'new_kmeans/wholedata_inversions/fov_more/'
 
-    quiet_frames_list = [[0, 7]]
-    shock_reverse_other_frames_list = [[0, 7]]
-    shocks_78_18_frames_list = [[0, 7]]
+    quiet_frames_list = [[0, 23]]
+    shock_reverse_other_frames_list = [[0, 23]]
+    shocks_78_18_frames_list = [[0, 23]]
     make_files(
         fov_list,
         frs=(
             quiet_frames_list,
             shock_reverse_other_frames_list,
             shocks_78_18_frames_list
-        )
+        ),
+        total_frames=23
     )
