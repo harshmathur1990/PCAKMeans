@@ -11,6 +11,7 @@ from calculate_calib_velocity_and_classify_rps import get_shocks_mask, \
 from matplotlib.ticker import AutoMinorLocator
 
 inversion_out_file = Path('/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/FoVAtoJ.nc')
+inversion_out_file_alt = Path('/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/FoVAtoJ_more_frames.h5')
 
 fovNameList = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
 
@@ -221,11 +222,14 @@ def make_line_cut_plots(all_params, time_array, mask, fovName, vlos_min_lc=None,
     plt.cla()
 
 
-def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_lc=None, vlos_max_lc=None):
+def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_lc=None, vlos_max_lc=None, index_alt=None, frame_alt=None, frame_res=None):
 
     time = np.round(np.arange(0, 826, 8.26), 2)
 
     f = h5py.File(inversion_out_file, 'r')
+    falt = None
+    if index_alt is not None:
+        falt = h5py.File(inversion_out_file_alt, 'r')
 
     labels_mask = np.zeros((2, 150, 50), dtype=np.int64)
 
@@ -247,10 +251,30 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_
 
         gs.update(left=0.15, right=1, top=0.8, bottom=0.23, wspace=0.0, hspace=0.0)
 
-        temp = f['all_temp'][index * 7:index * 7 + 7, :, :, ltau_index] / 1e3
-        vlos = f['all_vlos'][index * 7:index * 7 + 7, :, :, ltau_index] - 0.18
-        vturb = f['all_vturb'][index * 7:index * 7 + 7, :, :, ltau_index]
-        labels = f['all_labels'][index * 7:index * 7 + 7]
+        if falt is None:
+            temp = f['all_temp'][index * 7:index * 7 + 7, :, :, ltau_index] / 1e3
+            vlos = f['all_vlos'][index * 7:index * 7 + 7, :, :, ltau_index] - 0.18
+            vturb = f['all_vturb'][index * 7:index * 7 + 7, :, :, ltau_index]
+            labels = f['all_labels'][index * 7:index * 7 + 7]
+
+        else:
+            temp = np.zeros((7, 50, 50), dtype=np.float64)
+            vlos = np.zeros((7, 50, 50), dtype=np.float64)
+            vturb = np.zeros((7, 50, 50), dtype=np.float64)
+            labels = np.zeros((7, 50, 50), dtype=np.int64)
+
+            for inddd, tindex in enumerate(frame_res):
+                if tindex in frame_alt:
+                    indalt = index_alt[frame_alt.index(tindex)]
+                    temp[inddd] = falt['all_temp'][indalt, :, :, ltau_index] / 1e3
+                    vlos[inddd] = falt['all_vlos'][indalt, :, :, ltau_index] - 0.18
+                    vturb[inddd] = falt['all_vturb'][indalt, :, :, ltau_index]
+                    labels[inddd] = falt['all_labels'][indalt]
+                else:
+                    temp[inddd] = f['all_temp'][index * 7 + tindex - start_t, :, :, ltau_index] / 1e3
+                    vlos[inddd] = f['all_vlos'][index * 7 + tindex - start_t, :, :, ltau_index] - 0.18
+                    vturb[inddd] = f['all_vturb'][index * 7 + tindex - start_t, :, :, ltau_index]
+                    labels[inddd] = f['all_labels'][index * 7 + tindex - start_t]
 
         # temp_vmin = [np.round(temp[i].min(), 2) for i in range(7)]
         # temp_vmax = [np.round(temp[i].max(), 2) for i in range(7)]
@@ -302,15 +326,26 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_
                         )
                         cbar.ax.tick_params(labelsize=fontsize, colors='black')
 
-                    axs.text(
-                        0.2, 1.1,
-                        '{}'.format(
-                            time[start_t + j]
-                        ),
-                        transform=axs.transAxes,
-                        color='black',
-                        fontsize=fontsize
-                    )
+                    if falt is not None:
+                        axs.text(
+                            0.2, 1.1,
+                            '{}'.format(
+                                time[frame_res[j]]
+                            ),
+                            transform=axs.transAxes,
+                            color='black',
+                            fontsize=fontsize
+                        )
+                    else:
+                        axs.text(
+                            0.2, 1.1,
+                            '{}'.format(
+                                time[start_t + j]
+                            ),
+                            transform=axs.transAxes,
+                            color='black',
+                            fontsize=fontsize
+                        )
                     if j == 0:
                         axs.text(
                             -1.2, 1.75,
@@ -478,35 +513,71 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_
 
     fovName = letter
 
-    time_array = time[np.array([start_t, mark_t])]
+    if falt is None:
+        time_array = time[np.array([start_t, mark_t])]
 
-    all_params = np.zeros((2, 3, 150, 50), dtype=np.float64)
+        all_params = np.zeros((2, 3, 150, 50), dtype=np.float64)
 
-    indice = np.array([index * 7, index * 7 + mark_t -start_t])
+        indice = np.array([index * 7, index * 7 + mark_t -start_t])
 
-    all_params[:, 0] = np.transpose(
-        f['all_temp'][indice, :, mark_y] / 1e3,
-        axes=(0, 2, 1)
-    )
+        all_params[:, 0] = np.transpose(
+            f['all_temp'][indice, :, mark_y] / 1e3,
+            axes=(0, 2, 1)
+        )
 
-    all_params[:, 1] = np.transpose(
-        f['all_vlos'][indice, :, mark_y],
-        axes=(0, 2, 1)
-    ) - 0.18
+        all_params[:, 1] = np.transpose(
+            f['all_vlos'][indice, :, mark_y],
+            axes=(0, 2, 1)
+        ) - 0.18
 
-    all_params[:, 2] = np.transpose(
-        f['all_vturb'][indice, :, mark_y],
-        axes=(0, 2, 1)
-    )
+        all_params[:, 2] = np.transpose(
+            f['all_vturb'][indice, :, mark_y],
+            axes=(0, 2, 1)
+        )
+    else:
+        time_array = time[np.array([frame_res[0], mark_t])]
+
+        all_params = np.zeros((2, 3, 150, 50), dtype=np.float64)
+
+        for indddd, tindex in enumerate([frame_res[0], mark_t]):
+            if tindex in frame_alt:
+                indalt = index_alt[frame_alt.index(tindex)]
+                all_params[indddd, 0] = np.transpose(
+                    falt['all_temp'][indalt, :, mark_y] / 1e3,
+                    axes=(1, 0)
+                )
+                all_params[indddd, 1] = np.transpose(
+                    falt['all_vlos'][indalt, :, mark_y],
+                    axes=(1, 0)
+                ) - 0.18
+
+                all_params[indddd, 2] = np.transpose(
+                    falt['all_vturb'][indalt, :, mark_y],
+                    axes=(1, 0)
+                )
+
+            else:
+                all_params[indddd, 0] = np.transpose(
+                    f['all_temp'][index * 7 + tindex - start_t, :, mark_y] / 1e3,
+                    axes=(1, 0)
+                )
+                all_params[indddd, 1] = np.transpose(
+                    f['all_vlos'][index * 7 + tindex - start_t, :, mark_y],
+                    axes=(1, 0)
+                ) - 0.18
+
+                all_params[indddd, 2] = np.transpose(
+                    f['all_vturb'][index * 7 + tindex - start_t, :, mark_y],
+                    axes=(1, 0)
+                )
 
     make_line_cut_plots(all_params, time_array, labels_mask, fovName, vlos_min_lc, vlos_max_lc)
 
 
-def make_time_evolution_plots(index_f, start_t, mark_x, mark_y, letter):
+def make_time_evolution_plots(index_f, start_t, mark_x, mark_y, letter, index_alt=None, frame_alt=None, frame_res=None):
+    time = np.round(np.arange(0, 826, 8.26), 2)
 
     log_t_values = np.array([-4.2, -3, -1])
-
-    params = np.zeros((2, log_t_values.size, 7))
 
     ind_lt = list()
 
@@ -517,15 +588,39 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y, letter):
     ind_lt = np.array(ind_lt)
 
     f = h5py.File(inversion_out_file, 'r')
+    if index_alt is not None:
+        falt = h5py.File(inversion_out_file_alt, 'r')
+        params = np.zeros((2, log_t_values.size, 7 + len(frame_alt)))
+        labels_f = np.zeros(7 + len(frame_alt))
+        for inddd, frame_no in enumerate(range(min(frame_alt), max(frame_alt) + 1)):
+            if frame_no in frame_alt:
+                indalt = index_alt[frame_alt.index(frame_no)]
+                params[0, :, inddd] = falt['all_temp'][indalt, mark_x, mark_y, ind_lt] / 1e3
+                params[1, :, inddd] = falt['all_vlos'][indalt, mark_x, mark_y, ind_lt] - 0.18
+                labels_f[inddd] = falt['all_labels'][indalt, mark_x, mark_y]
+            else:
+                params[0, :, inddd] = f['all_temp'][index_f * 7 + frame_no - start_t, mark_x, mark_y, ind_lt] / 1e3
+                params[1, :, inddd] = f['all_vlos'][index_f * 7 + frame_no - start_t, mark_x, mark_y, ind_lt] - 0.18
+                labels_f[inddd] = f['all_labels'][index_f * 7 + frame_no - start_t, mark_x, mark_y]
+        mask_shock = np.zeros(7 + len(frame_alt), dtype=np.int64)
+        tx = time[np.array(range(min(frame_alt), max(frame_alt) + 1))]
 
-    params[0] = np.transpose(
-        f['all_temp'][index_f * 7:index_f * 7 + 7, mark_x, mark_y, ind_lt],
-        axes=(1, 0)
-    ) / 1e3
-    params[1] = np.transpose(
-        f['all_vlos'][index_f * 7:index_f * 7 + 7, mark_x, mark_y, ind_lt],
-        axes=(1, 0)
-    ) - 0.18
+    else:
+        params = np.zeros((2, log_t_values.size, 7))
+        params[0] = np.transpose(
+            f['all_temp'][index_f * 7:index_f * 7 + 7, mark_x, mark_y, ind_lt],
+            axes=(1, 0)
+        ) / 1e3
+        params[1] = np.transpose(
+            f['all_vlos'][index_f * 7:index_f * 7 + 7, mark_x, mark_y, ind_lt],
+            axes=(1, 0)
+        ) - 0.18
+
+        mask_shock = np.zeros(7, dtype=np.int64)
+
+        labels_f = f['all_labels'][index_f * 7:index_f * 7 + 7, mark_x, mark_y]
+
+        tx = time[start_t: start_t + 7]
 
     vmin = -np.ceil(np.abs(params[1]).max())
     vmax = np.ceil(np.abs(params[1]).max())
@@ -536,14 +631,8 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y, letter):
     tmin = -np.ceil(np.abs(params[0]).max())
     tmax = np.ceil(np.abs(params[0]).max())
 
-    mask_shock = np.zeros(7, dtype=np.int64)
-
-    labels_f = f['all_labels'][index_f * 7:index_f * 7 + 7, mark_x, mark_y]
-
     for profile in strong_shocks_profiles:
         mask_shock[np.where(labels_f == profile)] = 1
-
-    time = np.round(np.arange(0, 826, 8.26), 2)
 
     fontsize = 8
 
@@ -571,7 +660,7 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y, letter):
 
             if k == 0:
                 axs.plot(
-                    time[start_t:start_t+7],
+                    tx,
                     params[k, index],
                     color=color,
                     label=r'$\log \tau_{{\mathrm{{500}}}}={}$'.format(
@@ -595,7 +684,7 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y, letter):
                 axs.yaxis.set_minor_locator(MultipleLocator(0.5))
             else:
                 axs.plot(
-                    time[start_t:start_t+7],
+                    tx,
                     params[k, index],
                     color=color
                 )
@@ -621,7 +710,7 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y, letter):
 
         for ind in ind_shocks:
             axs.axvline(
-                time[start_t + ind],
+                tx[ind],
                 linestyle='--',
                 linewidth=0.5,
                 color='black'
@@ -965,25 +1054,51 @@ def make_pre_shock_peak_shock_temp_vlos_scatter_plot():
 
 
 if __name__ == '__main__':
-    # plot_data_for_result_plots(0, 4, 6, 18, 'A')
+    # time_step_adhoc_list = [
+    #     np.array([3, 5, 6, 7, 8, 9, 12]),
+    #     # np.arange(14, 21),
+    #     np.arange(17, 24),
+    #     np.array([30, 33, 34, 35, 36, 37, 40]),
+    #     np.array([11, 14, 15, 16, 17, 18, 21]),
+    #     np.arange(57, 64),
+    #     # np.arange(93, 100),
+    #     np.array([6, 10, 11, 12, 13, 15, 16]),
+    #     np.array([6, 10, 11, 12, 13, 14, 17]),
+    #     np.array([8, 11, 12, 13, 14, 15 17])
+    # ]
+    # fov_list = [
+    #     ([662, 712], [708, 758], [3, 4]),  # A
+    #     ([662, 712], [708, 758], [11, 13]),  # A
+    #     ([582, 632], [627, 677], [30, 32]),  # C
+    #     ([582, 632], [627, 677], [39, 41]),  # C
+    #     ([810, 860], [335, 385], [11, 12]),  # D
+    #     ([810, 860], [335, 385], [19, 22]),  # D
+    #     ([315, 365], [855, 905], [6, 7]),  # F
+    #     ([315, 365], [855, 905], [14, 17]),  # F
+    #     ([600, 650], [1280, 1330], [6, 8]),  # G
+    #     ([600, 650], [1280, 1330], [15, 18]),  # G
+    #     ([535, 585], [715, 765], [8, 9]),  # H
+    #     ([535, 585], [715, 765], [16, 18]),  # H
+    # ]
+    # plot_data_for_result_plots(0, 4, 6, 18, 'A', index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7, 8, 9, 12])
     # plot_data_for_result_plots(2, 17, 20, 27, 'B', -4, 4)
-    # plot_data_for_result_plots(3, 32, 35, 20, 'C')
-    # plot_data_for_result_plots(4, 12, 15, 22, 'D')
+    # plot_data_for_result_plots(3, 32, 35, 20, 'C', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])
+    # plot_data_for_result_plots(4, 12, 15, 22, 'D', index_alt=[7, 8, 9, 10], frame_alt=[11, 19, 20, 21], frame_res=[11, 14, 15, 16, 17, 18, 21])
     # plot_data_for_result_plots(5, 57, 60, 28, 'E')
-    # plot_data_for_result_plots(7, 7, 11, 16, 'F')
-    # plot_data_for_result_plots(8, 8, 11, 21, 'G')
-    # plot_data_for_result_plots(9, 9, 12, 28, 'H')
-    make_time_evolution_plots(0, 4, 25, 18, 'A')
+    # plot_data_for_result_plots(7, 7, 11, 16, 'F', index_alt=[11, 12, 13, 14], frame_alt=[6, 14, 15, 16], frame_res=[6, 10, 11, 12, 13, 15, 16])
+    # plot_data_for_result_plots(8, 8, 11, 21, 'G', index_alt=[15, 16, 17, 18, 19], frame_alt=[6, 7, 15, 16, 17], frame_res=[6, 10, 11, 12, 13, 14, 17])
+    # plot_data_for_result_plots(9, 9, 12, 28, 'H', index_alt=[20, 21, 22], frame_alt=[8, 16, 17], frame_res=[8, 11, 12, 13, 14, 15, 17])
+    make_time_evolution_plots(0, 4, 25, 18, 'A', index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7, 8, 9, 12])
     make_time_evolution_plots(2, 17, 23, 27, 'B')
-    make_time_evolution_plots(3, 32, 29, 20, 'C')
-    make_time_evolution_plots(4, 12, 24, 22, 'D')
+    make_time_evolution_plots(3, 32, 29, 20, 'C', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])
+    make_time_evolution_plots(4, 12, 24, 22, 'D', index_alt=[7, 8, 9, 10], frame_alt=[11, 19, 20, 21], frame_res=[11, 14, 15, 16, 17, 18, 21])
     make_time_evolution_plots(5, 57, 28, 28, 'E')
-    make_time_evolution_plots(7, 7, 22, 16, 'F')
-    make_time_evolution_plots(8, 8, 26, 21, 'G')
-    make_time_evolution_plots(9, 9, 28, 28, 'H')
+    make_time_evolution_plots(7, 7, 22, 16, 'F', index_alt=[11, 12, 13, 14], frame_alt=[6, 14, 15, 16], frame_res=[6, 10, 11, 12, 13, 15, 16])
+    make_time_evolution_plots(8, 8, 26, 21, 'G', index_alt=[15, 16, 17, 18, 19], frame_alt=[6, 7, 15, 16, 17], frame_res=[6, 10, 11, 12, 13, 14, 17])
+    make_time_evolution_plots(9, 9, 28, 28, 'H', index_alt=[20, 21, 22], frame_alt=[8, 16, 17], frame_res=[8, 11, 12, 13, 14, 15, 16, 17])
     # make_legend()
     # make_legend_average()
-    make_pre_shock_peak_shock_temp_vlos_scatter_plot()
+    # make_pre_shock_peak_shock_temp_vlos_scatter_plot()
 
     '''
     ## OLD NOT USED

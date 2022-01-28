@@ -1718,6 +1718,19 @@ def make_shock_evolution_plots():
         np.arange(9, 16)
     ]
 
+    time_step_adhoc_list = [
+        np.array([3, 5, 6, 7, 8, 9, 12]),
+        # np.arange(14, 21),
+        np.arange(17, 24),
+        np.array([30, 33, 34, 35, 36, 37, 40]),
+        np.array([11, 14, 15, 16, 17, 18, 21]),
+        np.arange(57, 64),
+        # np.arange(93, 100),
+        np.array([6, 10, 11, 12, 13, 15, 16]),
+        np.array([6, 10, 11, 12, 13, 14, 17]),
+        np.array([8, 11, 12, 13, 14, 15, 17])
+    ]
+
     mark_list = [
         [6 , 25, 18],
         # [16, 16, 15],
@@ -1745,7 +1758,7 @@ def make_shock_evolution_plots():
         plot_new_evolution_diagram(
             ref_x_list[i],
             ref_y_list[i],
-            time_step_list[i],
+            time_step_adhoc_list[i],
             wave_indice,
             mark_list[i][0],
             mark_list[i][1],
