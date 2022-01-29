@@ -2118,7 +2118,12 @@ def plot_response_functions():
                 axs.set_xticks([-0.5, 0, 0.5])
                 axs.set_xticklabels([-0.5, 0, 0.5], fontsize=fontsize)
 
-                cbaxes = inset_axes(axs, width="30%", height="3%", loc=3)
+                cbaxes = inset_axes(
+                    axs, width="30%", height="3%",
+                    loc=3, borderpad=0,
+                    bbox_to_anchor=[0.07, 0.05, 1, 1],
+                    bbox_transform=axs.transAxes
+                )
                 cbar = fig.colorbar(
                     im,
                     cax=cbaxes,
@@ -2135,7 +2140,7 @@ def plot_response_functions():
                 axs.set_yticklabels([0, -1, -2, -3, -4, -5, -6, -7], fontsize=fontsize)
 
                 axs.text(
-                    0.55, 0.05, 't={}s'.format(time[tind]),
+                    0.65, 0.05, '{} s'.format(time[tind]),
                     transform=axs.transAxes,
                     color='black',
                     fontsize=fontsize
@@ -2145,13 +2150,13 @@ def plot_response_functions():
                 
                 if i == 0:
                     axs.text(
-                        0.05, 0.9, 'FoV A',
+                        0.05, 0.9, 'ROI A',
                         transform=axs.transAxes,
                         color='black',
                         fontsize=fontsize
                     )
                     axs2.set_xticks([-5, 0, 5])
-                    axs2.set_xlabel(r'$V_{\mathrm{LOS}}\mathrm{[km\;s^{-1}]}$', fontsize=fontsize)
+                    axs2.set_xlabel(r'$V_{\mathrm{LOS}}\;\mathrm{[km\;s^{-1}]}$', fontsize=fontsize)
                     axs2.set_xticklabels([-5, 0, 5], fontsize=fontsize)
 
             if j == 1:
@@ -2160,7 +2165,7 @@ def plot_response_functions():
 
                 if i == 0:
                     axs2.set_xticks([0, 1, 2, 3, 4, 5, 6])
-                    axs2.set_xlabel(r'$V_{\mathrm{turb}}\mathrm{[km\;s^{-1}]}$', fontsize=fontsize)
+                    axs2.set_xlabel(r'$V_{\mathrm{turb}}\;\mathrm{[km\;s^{-1}]}$', fontsize=fontsize)
                     axs2.set_xticklabels([0, 1, 2, 3, 4, 5, 6], fontsize=fontsize)
                     
             if j == 2:
@@ -2306,5 +2311,5 @@ def get_all_profile_enhancement_data():
 
 
 if __name__ == '__main__':
-    make_shock_evolution_plots()
-    # plot_response_functions()
+    # make_shock_evolution_plots()
+    plot_response_functions()

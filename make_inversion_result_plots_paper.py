@@ -139,6 +139,24 @@ def make_line_cut_plots(all_params, time_array, mask, fovName, vlos_min_lc=None,
 
             if i == 0:
 
+                if j == 0:
+                    axs.text(
+                        0.3, 1.50, r'$T$ [kK]',
+                        transform=axs.transAxes,
+                        fontsize=fontsize
+                    )
+                elif j == 1:
+                    axs.text(
+                        0.10, 1.50, r'$V_{\mathrm{LOS}}\;\mathrm{[km\;s^{-1}]}$',
+                        transform=axs.transAxes,
+                        fontsize=fontsize
+                    )
+                else:
+                    axs.text(
+                        0.10, 1.50, r'$V_{\mathrm{turb}}\;\mathrm{[km\;s^{-1}]}$',
+                        transform=axs.transAxes,
+                        fontsize=fontsize
+                    )
                 cbaxes = inset_axes(
                     axs,
                     width="60%",
@@ -681,6 +699,7 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y, letter, index_al
                 axs.set_yticks(ticks)
                 axs.set_yticklabels(ticks, fontsize=fontsize)
                 axs.set_ylabel(r'$\delta$T [kK]', fontsize=fontsize)
+                axs.set_xticklabels([])
                 axs.yaxis.set_minor_locator(MultipleLocator(0.5))
             else:
                 axs.plot(
@@ -1080,22 +1099,22 @@ if __name__ == '__main__':
     #     ([535, 585], [715, 765], [8, 9]),  # H
     #     ([535, 585], [715, 765], [16, 18]),  # H
     # ]
-    # plot_data_for_result_plots(0, 4, 6, 18, 'A', index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7, 8, 9, 12])
-    # plot_data_for_result_plots(2, 17, 20, 27, 'B', -4, 4)
-    # plot_data_for_result_plots(3, 32, 35, 20, 'C', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])
-    # plot_data_for_result_plots(4, 12, 15, 22, 'D', index_alt=[7, 8, 9, 10], frame_alt=[11, 19, 20, 21], frame_res=[11, 14, 15, 16, 17, 18, 21])
-    # plot_data_for_result_plots(5, 57, 60, 28, 'E')
-    # plot_data_for_result_plots(7, 7, 11, 16, 'F', index_alt=[11, 12, 13, 14], frame_alt=[6, 14, 15, 16], frame_res=[6, 10, 11, 12, 13, 15, 16])
-    # plot_data_for_result_plots(8, 8, 11, 21, 'G', index_alt=[15, 16, 17, 18, 19], frame_alt=[6, 7, 15, 16, 17], frame_res=[6, 10, 11, 12, 13, 14, 17])
-    # plot_data_for_result_plots(9, 9, 12, 28, 'H', index_alt=[20, 21, 22], frame_alt=[8, 16, 17], frame_res=[8, 11, 12, 13, 14, 15, 17])
-    make_time_evolution_plots(0, 4, 25, 18, 'A', index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7, 8, 9, 12])
-    make_time_evolution_plots(2, 17, 23, 27, 'B')
-    make_time_evolution_plots(3, 32, 29, 20, 'C', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])
-    make_time_evolution_plots(4, 12, 24, 22, 'D', index_alt=[7, 8, 9, 10], frame_alt=[11, 19, 20, 21], frame_res=[11, 14, 15, 16, 17, 18, 21])
-    make_time_evolution_plots(5, 57, 28, 28, 'E')
-    make_time_evolution_plots(7, 7, 22, 16, 'F', index_alt=[11, 12, 13, 14], frame_alt=[6, 14, 15, 16], frame_res=[6, 10, 11, 12, 13, 15, 16])
-    make_time_evolution_plots(8, 8, 26, 21, 'G', index_alt=[15, 16, 17, 18, 19], frame_alt=[6, 7, 15, 16, 17], frame_res=[6, 10, 11, 12, 13, 14, 17])
-    make_time_evolution_plots(9, 9, 28, 28, 'H', index_alt=[20, 21, 22], frame_alt=[8, 16, 17], frame_res=[8, 11, 12, 13, 14, 15, 16, 17])
+    plot_data_for_result_plots(0, 4, 6, 18, 'A', index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7, 8, 9, 12])
+    plot_data_for_result_plots(2, 17, 20, 27, 'B', -4, 4)
+    plot_data_for_result_plots(3, 32, 35, 20, 'C', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])
+    plot_data_for_result_plots(4, 12, 15, 22, 'D', index_alt=[7, 8, 9, 10], frame_alt=[11, 19, 20, 21], frame_res=[11, 14, 15, 16, 17, 18, 21])
+    plot_data_for_result_plots(5, 57, 60, 28, 'E')
+    plot_data_for_result_plots(7, 7, 11, 16, 'F', index_alt=[11, 12, 13, 14], frame_alt=[6, 14, 15, 16], frame_res=[6, 10, 11, 12, 13, 15, 16])
+    plot_data_for_result_plots(8, 8, 11, 21, 'G', index_alt=[15, 16, 17, 18, 19], frame_alt=[6, 7, 15, 16, 17], frame_res=[6, 10, 11, 12, 13, 14, 17])
+    plot_data_for_result_plots(9, 9, 12, 28, 'H', index_alt=[20, 21, 22], frame_alt=[8, 16, 17], frame_res=[8, 11, 12, 13, 14, 15, 17])
+    # make_time_evolution_plots(0, 4, 25, 18, 'A', index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7, 8, 9, 12])
+    # make_time_evolution_plots(2, 17, 23, 27, 'B')
+    # make_time_evolution_plots(3, 32, 29, 20, 'C', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])
+    # make_time_evolution_plots(4, 12, 24, 22, 'D', index_alt=[7, 8, 9, 10], frame_alt=[11, 19, 20, 21], frame_res=[11, 14, 15, 16, 17, 18, 21])
+    # make_time_evolution_plots(5, 57, 28, 28, 'E')
+    # make_time_evolution_plots(7, 7, 22, 16, 'F', index_alt=[11, 12, 13, 14], frame_alt=[6, 14, 15, 16], frame_res=[6, 10, 11, 12, 13, 15, 16])
+    # make_time_evolution_plots(8, 8, 26, 21, 'G', index_alt=[15, 16, 17, 18, 19], frame_alt=[6, 7, 15, 16, 17], frame_res=[6, 10, 11, 12, 13, 14, 17])
+    # make_time_evolution_plots(9, 9, 28, 28, 'H', index_alt=[20, 21, 22], frame_alt=[8, 16, 17], frame_res=[8, 11, 12, 13, 14, 15, 16, 17])
     # make_legend()
     # make_legend_average()
     # make_pre_shock_peak_shock_temp_vlos_scatter_plot()
