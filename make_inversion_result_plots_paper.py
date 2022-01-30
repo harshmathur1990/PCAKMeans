@@ -8,8 +8,10 @@ from matplotlib.ticker import MultipleLocator
 from matplotlib.patches import Patch
 from calculate_calib_velocity_and_classify_rps import get_shocks_mask, \
     get_very_strong_shocks_mask, get_very_very_strong_shocks_mask
+import seaborn as sns
+import pandas as pd
 from matplotlib.ticker import AutoMinorLocator
-
+from mpl_toolkits.axisartist.axislines import Subplot
 inversion_out_file = Path('/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/FoVAtoJ.nc')
 inversion_out_file_alt = Path('/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/FoVAtoJ_more_frames.h5')
 
@@ -837,7 +839,7 @@ def make_legend_average():
     plt.cla()
 
 
-def get_data_for_pre_shock_peak_shock_temp_scatter_plot(index_list, mark_t_list):
+def get_data_for_pre_shock_peak_shock_temp_scatter_plot(index_list, index_alt_list, mark_t_list):
     interesting_tau = [-4.2, -3, -1]
 
     interesting_tau_indice = np.zeros(3, dtype=np.int64)
@@ -846,61 +848,103 @@ def get_data_for_pre_shock_peak_shock_temp_scatter_plot(index_list, mark_t_list)
         interesting_tau_indice[indd] = np.argmin(np.abs(ltau - tau))
 
     out_file = Path('/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/FoVAtoJ.nc')
-
+    out_alt_file = Path('/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/FoVAtoJ_more_frames.h5')
     pre_temp = None
     peak_temp_delta_t = None
     vlos_shock = None
 
     f = h5py.File(out_file, 'r')
+    falt = h5py.File(out_alt_file, 'r')
 
-    for index, mark_t in zip(index_list, mark_t_list):
-        indices = np.array(
-            [
-                index * 7,
-                index * 7 + mark_t
-            ]
-        )
+    for index, index_alt, mark_t in zip(index_list, index_alt_list, mark_t_list):
 
-        all_temp = f['all_temp'][indices][:, :, :, interesting_tau_indice] / 1e3
+        if index_alt == -1:
 
-        all_vlos = f['all_vlos'][indices][:, :, :, interesting_tau_indice] - 0.18
-
-        labels = f['all_labels'][indices[1]]
-
-        mask_shock = np.zeros((50, 50), dtype=np.int64)
-
-        for profile in list([78, 18]):
-            mask_shock[np.where(labels == profile)] = 1
-
-        a, b = np.where(mask_shock == 1)
-
-        if pre_temp is None:
-            pre_temp = all_temp[0][a, b]
-        else:
-            pre_temp = np.vstack([pre_temp, all_temp[0][a, b]])
-
-        if peak_temp_delta_t is None:
-            peak_temp_delta_t = np.subtract(
-                all_temp[1][a, b],
-                all_temp[0][a, b]
-            )
-        else:
-            peak_temp_delta_t = np.vstack(
+            indices = np.array(
                 [
-                    peak_temp_delta_t,
-                    np.subtract(
-                        all_temp[1][a, b],
-                        all_temp[0][a, b]
-                    )
+                    index * 7,
+                    index * 7 + mark_t
                 ]
             )
 
-        if vlos_shock is None:
-            vlos_shock = all_vlos[1, a, b]
-        else:
-            vlos_shock = np.vstack([vlos_shock, all_vlos[1, a, b]])
+            all_temp = f['all_temp'][indices][:, :, :, interesting_tau_indice] / 1e3
 
+            all_vlos = f['all_vlos'][indices][:, :, :, interesting_tau_indice] - 0.18
+
+            labels = f['all_labels'][indices[1]]
+
+            mask_shock = np.zeros((50, 50), dtype=np.int64)
+
+            for profile in list([78, 18]):
+                mask_shock[np.where(labels == profile)] = 1
+
+            a, b = np.where(mask_shock == 1)
+
+            if pre_temp is None:
+                pre_temp = all_temp[0][a, b]
+            else:
+                pre_temp = np.vstack([pre_temp, all_temp[0][a, b]])
+
+            if peak_temp_delta_t is None:
+                peak_temp_delta_t = np.subtract(
+                    all_temp[1][a, b],
+                    all_temp[0][a, b]
+                )
+            else:
+                peak_temp_delta_t = np.vstack(
+                    [
+                        peak_temp_delta_t,
+                        np.subtract(
+                            all_temp[1][a, b],
+                            all_temp[0][a, b]
+                        )
+                    ]
+                )
+
+            if vlos_shock is None:
+                vlos_shock = all_vlos[1, a, b]
+            else:
+                vlos_shock = np.vstack([vlos_shock, all_vlos[1, a, b]])
+
+        else:
+            shock_pre_temp = falt['all_temp'][index_alt][:, :, interesting_tau_indice] / 1e3
+            shock_temp = f['all_temp'][index * 7 + mark_t][:, :, interesting_tau_indice] / 1e3
+            shock_vlos = f['all_vlos'][index * 7 + mark_t][:, :, interesting_tau_indice] - 0.18
+            labels = f['all_labels'][index * 7 + mark_t]
+            mask_shock = np.zeros((50, 50), dtype=np.int64)
+
+            for profile in list([78, 18]):
+                mask_shock[np.where(labels == profile)] = 1
+
+            a, b = np.where(mask_shock == 1)
+
+            if pre_temp is None:
+                pre_temp = shock_pre_temp[a, b]
+            else:
+                pre_temp = np.vstack([pre_temp, shock_pre_temp[a, b]])
+
+            if peak_temp_delta_t is None:
+                peak_temp_delta_t = np.subtract(
+                    shock_temp[a, b],
+                    shock_pre_temp[a, b]
+                )
+            else:
+                peak_temp_delta_t = np.vstack(
+                    [
+                        peak_temp_delta_t,
+                        np.subtract(
+                            shock_temp[a, b],
+                            shock_pre_temp[a, b]
+                        )
+                    ]
+                )
+
+            if vlos_shock is None:
+                vlos_shock = shock_vlos[a, b]
+            else:
+                vlos_shock = np.vstack([vlos_shock, shock_vlos[a, b]])
     f.close()
+    falt.close()
 
     return pre_temp, peak_temp_delta_t, vlos_shock
 
@@ -992,8 +1036,18 @@ def make_pre_shock_peak_shock_temp_vlos_scatter_plot():
 
     pre_temp, peak_temp_delta_t, vlos_shock = get_data_for_pre_shock_peak_shock_temp_scatter_plot(
         [0, 2, 3, 4, 5, 7, 8, 9],
+        [0, -1, 3, 7, -1, 11, 15, 20],
         [3, 3, 3, 3, 3, 4, 3, 3]
     )
+
+    data = {
+        r'Pre CBG T [kK]': list(pre_temp[:, 0]) + list(pre_temp[:, 2]) + list(pre_temp[:, 2]),
+        r'Peak CBG $\Delta$T [kK]': list(peak_temp_delta_t[:, 0]) + list(peak_temp_delta_t[:, 1]) + list(peak_temp_delta_t[:, 2]),
+        r'$V_{\mathrm{LOS}}\;\mathrm{CBG\;[km\;s^{-1}]}$': list(vlos_shock[:, 0]) + list(vlos_shock[:, 1]) + list(vlos_shock[:, 2]),
+        r'$\log \tau_{500}$': list(np.ones_like(pre_temp[:, 0]) * -4.2) + list(np.ones_like(pre_temp[:, 0]) * -3) + list(np.ones_like(pre_temp[:, 0]) * -1)
+    }
+
+    df = pd.DataFrame(data)
 
     fontsize = 8
 
@@ -1003,33 +1057,37 @@ def make_pre_shock_peak_shock_temp_vlos_scatter_plot():
 
     plt.cla()
 
-    plt.subplots_adjust(left=0.15, right=0.99, bottom=0.18, top=0.99)
+    sns.set()
 
-    plt.scatter(pre_temp[:, 0], peak_temp_delta_t[:, 0], color='blue', label=r'$log(\tau_{500}) = -4.2$', s=size / 4)
+    sns.set_context(
+        "paper",
+        rc={
+            "font.size": fontsize,
+            "axes.labelsize": fontsize,
+            "axes.titlesize": fontsize,
+            "xtick.labelsize": fontsize,
+            "ytick.labelsize": fontsize,
+            "legend.fontsize": fontsize
+        }
+    )
 
-    plt.scatter(pre_temp[:, 1], peak_temp_delta_t[:, 1], color='green', label=r'$log(\tau_{500}) = -3$', s=size / 4)
+    g = sns.jointplot(data=df, x=r'Pre CBG T [kK]', y=r'Peak CBG $\Delta$T [kK]', hue=r'$\log \tau_{500}$', palette=['blue', 'green', 'orange'], s=1, legend=False)
 
-    plt.scatter(pre_temp[:, 2], peak_temp_delta_t[:, 2], color='orange', label=r'$log(\tau_{500}) = -1$', s=size / 4)
-
-    plt.text(
-        0.05, 0.9,
+    g.ax_joint.text(
+        -0.2, 1.2,
         '(a)',
-        transform=plt.gca().transAxes,
+        transform=g.ax_joint.transAxes,
         color='black',
         fontsize=fontsize
     )
 
-    plt.xlabel(r'Pre Shock T [kK]', fontsize=fontsize)
+    g._figure.set_size_inches(3.5, 2.33, forward=True)
 
-    plt.ylabel(r'Peak Shock $\Delta$T [kK]', fontsize=fontsize)
+    g._figure.subplots_adjust(left=0.15, bottom=0.2, top=0.95, right=0.99)
 
-    fig = plt.gcf()
+    g._figure.savefig(write_path / 'PreShockPeakShockTemp.pdf', format='pdf', dpi=300)
 
-    fig.set_size_inches(3.5, 2.33, forward=True)
-
-    # fig.tight_layout()
-
-    fig.savefig(write_path / 'PreShockPeakShockTemp.pdf', format='pdf', dpi=300)
+    g._figure.savefig(write_path / 'PreShockPeakShockTemp.png', format='png', dpi=300)
 
     plt.close('all')
 
@@ -1037,33 +1095,38 @@ def make_pre_shock_peak_shock_temp_vlos_scatter_plot():
 
     plt.cla()
 
-    plt.subplots_adjust(left=0.15, right=0.99, bottom=0.18, top=0.99)
+    sns.set()
 
-    plt.scatter(vlos_shock[:, 0], peak_temp_delta_t[:, 0], color='blue', label=r'$\log\tau_{\mathrm{500}} = -4.2$', s=size / 4)
+    sns.set_context(
+        "paper",
+        rc={
+            "font.size": fontsize,
+            "axes.labelsize": fontsize,
+            "axes.titlesize": fontsize,
+            "xtick.labelsize": fontsize,
+            "ytick.labelsize": fontsize,
+            "legend.fontsize": fontsize
+        }
+    )
 
-    plt.scatter(vlos_shock[:, 1], peak_temp_delta_t[:, 1], color='green', label=r'$\log\tau_{\mathrm{500}} = -3$', s=size / 4)
+    g = sns.jointplot(data=df, x=r'$V_{\mathrm{LOS}}\;\mathrm{CBG\;[km\;s^{-1}]}$', y=r'Peak CBG $\Delta$T [kK]', hue=r'$\log \tau_{500}$',
+                      palette=['blue', 'green', 'orange'], s=1, legend=False)
 
-    plt.scatter(vlos_shock[:, 2], peak_temp_delta_t[:, 2], color='orange', label=r'$\log\tau_{\mathrm{500}} = -1$', s=size / 4)
-
-    plt.text(
-        0.05, 0.9,
+    g.ax_joint.text(
+        -0.2, 1.2,
         '(b)',
-        transform=plt.gca().transAxes,
+        transform=g.ax_joint.transAxes,
         color='black',
         fontsize=fontsize
     )
 
-    plt.xlabel(r'$V_{\mathrm{LOS}}$ Shock $\mathrm{[Km\;s^{-1}]}$', fontsize=fontsize)
+    g._figure.set_size_inches(3.5, 2.33, forward=True)
 
-    plt.ylabel(r'Peak Shock $\Delta$T [kK]', fontsize=fontsize)
+    g._figure.subplots_adjust(left=0.15, bottom=0.2, top=0.95, right=0.99)
 
-    fig = plt.gcf()
+    g._figure.savefig(write_path / 'PeakShockTempVlos.pdf', format='pdf', dpi=300)
 
-    fig.set_size_inches(3.5, 2.33, forward=True)
-
-    # fig.tight_layout()
-
-    fig.savefig(write_path / 'PeakShockTempVlos.pdf', format='pdf', dpi=300)
+    g._figure.savefig(write_path / 'PeakShockTempVlos.png', format='png', dpi=300)
 
     plt.close('all')
 
@@ -1099,14 +1162,14 @@ if __name__ == '__main__':
     #     ([535, 585], [715, 765], [8, 9]),  # H
     #     ([535, 585], [715, 765], [16, 18]),  # H
     # ]
-    plot_data_for_result_plots(0, 4, 6, 18, 'A', index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7, 8, 9, 12])
-    plot_data_for_result_plots(2, 17, 20, 27, 'B', -4, 4)
-    plot_data_for_result_plots(3, 32, 35, 20, 'C', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])
-    plot_data_for_result_plots(4, 12, 15, 22, 'D', index_alt=[7, 8, 9, 10], frame_alt=[11, 19, 20, 21], frame_res=[11, 14, 15, 16, 17, 18, 21])
-    plot_data_for_result_plots(5, 57, 60, 28, 'E')
-    plot_data_for_result_plots(7, 7, 11, 16, 'F', index_alt=[11, 12, 13, 14], frame_alt=[6, 14, 15, 16], frame_res=[6, 10, 11, 12, 13, 15, 16])
-    plot_data_for_result_plots(8, 8, 11, 21, 'G', index_alt=[15, 16, 17, 18, 19], frame_alt=[6, 7, 15, 16, 17], frame_res=[6, 10, 11, 12, 13, 14, 17])
-    plot_data_for_result_plots(9, 9, 12, 28, 'H', index_alt=[20, 21, 22], frame_alt=[8, 16, 17], frame_res=[8, 11, 12, 13, 14, 15, 17])
+    # plot_data_for_result_plots(0, 4, 6, 18, 'A', index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7, 8, 9, 12])
+    # plot_data_for_result_plots(2, 17, 20, 27, 'B', -4, 4)
+    # plot_data_for_result_plots(3, 32, 35, 20, 'C', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])
+    # plot_data_for_result_plots(4, 12, 15, 22, 'D', index_alt=[7, 8, 9, 10], frame_alt=[11, 19, 20, 21], frame_res=[11, 14, 15, 16, 17, 18, 21])
+    # plot_data_for_result_plots(5, 57, 60, 28, 'E')
+    # plot_data_for_result_plots(7, 7, 11, 16, 'F', index_alt=[11, 12, 13, 14], frame_alt=[6, 14, 15, 16], frame_res=[6, 10, 11, 12, 13, 15, 16])
+    # plot_data_for_result_plots(8, 8, 11, 21, 'G', index_alt=[15, 16, 17, 18, 19], frame_alt=[6, 7, 15, 16, 17], frame_res=[6, 10, 11, 12, 13, 14, 17])
+    # plot_data_for_result_plots(9, 9, 12, 28, 'H', index_alt=[20, 21, 22], frame_alt=[8, 16, 17], frame_res=[8, 11, 12, 13, 14, 15, 17])
     # make_time_evolution_plots(0, 4, 25, 18, 'A', index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7, 8, 9, 12])
     # make_time_evolution_plots(2, 17, 23, 27, 'B')
     # make_time_evolution_plots(3, 32, 29, 20, 'C', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])
@@ -1117,7 +1180,7 @@ if __name__ == '__main__':
     # make_time_evolution_plots(9, 9, 28, 28, 'H', index_alt=[20, 21, 22], frame_alt=[8, 16, 17], frame_res=[8, 11, 12, 13, 14, 15, 16, 17])
     # make_legend()
     # make_legend_average()
-    # make_pre_shock_peak_shock_temp_vlos_scatter_plot()
+    make_pre_shock_peak_shock_temp_vlos_scatter_plot()
 
     '''
     ## OLD NOT USED
