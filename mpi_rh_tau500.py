@@ -162,12 +162,17 @@ def collisional_transitions():
 
 
 def do_work(read_path):
+    cwd = os.getcwd()
 
     os.chdir(read_path)
 
     out = rh.readOutFiles()
 
-    return np.array(out.geometry.tau_ref), Status.Work_done
+    ltau500 = np.array(out.geometry.tau_ref)
+
+    os.chdir(cwd)
+
+    return ltau500, Status.Work_done
 
 
 def make_ray_file():
@@ -358,7 +363,7 @@ if __name__ == '__main__':
             # )
 
             # start_time = time.time()
-            ltau500, status = do_work(x, y, sub_dir_path)
+            ltau500, status = do_work(sub_dir_path)
             # sys.stdout.write(
             #     'Rank: {} RH Save Time: {}\n'.format(
             #         rank, time.time() - start_time
