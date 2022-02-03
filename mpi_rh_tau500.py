@@ -253,7 +253,10 @@ if __name__ == '__main__':
             )
             sender = status.Get_source()
             jobstatus = status_dict['status']
-            item, xx, yy = status_dict['item']
+            item, xx, yy, ltau500 = status_dict['item']
+            fo = h5py.File(ltau_out_file, 'r+')
+            fo['ltau500'][0, xx, yy] = ltau500
+            fo.close()
             sys.stdout.write(
                 'Sender: {} x: {} y: {} Status: {}\n'.format(
                     sender, xx, yy, jobstatus.value
@@ -369,7 +372,4 @@ if __name__ == '__main__':
             #         rank, time.time() - start_time
             #     )
             # )
-            f = h5py.File(ltau_out_file, 'r+')
-            f['ltau500'][0, x, y] = ltau500
-            f.close()
-            comm.send({'status': Status.Work_done, 'item': (item, x, y)}, dest=0, tag=2)
+            comm.send({'status': Status.Work_done, 'item': (item, x, y, ltau500)}, dest=0, tag=2)
