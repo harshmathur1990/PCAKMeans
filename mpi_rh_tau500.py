@@ -370,11 +370,6 @@ if __name__ == '__main__':
             #     )
             # )
             f = h5py.File(ltau_out_file, 'r+')
-            if 'ltau500' not in f.keys():
-                f['ltau500'] = np.zeros(
-                    (1, 504, 504, 177),
-                    dtype=np.float64
-                )
             f['ltau500'][0, x, y] = ltau500
             f.close()
             comm.send({'status': Status.Work_done, 'item': (item, x, y)}, dest=0, tag=2)
