@@ -1701,15 +1701,15 @@ def make_shock_evolution_plots():
     #
     # ref_y_list = [708, 1072, 974, 627, 335, 940, 600, 855, 1280, 715]
 
-    ref_x_list = [662, 486, 582, 810, 455, 315, 600, 535]
+    ref_x_list = [662, 582, 486, 810, 455, 315, 600, 535]
 
-    ref_y_list = [708, 974, 627, 335, 940, 855, 1280, 715]
+    ref_y_list = [708, 627, 974, 335, 940, 855, 1280, 715]
 
     time_step_list = [
         np.arange(4, 11),
         # np.arange(14, 21),
-        np.arange(17, 24),
         np.arange(32, 39),
+        np.arange(17, 24),
         np.arange(12, 19),
         np.arange(57, 64),
         # np.arange(93, 100),
@@ -1721,8 +1721,8 @@ def make_shock_evolution_plots():
     time_step_adhoc_list = [
         np.array([3, 5, 6, 7, 8, 9, 12]),
         # np.arange(14, 21),
-        np.arange(17, 24),
         np.array([30, 33, 34, 35, 36, 37, 40]),
+        np.arange(17, 24),
         np.array([11, 14, 15, 16, 17, 18, 21]),
         np.arange(57, 64),
         # np.arange(93, 100),
@@ -1734,8 +1734,8 @@ def make_shock_evolution_plots():
     mark_list = [
         [6 , 25, 18],
         # [16, 16, 15],
-        [20, 23, 27],
         [35, 29, 20],
+        [20, 23, 27],
         [15, 24, 22],
         [59, 28, 28],
         # [97, 24, 22],
