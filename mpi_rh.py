@@ -413,5 +413,3 @@ if __name__ == '__main__':
             #     )
             # )
             comm.send({'status': Status.Work_done, 'item': (item, x, y)}, dest=0, tag=2)
-
-    f.close()
