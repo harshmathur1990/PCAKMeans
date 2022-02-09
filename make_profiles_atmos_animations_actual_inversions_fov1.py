@@ -1415,7 +1415,7 @@ def make_rh15d_file(write_path, filename, list_of_points):
 
         calib_z = cs(0)
 
-        z[0, 0, index] = fsuppl['z'][t, x, y] - calib_z / 1e2
+        z[0, 0, index] = (fsuppl['z'][t, x, y] - calib_z) / 1e2
 
         ne[0, 0, index] = fsuppl['nne'][t, x, y] / 1e6
 
