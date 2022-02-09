@@ -1,4 +1,5 @@
 import sys
+sys.path.insert(1, '/home/harsh/CourseworkRepo/stic/example')
 import time
 from pathlib import Path
 import sunpy.io
@@ -9,6 +10,8 @@ import matplotlib.animation as animation
 from dateutil import parser
 from helita.sim import rh15d
 from scipy.interpolate import CubicSpline
+from helita.sim import multi
+from prepare_data import *
 
 label_file = Path(
     '/home/harsh/OsloAnalysis/new_kmeans/out_100_0.5_0.5_n_iter_10000_tol_1en5.h5'
@@ -1380,6 +1383,58 @@ def combine_supplementary_outputs():
     f.close()
 
 
+def write_atmos_files(write_path, filename, list_of_points):
+    base_path = Path('/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/fov_662_712_708_758/plots/')
+
+    fatmos = h5py.File(base_path / 'consolidated_results_velocity_calibrated_fov_662_712_708_758.h5', 'r')
+
+    fsuppl = h5py.File(base_path / 'supplementary_outputs.h5', 'r')
+
+    for index, point in enumerate(list_of_points):
+        t, x, y = point
+
+        cs = CubicSpline(ltau, fsuppl['z'][t, x, y])
+
+        calib_z = cs(0)
+
+        w = witt()
+
+        pe_from_pg = np.vectorize(
+            w.pe_from_pg
+        )
+
+        pe = pe_from_pg(
+            fatmos['all_temp'][t, x, y],
+            fsuppl['pg'][t, x, y]
+        )
+
+        h6tpgpe = np.vectorize(
+            w.getH6pop
+        )
+
+        h6pop = h6tpgpe(
+            fatmos['all_temp'][t, x, y],
+            fsuppl['pg'][t, x, y],
+            pe
+        )
+
+        multi.watmos_multi(
+            str(write_path / filename) + '{}.atmos'.format(index),
+            fatmos['all_temp'][t, x, y],
+            fsuppl['nne'][t, x, y] / 1e6,
+            z=(fsuppl['z'][t, x, y] - calib_z) / 1e5,
+            vz=fatmos['all_vlos'][t, x, y] - 0.18,
+            vturb=fatmos['all_vturb'][t, x, y],
+            nh=h6pop,
+            id='Bifrost {} {}'.format(x, y),
+            scale='height'
+        )
+
+    fsuppl.close()
+
+    fatmos.close()
+
+
 def make_rh15d_file(write_path, filename, list_of_points):
     '''
 
@@ -1417,14 +1472,14 @@ def make_rh15d_file(write_path, filename, list_of_points):
 
         z[0, 0, index] = (fsuppl['z'][t, x, y] - calib_z) / 1e2
 
-        ne[0, 0, index] = fsuppl['nne'][t, x, y] / 1e6
+        ne[0, 0, index] = fsuppl['nne'][t, x, y] * 1e6
 
-        rho[0, 0, index] = fsuppl['rho'][t, x, y] / 1e6
+        rho[0, 0, index] = fsuppl['rho'][t, x, y] * 1e6
 
         vturb[0, 0, index] = fatmos['all_vturb'][t, x, y] * 1e3
 
     rh15d.make_xarray_atmos(
-        str(write_path / filename),
+        str(write_path / filename) + '.h5',
         T=T,
         vz=vz,
         z=z,
@@ -1460,11 +1515,13 @@ if __name__ == '__main__':
 
     write_path = Path('/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/fov_662_712_708_758/plots/')
 
-    filename = 'rh15datmos.h5'
+    filename = 'rh15datmos'
 
     list_of_points = [
         [4, 25, 18],
         [5, 25, 18],
         [6, 25, 18],
     ]
+    write_atmos_files(write_path, filename, list_of_points)
+
     make_rh15d_file(write_path, filename, list_of_points)
