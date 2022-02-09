@@ -7,7 +7,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from dateutil import parser
-
+from helita.sim import rh15d
+from scipy.interpolate import CubicSpline
 
 label_file = Path(
     '/home/harsh/OsloAnalysis/new_kmeans/out_100_0.5_0.5_n_iter_10000_tol_1en5.h5'
@@ -68,6 +69,40 @@ atmos_indices0, atmos_indices1, atmos_indices2 = None, None, None
 x = [662, 712]
 y = [708, 758]
 
+ltau = np.array(
+    [
+        -8.       , -7.78133  , -7.77448  , -7.76712  , -7.76004  ,
+        -7.75249  , -7.74429  , -7.7356   , -7.72638  , -7.71591  ,
+        -7.70478  , -7.69357  , -7.68765  , -7.68175  , -7.67589  ,
+        -7.66997  , -7.66374  , -7.65712  , -7.64966  , -7.64093  ,
+        -7.63093  , -7.6192   , -7.6053   , -7.58877  , -7.56925  ,
+        -7.54674  , -7.52177  , -7.49317  , -7.4585   , -7.41659  ,
+        -7.36725  , -7.31089  , -7.24834  , -7.18072  , -7.1113   ,
+        -7.04138  , -6.97007  , -6.89698  , -6.82299  , -6.74881  ,
+        -6.67471  , -6.60046  , -6.52598  , -6.45188  , -6.37933  ,
+        -6.30927  , -6.24281  , -6.17928  , -6.11686  , -6.05597  ,
+        -5.99747  , -5.94147  , -5.88801  , -5.84684  , -5.81285  ,
+        -5.78014  , -5.74854  , -5.71774  , -5.68761  , -5.65825  ,
+        -5.6293   , -5.60066  , -5.57245  , -5.54457  , -5.51687  ,
+        -5.48932  , -5.46182  , -5.43417  , -5.40623  , -5.37801  ,
+        -5.3496   , -5.32111  , -5.29248  , -5.26358  , -5.23413  ,
+        -5.20392  , -5.17283  , -5.14073  , -5.1078   , -5.07426  ,
+        -5.03999  , -5.00492  , -4.96953  , -4.93406  , -4.89821  ,
+        -4.86196  , -4.82534  , -4.78825  , -4.75066  , -4.71243  ,
+        -4.67439  , -4.63696  , -4.59945  , -4.5607   , -4.52212  ,
+        -4.48434  , -4.44653  , -4.40796  , -4.36863  , -4.32842  ,
+        -4.28651  , -4.24205  , -4.19486  , -4.14491  , -4.09187  ,
+        -4.03446  , -3.97196  , -3.90451  , -3.83088  , -3.7496   ,
+        -3.66     , -3.56112  , -3.4519   , -3.33173  , -3.20394  ,
+        -3.07448  , -2.94444  , -2.8139   , -2.68294  , -2.55164  ,
+        -2.42002  , -2.28814  , -2.15605  , -2.02377  , -1.89135  ,
+        -1.7588   , -1.62613  , -1.49337  , -1.36127  , -1.23139  ,
+        -1.10699  , -0.99209  , -0.884893 , -0.782787 , -0.683488 ,
+        -0.584996 , -0.485559 , -0.383085 , -0.273456 , -0.152177 ,
+        -0.0221309,  0.110786 ,  0.244405 ,  0.378378 ,  0.51182  ,
+        0.64474  ,  0.777188 ,  0.909063 ,  1.04044  ,  1.1711
+    ]
+)
 
 def log(logString):
     current_time = time.strftime("%Y-%m-%d-%H:%M:%S")
@@ -1345,22 +1380,91 @@ def combine_supplementary_outputs():
     f.close()
 
 
+def make_rh15d_file(write_path, filename, list_of_points):
+    '''
+
+    Args:
+        write_path: pathlib.Path object
+        filename: filename of the RH15d output file
+        list_of_points: [[t1, x1, y1], [t2, x2, y2]...]
+
+    Makes RH15D file at the write path
+    Returns:
+        None
+    '''
+
+    base_path = Path('/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/fov_662_712_708_758/plots/')
+
+    fatmos = h5py.File(base_path / 'consolidated_results_velocity_calibrated_fov_662_712_708_758.h5', 'r')
+
+    fsuppl = h5py.File(base_path / 'supplementary_outputs.h5', 'r')
+
+    T = np.zeros((1, 1, len(list_of_points), 150), dtype=np.float64)
+    vz = np.zeros((1, 1, len(list_of_points), 150), dtype=np.float64)
+    z = np.zeros((1, 1, len(list_of_points), 150), dtype=np.float64)
+    ne = np.zeros((1, 1, len(list_of_points), 150), dtype=np.float64)
+    rho = np.zeros((1, 1, len(list_of_points), 150), dtype=np.float64)
+    vturb = np.zeros((1, 1, len(list_of_points), 150), dtype=np.float64)
+
+    for index, point in list_of_points:
+        t, x, y = point
+        T[0, 0, index] = fatmos['all_temp'][t, x, y]
+        vz[0, 0, index] = (fatmos['all_vlos'] - 0.18) * 1e3
+
+        cs = CubicSpline(ltau, fsuppl['z'][t, x, y])
+
+        calib_z = cs(0)
+
+        z[0, 0, index] = fsuppl['z'][t, x, y] - calib_z / 1e2
+
+        ne[0, 0, index] = fsuppl['nne'][t, x, y] / 1e6
+
+        rho[0, 0, index] = fsuppl['rho'][t, x, y] / 1e6
+
+        vturb[0, 0, index] = fatmos['all_vturb'][t, x, y] * 1e3
+
+    rh15d.make_xarray_atmos(
+        str(write_path / filename),
+        T=T,
+        vz=vz,
+        z=z,
+        ne=ne,
+        rho=rho,
+        vturb=vturb
+    )
+
+    fsuppl.close()
+
+    fatmos.close()
+
+
 if __name__ == '__main__':
 
-    # calib_velocity = None
-    #
-    # wave_indices_list = [
-    #     photosphere_indices,
-    #     mid_chromosphere_indices,
-    #     upper_chromosphere_indices
-    # ]
-    # tau_indices_list = [
-    #     photosphere_tau,
-    #     mid_chromosphere_tau,
-    #     upper_chromosphere_tau
-    # ]
+    calib_velocity = None
+
+    wave_indices_list = [
+        photosphere_indices,
+        mid_chromosphere_indices,
+        upper_chromosphere_indices
+    ]
+    tau_indices_list = [
+        photosphere_tau,
+        mid_chromosphere_tau,
+        upper_chromosphere_tau
+    ]
     # plot_fov_parameter_variation(
     #     animation_path='inversion_map_fov_1.mp4'
     # )
 
-    combine_supplementary_outputs()
+    # combine_supplementary_outputs()
+
+    write_path = Path('/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/fov_662_712_708_758/plots/')
+
+    filename = 'rh15datmos.h5'
+
+    list_of_points = [
+        [4, 25, 18],
+        [5, 25, 18],
+        [6, 25, 18],
+    ]
+    make_rh15d_file(write_path, filename, list_of_points)

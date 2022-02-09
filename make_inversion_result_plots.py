@@ -1331,8 +1331,8 @@ def get_data_for_pre_shock_peak_shock_temp_scatter_plot(index_list, mark_t_list)
 
         if peak_temp_delta_t_vlos is None:
             peak_temp_delta_t_vlos = np.subtract(
-                np.dot(all_temp_vlos[1][a, b]
-                np.dot(all_temp_vlos[0][a, b]
+                np.dot(all_temp_vlos[1][a, b]),
+                np.dot(all_temp_vlos[0][a, b])
             )
         else:
             peak_temp_delta_t_vlos = np.vstack(
