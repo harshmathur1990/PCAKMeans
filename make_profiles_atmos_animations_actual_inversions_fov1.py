@@ -1406,7 +1406,7 @@ def make_rh15d_file(write_path, filename, list_of_points):
     rho = np.zeros((1, 1, len(list_of_points), 150), dtype=np.float64)
     vturb = np.zeros((1, 1, len(list_of_points), 150), dtype=np.float64)
 
-    for index, point in list_of_points:
+    for index, point in enumerate(list_of_points):
         t, x, y = point
         T[0, 0, index] = fatmos['all_temp'][t, x, y]
         vz[0, 0, index] = (fatmos['all_vlos'] - 0.18) * 1e3
