@@ -76,12 +76,13 @@ size = plt.rcParams['lines.markersize']
 
 
 def get_all_profiles_and_atmos():
-    subfoldername='shocks_78_18/plots_nag'
-    base_path = Path('/home/harsh/OsloAnalysis/new_kmeans/all_data_inversion_rps')
-    subfolder = base_path / subfoldername
-    output_prof_name = subfolder / 'wholedata_rps_shocks_78_18_profile_rps_78_18_cycle_1_t_5_vl_5_vt_4_profs.nc'
-    input_prof_name = base_path / 'wholedata_rps_shocks_78_18_profile_rps_78_18.nc'
-    output_atmos_name = subfolder / 'wholedata_rps_shocks_78_18_profile_rps_78_18_cycle_1_t_5_vl_5_vt_4_atmos.nc'
+    # subfoldername='shocks_78_18/plots_nag'
+    # base_path = Path('/home/harsh/OsloAnalysis/new_kmeans/all_data_inversion_rps')
+    # subfolder = base_path / subfoldername
+    subfolder = Path('/home/harsh/CourseworkRepo/stic/run_rps/')
+    output_prof_name = subfolder / 'wholedata_rps_shocks_78_18_profile_rps_78_18_cycle_t_5_vl_5_vt_4_atmos.nc'
+    input_prof_name = subfolder / 'wholedata_rps_shocks_78_18_profile_rps_78_18.nc'
+    output_atmos_name = subfolder / 'wholedata_rps_shocks_78_18_profile_rps_78_18_cycle_t_5_vl_5_vt_4_profs.nc'
 
     output_prof = h5py.File(output_prof_name, 'r')
     input_prof = h5py.File(input_prof_name, 'r')
@@ -204,5 +205,11 @@ def make_plot():
         )
 
         fig.tight_layout()
-        fig.savefig('RP_{}.eps'.format(profile), format='eps', dpi=300)
-        fig.savefig('RP_{}.png'.format(profile), format='png', dpi=300)
+
+        write_path = Path('/home/harsh/CourseworkRepo/stic/run_rps/')
+        fig.savefig(write_path / 'RP_{}.pdf'.format(profile), format='pdf', dpi=300)
+        fig.savefig(write_path / 'RP_{}.png'.format(profile), format='png', dpi=300)
+
+
+if __name__ == '__main__':
+    make_plot()

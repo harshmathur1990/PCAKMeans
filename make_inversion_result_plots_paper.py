@@ -739,7 +739,7 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y, letter, index_al
 
         axs.text(
             0.1, 0.9,
-            'FoV {}'.format(letter),
+            'ROI {}'.format(letter),
             transform=axs.transAxes,
             color='black',
             fontsize=fontsize
@@ -776,7 +776,7 @@ def make_legend():
     plt.clf()
     plt.cla()
 
-    fig = plt.figure(figsize=(3.5,3.5))
+    fig = plt.figure(figsize=(7,7))
     legend = plt.legend(
         handles,
         label_list,
@@ -886,18 +886,20 @@ def get_data_for_pre_shock_peak_shock_temp_scatter_plot(index_list, index_alt_li
                 pre_temp = np.vstack([pre_temp, all_temp[0][a, b]])
 
             if peak_temp_delta_t is None:
-                peak_temp_delta_t = np.subtract(
-                    all_temp[1][a, b],
-                    all_temp[0][a, b]
-                )
+                # peak_temp_delta_t = np.subtract(
+                #     all_temp[1][a, b],
+                #     all_temp[0][a, b]
+                # )
+                peak_temp_delta_t = all_temp[1][a, b]
             else:
                 peak_temp_delta_t = np.vstack(
                     [
                         peak_temp_delta_t,
-                        np.subtract(
-                            all_temp[1][a, b],
-                            all_temp[0][a, b]
-                        )
+                        # np.subtract(
+                        #     all_temp[1][a, b],
+                        #     all_temp[0][a, b]
+                        # )
+                        all_temp[1][a, b]
                     ]
                 )
 
@@ -924,18 +926,20 @@ def get_data_for_pre_shock_peak_shock_temp_scatter_plot(index_list, index_alt_li
                 pre_temp = np.vstack([pre_temp, shock_pre_temp[a, b]])
 
             if peak_temp_delta_t is None:
-                peak_temp_delta_t = np.subtract(
-                    shock_temp[a, b],
-                    shock_pre_temp[a, b]
-                )
+                # peak_temp_delta_t = np.subtract(
+                #     shock_temp[a, b],
+                #     shock_pre_temp[a, b]
+                # )
+                peak_temp_delta_t = shock_temp[a, b]
             else:
                 peak_temp_delta_t = np.vstack(
                     [
                         peak_temp_delta_t,
-                        np.subtract(
-                            shock_temp[a, b],
-                            shock_pre_temp[a, b]
-                        )
+                        # np.subtract(
+                        #     shock_temp[a, b],
+                        #     shock_pre_temp[a, b]
+                        # )
+                        shock_temp[a, b]
                     ]
                 )
 
@@ -1163,22 +1167,22 @@ if __name__ == '__main__':
     #     ([535, 585], [715, 765], [16, 18]),  # H
     # ]
     # plot_data_for_result_plots(0, 4, 6, 18, 'A', index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7, 8, 9, 12])
-    # plot_data_for_result_plots(2, 17, 20, 27, 'B', -4, 4)
-    # plot_data_for_result_plots(3, 32, 35, 20, 'C', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])
+    # plot_data_for_result_plots(2, 17, 20, 27, 'C', -4, 4)
+    # plot_data_for_result_plots(3, 32, 35, 20, 'B', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])
     # plot_data_for_result_plots(4, 12, 15, 22, 'D', index_alt=[7, 8, 9, 10], frame_alt=[11, 19, 20, 21], frame_res=[11, 14, 15, 16, 17, 18, 21])
     # plot_data_for_result_plots(5, 57, 60, 28, 'E')
     # plot_data_for_result_plots(7, 7, 11, 16, 'F', index_alt=[11, 12, 13, 14], frame_alt=[6, 14, 15, 16], frame_res=[6, 10, 11, 12, 13, 15, 16])
     # plot_data_for_result_plots(8, 8, 11, 21, 'G', index_alt=[15, 16, 17, 18, 19], frame_alt=[6, 7, 15, 16, 17], frame_res=[6, 10, 11, 12, 13, 14, 17])
     # plot_data_for_result_plots(9, 9, 12, 28, 'H', index_alt=[20, 21, 22], frame_alt=[8, 16, 17], frame_res=[8, 11, 12, 13, 14, 15, 17])
     # make_time_evolution_plots(0, 4, 25, 18, 'A', index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7, 8, 9, 12])
-    # make_time_evolution_plots(2, 17, 23, 27, 'B')
-    # make_time_evolution_plots(3, 32, 29, 20, 'C', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])
+    # make_time_evolution_plots(2, 17, 23, 27, 'C')
+    # make_time_evolution_plots(3, 32, 29, 20, 'B', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])
     # make_time_evolution_plots(4, 12, 24, 22, 'D', index_alt=[7, 8, 9, 10], frame_alt=[11, 19, 20, 21], frame_res=[11, 14, 15, 16, 17, 18, 21])
     # make_time_evolution_plots(5, 57, 28, 28, 'E')
     # make_time_evolution_plots(7, 7, 22, 16, 'F', index_alt=[11, 12, 13, 14], frame_alt=[6, 14, 15, 16], frame_res=[6, 10, 11, 12, 13, 15, 16])
     # make_time_evolution_plots(8, 8, 26, 21, 'G', index_alt=[15, 16, 17, 18, 19], frame_alt=[6, 7, 15, 16, 17], frame_res=[6, 10, 11, 12, 13, 14, 17])
     # make_time_evolution_plots(9, 9, 28, 28, 'H', index_alt=[20, 21, 22], frame_alt=[8, 16, 17], frame_res=[8, 11, 12, 13, 14, 15, 16, 17])
-    # make_legend()
+    make_legend()
     # make_legend_average()
     make_pre_shock_peak_shock_temp_vlos_scatter_plot()
 

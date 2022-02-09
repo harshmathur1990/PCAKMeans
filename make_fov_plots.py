@@ -324,7 +324,7 @@ def plot_fov_images():
     axs[1][0].text(
         1034 / 1848,
         486 / 1236,
-        'B',
+        'C',
         transform=axs[1][0].transAxes,
         color='#E15759'
     )
@@ -334,7 +334,7 @@ def plot_fov_images():
     axs[1][0].text(
         557 / 1848,
         582 / 1236,
-        'C',
+        'B',
         transform=axs[1][0].transAxes,
         color='#76B7B2'
     )
@@ -811,7 +811,7 @@ def make_fov_movie(animation_path, fps=1):
 if __name__ == '__main__':
     plot_fov_images()
     # plot_one_image()
-
+    #
     # write_path = Path('/home/harsh/Shocks Paper/')
     # animation_path = write_path / 'FoV_animation.mp4'
     # make_fov_movie(animation_path, fps=18)
