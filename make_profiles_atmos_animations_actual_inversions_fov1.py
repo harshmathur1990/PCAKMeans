@@ -89,6 +89,131 @@ def get_exact_filename(base_dir, starts_with, ends_with):
     return None
 
 
+def get_supplementary_atmos_params(
+    x, y, frames,
+    output_atmos_quiet_filepath,
+    output_atmos_shock_filepath,
+    output_atmos_reverse_filepath,
+    output_atmos_other_filepath,
+    quiet_pixel_file,
+    shock_pixel_file,
+    reverse_pixel_file,
+    other_pixel_file,
+    output_atmos_shock_78_filepath=None,
+    shock_78_pixel_file=None
+):
+
+    fout_atmos_quiet = h5py.File(output_atmos_quiet_filepath, 'r')
+
+    fout_atmos_shock = h5py.File(output_atmos_shock_filepath, 'r')
+
+    if output_atmos_shock_78_filepath:
+        fout_atmos_shock_78 = h5py.File(output_atmos_shock_78_filepath, 'r')
+
+    fout_atmos_reverse = h5py.File(output_atmos_reverse_filepath, 'r')
+
+    fout_atmos_other = h5py.File(
+        output_atmos_other_filepath,
+        'r'
+    )
+
+    fquiet = h5py.File(quiet_pixel_file, 'r')
+
+    fshock = h5py.File(shock_pixel_file, 'r')
+
+    if shock_78_pixel_file:
+        fshock_78 = h5py.File(shock_78_pixel_file, 'r')
+
+    freverse = h5py.File(reverse_pixel_file, 'r')
+
+    fother = h5py.File(other_pixel_file, 'r')
+
+    a1, b1, c1 = fquiet['pixel_indices'][0:3]
+
+    a2, b2, c2 = fshock['pixel_indices'][0:3]
+
+    if shock_78_pixel_file:
+        a3, b3, c3 = fshock_78['pixel_indices'][0:3]
+
+    a4, b4, c4 = freverse['pixel_indices'][0:3]
+
+    a6, b6, c6 = fother['pixel_indices'][0:3]
+
+    nne = np.zeros(
+        (
+            frames[1] - frames[0],
+            x[1] - x[0],
+            y[1] - y[0],
+            150
+        )
+    )
+
+    rho = np.zeros(
+        (
+            frames[1] - frames[0],
+            x[1] - x[0],
+            y[1] - y[0],
+            150
+        )
+    )
+
+    pgas = np.zeros(
+        (
+            frames[1] - frames[0],
+            x[1] - x[0],
+            y[1] - y[0],
+            150
+        )
+    )
+
+    z = np.zeros(
+        (
+            frames[1] - frames[0],
+            x[1] - x[0],
+            y[1] - y[0],
+            150
+        )
+    )
+
+    nne[a1, b1, c1] = fout_atmos_quiet['nne'][0, 0]
+    nne[a2, b2, c2] = fout_atmos_shock['nne'][0, 0]
+
+    if shock_78_pixel_file and output_atmos_shock_78_filepath:
+        nne[a3, b3, c3] = fout_atmos_shock_78['nne'][0, 0]
+
+    nne[a4, b4, c4] = fout_atmos_reverse['nne'][0, 0]
+    nne[a6, b6, c6] = fout_atmos_other['nne'][0, 0]
+
+    rho[a1, b1, c1] = fout_atmos_quiet['rho'][0, 0]
+    rho[a2, b2, c2] = fout_atmos_shock['rho'][0, 0]
+
+    if shock_78_pixel_file and output_atmos_shock_78_filepath:
+        rho[a3, b3, c3] = fout_atmos_shock_78['rho'][0, 0]
+
+    rho[a4, b4, c4] = fout_atmos_reverse['rho'][0, 0]
+    rho[a6, b6, c6] = fout_atmos_other['rho'][0, 0]
+
+    pgas[a1, b1, c1] = fout_atmos_quiet['pgas'][0, 0]
+    pgas[a2, b2, c2] = fout_atmos_shock['pgas'][0, 0]
+
+    if shock_78_pixel_file and output_atmos_shock_78_filepath:
+        pgas[a3, b3, c3] = fout_atmos_shock_78['pgas'][0, 0]
+
+    pgas[a4, b4, c4] = fout_atmos_reverse['pgas'][0, 0]
+    pgas[a6, b6, c6] = fout_atmos_other['pgas'][0, 0]
+
+    z[a1, b1, c1] = fout_atmos_quiet['z'][0, 0]
+    z[a2, b2, c2] = fout_atmos_shock['z'][0, 0]
+
+    if shock_78_pixel_file and output_atmos_shock_78_filepath:
+        z[a3, b3, c3] = fout_atmos_shock_78['z'][0, 0]
+
+    z[a4, b4, c4] = fout_atmos_reverse['z'][0, 0]
+    z[a6, b6, c6] = fout_atmos_other['z'][0, 0]
+
+    return nne, pgas, rho, z
+
+
 def get_atmos_params(
     x, y, frames,
     input_profile_quiet,
@@ -286,6 +411,112 @@ def get_atmos_params(
     return all_profiles, syn_profiles, all_temp, all_vlos, all_vturb
 
 
+def get_supplementary_output_filename_params(x, y, frameslist):
+    return_tuple_list = list()
+
+    base_path_input = Path(
+        '/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/fov_{}_{}_{}_{}'.format(
+            x[0], x[1], y[0], y[1]
+        )
+    )
+    base_path_inversions = base_path_input / 'plots'
+
+    for frames, shock_78 in frameslist:
+
+        output_atmos_quiet_filepath = get_exact_filename(
+            base_path_inversions,
+            'wholedata_quiet_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                frames[0], frames[1], x[0], x[1], y[0], y[1]
+            ),
+            'atmos.nc'
+        )
+
+        output_atmos_shock_filepath = get_exact_filename(
+            base_path_inversions,
+            'wholedata_shock_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                frames[0], frames[1], x[0], x[1], y[0], y[1]
+            ),
+            'atmos.nc'
+        )
+
+        if shock_78:
+            output_atmos_shock_78_filepath = get_exact_filename(
+                base_path_inversions,
+                'wholedata_shocks_78_18_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                    frames[0], frames[1], x[0], x[1], y[0], y[1]
+                ),
+                'atmos.nc'
+            )
+
+        output_atmos_reverse_filepath = get_exact_filename(
+            base_path_inversions,
+            'wholedata_reverse_shock_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                frames[0], frames[1], x[0], x[1], y[0], y[1]
+            ),
+            'atmos.nc'
+        )
+
+        output_atmos_other_filepath = get_exact_filename(
+            base_path_inversions,
+            'wholedata_other_emission_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                frames[0], frames[1], x[0], x[1], y[0], y[1]
+            ),
+            'atmos.nc'
+        )
+
+        quiet_pixel_file = get_exact_filename(
+            base_path_input,
+            'pixel_indices_quiet_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                frames[0], frames[1], x[0], x[1], y[0], y[1]
+            ),
+            '.h5'
+        )
+
+        shock_pixel_file = get_exact_filename(
+            base_path_input,
+            'pixel_indices_shock_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                frames[0], frames[1], x[0], x[1], y[0], y[1]
+            ),
+            '.h5'
+        )
+
+        if shock_78:
+            shock_78_pixel_file = get_exact_filename(
+                base_path_input,
+                'pixel_indices_shocks_78_18_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                    frames[0], frames[1], x[0], x[1], y[0], y[1]
+                ),
+                '.h5'
+            )
+
+        reverse_pixel_file = get_exact_filename(
+            base_path_input,
+            'pixel_indices_reverse_shock_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                frames[0], frames[1], x[0], x[1], y[0], y[1]
+            ),
+            '.h5'
+        )
+
+        other_pixel_file = get_exact_filename(
+            base_path_input,
+            'pixel_indices_other_emission_profiles_rps_frame_{}_{}_x_{}_{}_y_{}_{}'.format(
+                frames[0], frames[1], x[0], x[1], y[0], y[1]
+            ),
+            '.h5'
+        )
+
+        if shock_78:
+            return_tuple_list.append(
+                (output_atmos_quiet_filepath, output_atmos_shock_filepath, output_atmos_reverse_filepath, output_atmos_other_filepath, quiet_pixel_file, shock_pixel_file, reverse_pixel_file, other_pixel_file, output_atmos_shock_78_filepath, shock_78_pixel_file)
+            )
+        else:
+            return_tuple_list.append(
+                (output_atmos_quiet_filepath, output_atmos_shock_filepath, output_atmos_reverse_filepath, output_atmos_other_filepath, quiet_pixel_file, shock_pixel_file, reverse_pixel_file, other_pixel_file)
+            )
+
+    return return_tuple_list
+
+
 def get_filename_params(x, y, frameslist):
     return_tuple_list = list()
 
@@ -471,6 +702,39 @@ def get_filename_params(x, y, frameslist):
             )
 
     return return_tuple_list
+
+
+def get_supplementary_output_fov():
+
+    global x, y
+
+    frameslist = [([0, 21], True), ([21, 42], False), ([42, 63], True), ([63, 84], True), ([84, 100], True)]
+
+    tuple_list = get_supplementary_output_filename_params(x, y, frameslist)
+
+    nne, pgas, rho, z = None, None, None, None
+
+    for index, a_tuple in enumerate(tuple_list):
+        if nne is None:
+            nne, pgas, rho, z = get_supplementary_atmos_params(
+                x,
+                y,
+                frameslist[index][0],
+                *a_tuple
+            )
+        else:
+            a, b, c, d = get_supplementary_atmos_params(
+                x,
+                y,
+                frameslist[index][0],
+                *a_tuple
+            )
+            nne = np.vstack([nne, a])
+            pgas = np.vstack([pgas, b])
+            rho = np.vstack([rho, c])
+            z = np.vstack([z, d])
+
+    return nne, pgas, rho, z
 
 
 def get_fov():
@@ -1065,20 +1329,38 @@ def plot_fov_parameter_variation(
     plt.close('all')
 
 
+def combine_supplementary_outputs():
+    nne, pgas, rho, z = get_supplementary_output_fov()
+
+    f = h5py.File('/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/fov_662_712_708_758/plots/supplementary_outputs.h5', 'w')
+
+    f['nne'] = nne
+
+    f['pgas'] = pgas
+
+    f['rho'] = rho
+
+    f['z'] = z
+
+    f.close()
+
+
 if __name__ == '__main__':
 
-    calib_velocity = None
+    # calib_velocity = None
+    #
+    # wave_indices_list = [
+    #     photosphere_indices,
+    #     mid_chromosphere_indices,
+    #     upper_chromosphere_indices
+    # ]
+    # tau_indices_list = [
+    #     photosphere_tau,
+    #     mid_chromosphere_tau,
+    #     upper_chromosphere_tau
+    # ]
+    # plot_fov_parameter_variation(
+    #     animation_path='inversion_map_fov_1.mp4'
+    # )
 
-    wave_indices_list = [
-        photosphere_indices,
-        mid_chromosphere_indices,
-        upper_chromosphere_indices
-    ]
-    tau_indices_list = [
-        photosphere_tau,
-        mid_chromosphere_tau,
-        upper_chromosphere_tau
-    ]
-    plot_fov_parameter_variation(
-        animation_path='inversion_map_fov_1.mp4'
-    )
+    combine_supplementary_outputs()
