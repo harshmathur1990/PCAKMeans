@@ -11,7 +11,7 @@ from dateutil import parser
 from helita.sim import rh15d
 from scipy.interpolate import CubicSpline
 from helita.sim import multi
-from prepare_data import *
+from witt import *
 
 label_file = Path(
     '/home/harsh/OsloAnalysis/new_kmeans/out_100_0.5_0.5_n_iter_10000_tol_1en5.h5'
@@ -1405,7 +1405,7 @@ def write_atmos_files(write_path, filename, list_of_points):
 
         pe = pe_from_pg(
             fatmos['all_temp'][t, x, y],
-            fsuppl['pg'][t, x, y]
+            fsuppl['pgas'][t, x, y]
         )
 
         h6tpgpe = np.vectorize(
@@ -1414,7 +1414,7 @@ def write_atmos_files(write_path, filename, list_of_points):
 
         h6pop = h6tpgpe(
             fatmos['all_temp'][t, x, y],
-            fsuppl['pg'][t, x, y],
+            fsuppl['pgas'][t, x, y],
             pe
         )
 
