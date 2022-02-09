@@ -1425,7 +1425,7 @@ def write_atmos_files(write_path, filename, list_of_points):
             z=(fsuppl['z'][t, x, y] - calib_z) / 1e5,
             vz=fatmos['all_vlos'][t, x, y] - 0.18,
             vturb=fatmos['all_vturb'][t, x, y],
-            nh=h6pop,
+            nh=h6pop.T,
             id='Bifrost {} {}'.format(x, y),
             scale='height'
         )
