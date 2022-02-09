@@ -1767,98 +1767,98 @@ def make_shock_evolution_plots():
             blos_lim
         )
 
-        # make_evolution_single_pixel_plot(
-        #     ref_x_list[i],
-        #     ref_y_list[i],
-        #     mark_list[i][1],
-        #     mark_list[i][2],
-        #     np.array(
-        #         [
-        #             mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
-        #             mark_list[i][0] - 2 if (mark_list[i][0] - 4) >= 0 else 0,
-        #             mark_list[i][0],
-        #             mark_list[i][0] + 2 if (mark_list[i][0] + 4) < 100 else 99,
-        #             mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
-        #         ]
-        #     ),
-        #     np.array(
-        #         [
-        #             mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
-        #             mark_list[i][0],
-        #             mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
-        #         ]
-        #     ),
-        #     FoV_letter_list[i],
-        #     wave_indice,
-        #     color_list_1,
-        #     color_list_2
-        # )
+        make_evolution_single_pixel_plot(
+            ref_x_list[i],
+            ref_y_list[i],
+            mark_list[i][1],
+            mark_list[i][2],
+            np.array(
+                [
+                    mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
+                    mark_list[i][0] - 2 if (mark_list[i][0] - 4) >= 0 else 0,
+                    mark_list[i][0],
+                    mark_list[i][0] + 2 if (mark_list[i][0] + 4) < 100 else 99,
+                    mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
+                ]
+            ),
+            np.array(
+                [
+                    mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
+                    mark_list[i][0],
+                    mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
+                ]
+            ),
+            FoV_letter_list[i],
+            wave_indice,
+            color_list_1,
+            color_list_2
+        )
         #
-        # start_t = time_step_list[i][0]
-        # end_t = time_step_list[i][-1]
+        start_t = time_step_list[i][0]
+        end_t = time_step_list[i][-1]
+
+        begin_seq = np.arange(start_t-14 if (start_t-14) >= 0 else 0, start_t)
+        end_seq = np.arange(end_t, end_t + 14 if (end_t + 14) < 100 else 99)
         #
-        # begin_seq = np.arange(start_t-14 if (start_t-14) >= 0 else 0, start_t)
-        # end_seq = np.arange(end_t, end_t + 14 if (end_t + 14) < 100 else 99)
+        time_step = np.array(list(begin_seq) + list(time_step_list[i]) + list(end_seq))
+        make_lambda_t_curve(
+            ref_x_list[i],
+            ref_y_list[i],
+            mark_list[i][1],
+            mark_list[i][2],
+            time_step,
+            np.array(
+                [
+                    mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
+                    mark_list[i][0] - 2 if (mark_list[i][0] - 4) >= 0 else 0,
+                    mark_list[i][0],
+                    mark_list[i][0] + 2 if (mark_list[i][0] + 4) < 100 else 99,
+                    mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
+                ]
+            ),
+            np.array(
+                [
+                    mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
+                    mark_list[i][0],
+                    mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
+                ]
+            ),
+            color_list_1,
+            color_list_2,
+            FoV_letter_list[i]
+        )
         #
-        # time_step = np.array(list(begin_seq) + list(time_step_list[i]) + list(end_seq))
-        # make_lambda_t_curve(
-        #     ref_x_list[i],
-        #     ref_y_list[i],
-        #     mark_list[i][1],
-        #     mark_list[i][2],
-        #     time_step,
-        #     np.array(
-        #         [
-        #             mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
-        #             mark_list[i][0] - 2 if (mark_list[i][0] - 4) >= 0 else 0,
-        #             mark_list[i][0],
-        #             mark_list[i][0] + 2 if (mark_list[i][0] + 4) < 100 else 99,
-        #             mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
-        #         ]
-        #     ),
-        #     np.array(
-        #         [
-        #             mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
-        #             mark_list[i][0],
-        #             mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
-        #         ]
-        #     ),
-        #     color_list_1,
-        #     color_list_2,
-        #     FoV_letter_list[i]
-        # )
+        make_nb_image(
+            ref_x_list[i],
+            ref_y_list[i],
+            np.array([mark_list[i][0]]),
+            wave_indice[0],
+            mark_list[i][1],
+            mark_list[i][2],
+            FoV_letter_list[i]
+        )
         #
-        # make_nb_image(
-        #     ref_x_list[i],
-        #     ref_y_list[i],
-        #     np.array([mark_list[i][0]]),
-        #     wave_indice[0],
-        #     mark_list[i][1],
-        #     mark_list[i][2],
-        #     FoV_letter_list[i]
-        # )
-        #
-        # make_lambda_t_curve(
-        #     ref_x_list[i],
-        #     ref_y_list[i],
-        #     mark_list[i][1],
-        #     mark_list[i][2],
-        #     time_step,
-        #     np.array(
-        #         [
-        #             mark_list[i][0]
-        #         ]
-        #     ),
-        #     np.array(
-        #         [
-        #             mark_list[i][0]
-        #         ]
-        #     ),
-        #     [color_list_2[0]],
-        #     [color_list_2[0]],
-        #     FoV_letter_list[i],
-        #     appendix=True
-        # )
+        make_lambda_t_curve(
+            ref_x_list[i],
+            ref_y_list[i],
+            mark_list[i][1],
+            mark_list[i][2],
+            time_step,
+            np.array(
+                [
+                    mark_list[i][0]
+                ]
+            ),
+            np.array(
+                [
+                    mark_list[i][0]
+                ]
+            ),
+            [color_list_2[0]],
+            [color_list_2[0]],
+            FoV_letter_list[i],
+            appendix=True
+        )
 
 
 def make_fov_contour():
@@ -2311,5 +2311,5 @@ def get_all_profile_enhancement_data():
 
 
 if __name__ == '__main__':
-    # make_shock_evolution_plots()
-    plot_response_functions()
+    make_shock_evolution_plots()
+    # plot_response_functions()
