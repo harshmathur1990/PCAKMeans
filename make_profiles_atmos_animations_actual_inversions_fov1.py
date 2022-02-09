@@ -1409,7 +1409,7 @@ def write_atmos_files(write_path, filename, list_of_points):
         )
 
         h6tpgpe = np.vectorize(
-            w.getH6pop
+            w.getH6pop, signature='(),(),()->(n)'
         )
 
         h6pop = h6tpgpe(
