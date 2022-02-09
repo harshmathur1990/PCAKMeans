@@ -1409,7 +1409,7 @@ def make_rh15d_file(write_path, filename, list_of_points):
     for index, point in enumerate(list_of_points):
         t, x, y = point
         T[0, 0, index] = fatmos['all_temp'][t, x, y]
-        vz[0, 0, index] = (fatmos['all_vlos'] - 0.18) * 1e3
+        vz[0, 0, index] = (fatmos['all_vlos'][t, x, y] - 0.18) * 1e3
 
         cs = CubicSpline(ltau, fsuppl['z'][t, x, y])
 
