@@ -72,35 +72,39 @@ def make_inversion_fit_plot(xs, ys, wave_indice, time_steps, ref_x, ref_y, fovNa
 
     f.close()
 
-    vmin = [
-        [
-            all_profiles[:, :, :, wave_indice[0]].min(),
-            syn_profiles[:, :, :, wave_indice[0]].min()
-        ],
-        [
-            all_profiles[:, :, :, wave_indice[1]].min(),
-            syn_profiles[:, :, :, wave_indice[1]].min()
-        ],
-        [
-            all_profiles[:, :, :, wave_indice[2]].min(),
-            syn_profiles[:, :, :, wave_indice[2]].min()
-        ]
-    ]
+    # vmin = [
+    #     [
+    #         all_profiles[:, :, :, wave_indice[0]].min(),
+    #         syn_profiles[:, :, :, wave_indice[0]].min()
+    #     ],
+    #     [
+    #         all_profiles[:, :, :, wave_indice[1]].min(),
+    #         syn_profiles[:, :, :, wave_indice[1]].min()
+    #     ],
+    #     [
+    #         all_profiles[:, :, :, wave_indice[2]].min(),
+    #         syn_profiles[:, :, :, wave_indice[2]].min()
+    #     ]
+    # ]
+    #
+    # vmax = [
+    #     [
+    #         all_profiles[:, :, :, wave_indice[0]].max(),
+    #         syn_profiles[:, :, :, wave_indice[0]].max()
+    #     ],
+    #     [
+    #         all_profiles[:, :, :, wave_indice[1]].max(),
+    #         syn_profiles[:, :, :, wave_indice[1]].max()
+    #     ],
+    #     [
+    #         all_profiles[:, :, :, wave_indice[2]].max(),
+    #         syn_profiles[:, :, :, wave_indice[2]].max()
+    #     ]
+    # ]
 
-    vmax = [
-        [
-            all_profiles[:, :, :, wave_indice[0]].max(),
-            syn_profiles[:, :, :, wave_indice[0]].max()
-        ],
-        [
-            all_profiles[:, :, :, wave_indice[1]].max(),
-            syn_profiles[:, :, :, wave_indice[1]].max()
-        ],
-        [
-            all_profiles[:, :, :, wave_indice[2]].max(),
-            syn_profiles[:, :, :, wave_indice[2]].max()
-        ]
-    ]
+    vmin = np.min(all_profiles[:, :, :, wave_indice].min(), syn_profiles[:, :, :, wave_indice].min())
+
+    vmax = np.max(all_profiles[:, :, :, wave_indice].max(), syn_profiles[:, :, :, wave_indice].max())
 
     color = ['blue', 'orange', 'brown', 'darkgreen']
 
@@ -129,8 +133,8 @@ def make_inversion_fit_plot(xs, ys, wave_indice, time_steps, ref_x, ref_y, fovNa
                         all_profiles[i, :, :, wave_indice[l]],
                         cmap='gray',
                         origin='lower',
-                        vmin=vmin[l][j],
-                        vmax=vmax[l][j]
+                        vmin=vmin,  #[l][j],
+                        vmax=vmax  #[l][j]
                     )
                     axs.scatter([ref_y], [ref_x], marker='+', color=color[i])
                     if i == 0:
@@ -150,8 +154,8 @@ def make_inversion_fit_plot(xs, ys, wave_indice, time_steps, ref_x, ref_y, fovNa
                         syn_profiles[i, :, :, wave_indice[l]],
                         cmap='gray',
                         origin='lower',
-                        vmin=vmin[l][j],
-                        vmax=vmax[l][j]
+                        vmin=vmin,  #[l][j],
+                        vmax=vmax  #[l][j]
                     )
                     if i == 0:
                         axs.set_title(
