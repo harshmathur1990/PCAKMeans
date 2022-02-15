@@ -611,18 +611,18 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y, letter, index_al
     if index_alt is not None:
         falt = h5py.File(inversion_out_file_alt, 'r')
         params = np.zeros((2, log_t_values.size, 7 + len(frame_alt)))
-        labels_f = np.zeros(7 + len(frame_alt))
+        # labels_f = np.zeros(7 + len(frame_alt))
         for inddd, frame_no in enumerate(range(min(frame_alt), max(frame_alt) + 1)):
             if frame_no in frame_alt:
                 indalt = index_alt[frame_alt.index(frame_no)]
                 params[0, :, inddd] = falt['all_temp'][indalt, mark_x, mark_y, ind_lt] / 1e3
                 params[1, :, inddd] = falt['all_vlos'][indalt, mark_x, mark_y, ind_lt] - 0.18
-                labels_f[inddd] = falt['all_labels'][indalt, mark_x, mark_y]
+                # labels_f[inddd] = falt['all_labels'][indalt, mark_x, mark_y]
             else:
                 params[0, :, inddd] = f['all_temp'][index_f * 7 + frame_no - start_t, mark_x, mark_y, ind_lt] / 1e3
                 params[1, :, inddd] = f['all_vlos'][index_f * 7 + frame_no - start_t, mark_x, mark_y, ind_lt] - 0.18
-                labels_f[inddd] = f['all_labels'][index_f * 7 + frame_no - start_t, mark_x, mark_y]
-        mask_shock = np.zeros(7 + len(frame_alt), dtype=np.int64)
+                # labels_f[inddd] = f['all_labels'][index_f * 7 + frame_no - start_t, mark_x, mark_y]
+        # mask_shock = np.zeros(7 + len(frame_alt), dtype=np.int64)
         tx = time[np.array(range(min(frame_alt), max(frame_alt) + 1))]
 
     else:
@@ -636,9 +636,9 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y, letter, index_al
             axes=(1, 0)
         ) - 0.18
 
-        mask_shock = np.zeros(7, dtype=np.int64)
+        # mask_shock = np.zeros(7, dtype=np.int64)
 
-        labels_f = f['all_labels'][index_f * 7:index_f * 7 + 7, mark_x, mark_y]
+        # labels_f = f['all_labels'][index_f * 7:index_f * 7 + 7, mark_x, mark_y]
 
         tx = time[start_t: start_t + 7]
 
@@ -650,9 +650,10 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y, letter, index_al
 
     tmin = -np.ceil(np.abs(params[0]).max())
     tmax = np.ceil(np.abs(params[0]).max())
+    targmax = np.argmax(params[0, 0])
 
-    for profile in strong_shocks_profiles:
-        mask_shock[np.where(labels_f == profile)] = 1
+    # for profile in strong_shocks_profiles:
+    #     mask_shock[np.where(labels_f == profile)] = 1
 
     fontsize = 8
 
@@ -727,16 +728,22 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y, letter, index_al
             axs.xaxis.set_minor_locator(MultipleLocator(10))
             axs.tick_params(direction='in', which='both')
 
-        ind_shocks = np.where(mask_shock == 1)[0]
+        # ind_shocks = np.where(mask_shock == 1)[0]
 
-        for ind in ind_shocks:
-            axs.axvline(
-                tx[ind],
-                linestyle='--',
-                linewidth=0.5,
-                color='black'
-            )
+        # for ind in ind_shocks:
+        #     axs.axvline(
+        #         tx[ind],
+        #         linestyle='--',
+        #         linewidth=0.5,
+        #         color='black'
+        #     )
 
+        axs.axvline(
+            tx[targmax],
+            linestyle='--',
+            linewidth=0.5,
+            color='black'
+        )
         axs.text(
             0.1, 0.9,
             'ROI {}'.format(letter),
@@ -1174,7 +1181,7 @@ if __name__ == '__main__':
     # plot_data_for_result_plots(7, 7, 11, 16, 'F', index_alt=[11, 12, 13, 14], frame_alt=[6, 14, 15, 16], frame_res=[6, 10, 11, 12, 13, 15, 16])
     # plot_data_for_result_plots(8, 8, 11, 21, 'G', index_alt=[15, 16, 17, 18, 19], frame_alt=[6, 7, 15, 16, 17], frame_res=[6, 10, 11, 12, 13, 14, 17])
     # plot_data_for_result_plots(9, 9, 12, 28, 'H', index_alt=[20, 21, 22], frame_alt=[8, 16, 17], frame_res=[8, 11, 12, 13, 14, 15, 17])
-    # make_time_evolution_plots(0, 4, 25, 18, 'A', index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7, 8, 9, 12])
+    make_time_evolution_plots(0, 4, 25, 18, 'A', index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7, 8, 9, 12])
     # make_time_evolution_plots(2, 17, 23, 27, 'C')
     # make_time_evolution_plots(3, 32, 29, 20, 'B', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])
     # make_time_evolution_plots(4, 12, 24, 22, 'D', index_alt=[7, 8, 9, 10], frame_alt=[11, 19, 20, 21], frame_res=[11, 14, 15, 16, 17, 18, 21])
@@ -1182,9 +1189,9 @@ if __name__ == '__main__':
     # make_time_evolution_plots(7, 7, 22, 16, 'F', index_alt=[11, 12, 13, 14], frame_alt=[6, 14, 15, 16], frame_res=[6, 10, 11, 12, 13, 15, 16])
     # make_time_evolution_plots(8, 8, 26, 21, 'G', index_alt=[15, 16, 17, 18, 19], frame_alt=[6, 7, 15, 16, 17], frame_res=[6, 10, 11, 12, 13, 14, 17])
     # make_time_evolution_plots(9, 9, 28, 28, 'H', index_alt=[20, 21, 22], frame_alt=[8, 16, 17], frame_res=[8, 11, 12, 13, 14, 15, 16, 17])
-    make_legend()
+    # make_legend()
     # make_legend_average()
-    make_pre_shock_peak_shock_temp_vlos_scatter_plot()
+    # make_pre_shock_peak_shock_temp_vlos_scatter_plot()
 
     '''
     ## OLD NOT USED

@@ -1422,12 +1422,12 @@ def write_atmos_files(write_path, filename, list_of_points):
             str(write_path / filename) + '{}.atmos'.format(index),
             fatmos['all_temp'][t, x, y],
             fsuppl['nne'][t, x, y] / 1e6,
-            z=(fsuppl['z'][t, x, y] - calib_z) / 1e5,
+            logtau=ltau,
             vz=fatmos['all_vlos'][t, x, y] - 0.18,
             vturb=fatmos['all_vturb'][t, x, y],
             nh=h6pop.T,
-            id='Bifrost {} {}'.format(x, y),
-            scale='height'
+            id='Shocks {} {}'.format(x, y),
+            scale='tau'
         )
 
     fsuppl.close()
