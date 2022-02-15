@@ -198,7 +198,7 @@ def make_line_cut_plots(all_params, time_array, mask, fovName, vlos_min_lc=None,
                     )
 
                     axs.text(
-                        0.05, 0.8, r'FoV {}'.format(
+                        0.05, 0.8, r'ROI {}'.format(
                             fovName
                         ),
                         transform=axs.transAxes,
@@ -502,9 +502,9 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_
                             0.06, -0.63,
                             r'$\Delta x$ [arcsec]',
                             transform=axs.transAxes,
-                            fontsize=fontsize - 1
+                            fontsize=fontsize
                         )
-                        axs.set_xticklabels([1], fontsize=fontsize - 1)
+                        axs.set_xticklabels([1], fontsize=fontsize)
                 k += 1
 
         fig.savefig(
@@ -1173,7 +1173,7 @@ if __name__ == '__main__':
     #     ([535, 585], [715, 765], [8, 9]),  # H
     #     ([535, 585], [715, 765], [16, 18]),  # H
     # ]
-    # plot_data_for_result_plots(0, 4, 6, 18, 'A', index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7, 8, 9, 12])
+    plot_data_for_result_plots(0, 4, 6, 18, 'A', index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7, 8, 9, 12])
     # plot_data_for_result_plots(2, 17, 20, 27, 'C', -4, 4)
     # plot_data_for_result_plots(3, 32, 35, 20, 'B', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])
     # plot_data_for_result_plots(4, 12, 15, 22, 'D', index_alt=[7, 8, 9, 10], frame_alt=[11, 19, 20, 21], frame_res=[11, 14, 15, 16, 17, 18, 21])
@@ -1191,7 +1191,7 @@ if __name__ == '__main__':
     # make_time_evolution_plots(9, 9, 28, 28, 'H', index_alt=[20, 21, 22], frame_alt=[8, 16, 17], frame_res=[8, 11, 12, 13, 14, 15, 16, 17])
     # make_legend()
     # make_legend_average()
-    make_pre_shock_peak_shock_temp_vlos_scatter_plot()
+    # make_pre_shock_peak_shock_temp_vlos_scatter_plot()
 
     '''
     ## OLD NOT USED
