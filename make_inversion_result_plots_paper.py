@@ -1052,9 +1052,9 @@ def make_pre_shock_peak_shock_temp_vlos_scatter_plot():
     )
 
     data = {
-        r'Pre CBG T [kK]': list(pre_temp[:, 0]) + list(pre_temp[:, 2]) + list(pre_temp[:, 2]),
-        r'Peak CBG $\Delta$T [kK]': list(peak_temp_delta_t[:, 0]) + list(peak_temp_delta_t[:, 1]) + list(peak_temp_delta_t[:, 2]),
-        r'$V_{\mathrm{LOS}}\;\mathrm{CBG\;[km\;s^{-1}]}$': list(vlos_shock[:, 0]) + list(vlos_shock[:, 1]) + list(vlos_shock[:, 2]),
+        r'T [kK]': list(pre_temp[:, 0]) + list(pre_temp[:, 2]) + list(pre_temp[:, 2]),
+        r'$\Delta$T [kK]': list(peak_temp_delta_t[:, 0]) + list(peak_temp_delta_t[:, 1]) + list(peak_temp_delta_t[:, 2]),
+        r'$V_{\mathrm{LOS}}\;\mathrm{[km\;s^{-1}]}$': list(vlos_shock[:, 0]) + list(vlos_shock[:, 1]) + list(vlos_shock[:, 2]),
         r'$\log \tau_{500}$': list(np.ones_like(pre_temp[:, 0]) * -4.2) + list(np.ones_like(pre_temp[:, 0]) * -3) + list(np.ones_like(pre_temp[:, 0]) * -1)
     }
 
@@ -1082,7 +1082,7 @@ def make_pre_shock_peak_shock_temp_vlos_scatter_plot():
         }
     )
 
-    g = sns.jointplot(data=df, x=r'Pre CBG T [kK]', y=r'Peak CBG $\Delta$T [kK]', hue=r'$\log \tau_{500}$', palette=['blue', 'green', 'orange'], s=1, legend=False)
+    g = sns.jointplot(data=df, x=r'T [kK]', y=r'$\Delta$T [kK]', hue=r'$\log \tau_{500}$', palette=['blue', 'green', 'orange'], s=1, legend=False)
 
     g.ax_joint.text(
         -0.2, 1.2,
@@ -1120,7 +1120,7 @@ def make_pre_shock_peak_shock_temp_vlos_scatter_plot():
         }
     )
 
-    g = sns.jointplot(data=df, x=r'$V_{\mathrm{LOS}}\;\mathrm{CBG\;[km\;s^{-1}]}$', y=r'Peak CBG $\Delta$T [kK]', hue=r'$\log \tau_{500}$',
+    g = sns.jointplot(data=df, x=r'$V_{\mathrm{LOS}}\;\mathrm{[km\;s^{-1}]}$', y=r'$\Delta$T [kK]', hue=r'$\log \tau_{500}$',
                       palette=['blue', 'green', 'orange'], s=1, legend=False)
 
     g.ax_joint.text(
@@ -1181,17 +1181,17 @@ if __name__ == '__main__':
     # plot_data_for_result_plots(7, 7, 11, 16, 'F', index_alt=[11, 12, 13, 14], frame_alt=[6, 14, 15, 16], frame_res=[6, 10, 11, 12, 13, 15, 16])
     # plot_data_for_result_plots(8, 8, 11, 21, 'G', index_alt=[15, 16, 17, 18, 19], frame_alt=[6, 7, 15, 16, 17], frame_res=[6, 10, 11, 12, 13, 14, 17])
     # plot_data_for_result_plots(9, 9, 12, 28, 'H', index_alt=[20, 21, 22], frame_alt=[8, 16, 17], frame_res=[8, 11, 12, 13, 14, 15, 17])
-    make_time_evolution_plots(0, 4, 25, 18, 'A', index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7, 8, 9, 12])
-    make_time_evolution_plots(2, 17, 23, 27, 'C')
-    make_time_evolution_plots(3, 32, 29, 20, 'B', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])
-    make_time_evolution_plots(4, 12, 24, 22, 'D', index_alt=[7, 8, 9, 10], frame_alt=[11, 19, 20, 21], frame_res=[11, 14, 15, 16, 17, 18, 21])
-    make_time_evolution_plots(5, 57, 28, 28, 'E')
-    make_time_evolution_plots(7, 7, 22, 16, 'F', index_alt=[11, 12, 13, 14], frame_alt=[6, 14, 15, 16], frame_res=[6, 10, 11, 12, 13, 15, 16])
-    make_time_evolution_plots(8, 8, 26, 21, 'G', index_alt=[15, 16, 17, 18, 19], frame_alt=[6, 7, 15, 16, 17], frame_res=[6, 10, 11, 12, 13, 14, 17])
-    make_time_evolution_plots(9, 9, 28, 28, 'H', index_alt=[20, 21, 22], frame_alt=[8, 16, 17], frame_res=[8, 11, 12, 13, 14, 15, 16, 17])
+    # make_time_evolution_plots(0, 4, 25, 18, 'A', index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7, 8, 9, 12])
+    # make_time_evolution_plots(2, 17, 23, 27, 'C')
+    # make_time_evolution_plots(3, 32, 29, 20, 'B', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])
+    # make_time_evolution_plots(4, 12, 24, 22, 'D', index_alt=[7, 8, 9, 10], frame_alt=[11, 19, 20, 21], frame_res=[11, 14, 15, 16, 17, 18, 21])
+    # make_time_evolution_plots(5, 57, 28, 28, 'E')
+    # make_time_evolution_plots(7, 7, 22, 16, 'F', index_alt=[11, 12, 13, 14], frame_alt=[6, 14, 15, 16], frame_res=[6, 10, 11, 12, 13, 15, 16])
+    # make_time_evolution_plots(8, 8, 26, 21, 'G', index_alt=[15, 16, 17, 18, 19], frame_alt=[6, 7, 15, 16, 17], frame_res=[6, 10, 11, 12, 13, 14, 17])
+    # make_time_evolution_plots(9, 9, 28, 28, 'H', index_alt=[20, 21, 22], frame_alt=[8, 16, 17], frame_res=[8, 11, 12, 13, 14, 15, 16, 17])
     # make_legend()
     # make_legend_average()
-    # make_pre_shock_peak_shock_temp_vlos_scatter_plot()
+    make_pre_shock_peak_shock_temp_vlos_scatter_plot()
 
     '''
     ## OLD NOT USED
