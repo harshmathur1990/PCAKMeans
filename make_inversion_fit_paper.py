@@ -102,9 +102,9 @@ def make_inversion_fit_plot(xs, ys, wave_indice, time_steps, ref_x, ref_y, fovNa
     #     ]
     # ]
 
-    vmin = np.min(all_profiles[:, :, :, wave_indice].min(), syn_profiles[:, :, :, wave_indice].min())
+    vmin = np.minimum(all_profiles[:, :, :, wave_indice].min(), syn_profiles[:, :, :, wave_indice].min())
 
-    vmax = np.max(all_profiles[:, :, :, wave_indice].max(), syn_profiles[:, :, :, wave_indice].max())
+    vmax = np.maximum(all_profiles[:, :, :, wave_indice].max(), syn_profiles[:, :, :, wave_indice].max())
 
     color = ['blue', 'orange', 'brown', 'darkgreen']
 
