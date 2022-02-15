@@ -893,20 +893,20 @@ def get_data_for_pre_shock_peak_shock_temp_scatter_plot(index_list, index_alt_li
                 pre_temp = np.vstack([pre_temp, all_temp[0][a, b]])
 
             if peak_temp_delta_t is None:
-                # peak_temp_delta_t = np.subtract(
-                #     all_temp[1][a, b],
-                #     all_temp[0][a, b]
-                # )
-                peak_temp_delta_t = all_temp[1][a, b]
+                peak_temp_delta_t = np.subtract(
+                    all_temp[1][a, b],
+                    all_temp[0][a, b]
+                )
+                # peak_temp_delta_t = all_temp[1][a, b]
             else:
                 peak_temp_delta_t = np.vstack(
                     [
                         peak_temp_delta_t,
-                        # np.subtract(
-                        #     all_temp[1][a, b],
-                        #     all_temp[0][a, b]
-                        # )
-                        all_temp[1][a, b]
+                        np.subtract(
+                            all_temp[1][a, b],
+                            all_temp[0][a, b]
+                        )
+                        # all_temp[1][a, b]
                     ]
                 )
 
@@ -933,20 +933,20 @@ def get_data_for_pre_shock_peak_shock_temp_scatter_plot(index_list, index_alt_li
                 pre_temp = np.vstack([pre_temp, shock_pre_temp[a, b]])
 
             if peak_temp_delta_t is None:
-                # peak_temp_delta_t = np.subtract(
-                #     shock_temp[a, b],
-                #     shock_pre_temp[a, b]
-                # )
-                peak_temp_delta_t = shock_temp[a, b]
+                peak_temp_delta_t = np.subtract(
+                    shock_temp[a, b],
+                    shock_pre_temp[a, b]
+                )
+                # peak_temp_delta_t = shock_temp[a, b]
             else:
                 peak_temp_delta_t = np.vstack(
                     [
                         peak_temp_delta_t,
-                        # np.subtract(
-                        #     shock_temp[a, b],
-                        #     shock_pre_temp[a, b]
-                        # )
-                        shock_temp[a, b]
+                        np.subtract(
+                            shock_temp[a, b],
+                            shock_pre_temp[a, b]
+                        )
+                        # shock_temp[a, b]
                     ]
                 )
 
