@@ -121,7 +121,7 @@ def make_inversion_fit_plot(xs, ys, wave_indice, time_steps, ref_x, ref_y, fovNa
 
         gs = gridspec.GridSpec(4, 2)
 
-        gs.update(left=0, right=1, top=0.88, bottom=0.09, wspace=0.0, hspace=0.0)
+        gs.update(left=0, right=1, top=0.91, bottom=0.1, wspace=0.0, hspace=0.0)
 
         k = 0
         for i in range(4):
@@ -190,7 +190,7 @@ def make_inversion_fit_plot(xs, ys, wave_indice, time_steps, ref_x, ref_y, fovNa
     plt.close('all')
 
     fig, axs = plt.subplots(4, 3, figsize=(2.32, 3.41))
-    plt.subplots_adjust(left=0.17, right=0.99, top=0.88, bottom=0.09, wspace=0.5, hspace=0.15)
+    plt.subplots_adjust(left=0.17, right=0.99, top=0.91, bottom=0.1, wspace=0.5, hspace=0.15)
     for i in range(4):
         for j in range(3):
             if j == 0:
