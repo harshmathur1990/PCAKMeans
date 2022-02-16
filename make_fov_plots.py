@@ -354,7 +354,7 @@ def plot_fov_images():
     axs[1][0].text(
         870 / 1848,
         455 / 1236,
-        'E',
+        'G',
         transform=axs[1][0].transAxes,
         color='#EDC948'
     )
@@ -374,7 +374,7 @@ def plot_fov_images():
     axs[1][0].text(
         785 / 1848,
         315 / 1236,
-        'F',
+        'E',
         transform=axs[1][0].transAxes,
         color='#FF9DA7'
     )
@@ -384,7 +384,7 @@ def plot_fov_images():
     axs[1][0].text(
         1200 / 1848,
         600 / 1236,
-        'G',
+        'H',
         transform=axs[1][0].transAxes,
         color='#9C755F'
     )
@@ -394,7 +394,7 @@ def plot_fov_images():
     axs[1][0].text(
         785 / 1848,
         535 / 1236,
-        'H',
+        'F',
         transform=axs[1][0].transAxes,
         color='#BAB0AC'
     )
