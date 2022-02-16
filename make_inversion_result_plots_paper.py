@@ -424,7 +424,7 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_
                 mask = get_shocks_mask(labels[j])
                 mask[np.where(mask >= 1)] = 1
 
-                if j == 0 or mark_t == frame_res[j]:
+                if j == 0 or (frame_res is not None and mark_t == frame_res[j]) or (frame_res is None and j == mark_t - start_t):
                     axs.axvline(x=mark_y, linestyle='--', color='blue', linewidth=0.5)
                     if j == 0:
                         labels_mask[0] = mask[:, mark_y][np.newaxis, :]
@@ -538,7 +538,7 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_
 
         all_params = np.zeros((2, 3, 150, 50), dtype=np.float64)
 
-        indice = np.array([index * 7, index * 7 + mark_t -start_t])
+        indice = np.array([index * 7, index * 7 + mark_t - start_t])
 
         all_params[:, 0] = np.transpose(
             f['all_temp'][indice, :, mark_y] / 1e3,
