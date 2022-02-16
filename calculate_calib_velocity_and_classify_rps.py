@@ -986,7 +986,7 @@ def make_nb_image(ref_x, ref_y, time_step, wave_indice, mark_x, mark_y, letter):
     )
 
     axs.scatter(
-        mark_x, mark_y,
+        mark_y, mark_x,
         marker='+',
         color='red',
         linewidths=0.8
