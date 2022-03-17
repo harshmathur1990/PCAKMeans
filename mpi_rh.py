@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(1, '/home/harsh/CourseworkRepo/rh/rhv2src/python/')
+sys.path.insert(1, '/home/harsh/CourseworkRepo/rh/RH-uitenbroek/python/')
 # ys.path.insert(1, '/home/harsh/RH-Old/python/')
 import enum
 import os
@@ -12,7 +12,7 @@ import tables as tb
 import shutil
 from helita.sim import multi
 import subprocess
-import rh
+import rhanalyze
 import time
 
 
@@ -171,15 +171,21 @@ def do_work(x, y, read_path):
 
     os.chdir(read_path)
 
-    out = rh.readOutFiles(atoms=['H'])
+    out = rhanalyze.rhout()
 
-    # populations[:, x, y, :] = out.atmos.nH.T
+    f['populations'] = out.atoms[0].n
 
-    f['populations'] = out.atmos.nH.T
+    radiative_transitions = generate_radiative_transitions()
 
-    # a_voigt[:, x, y, :] = out.damping_H.adamp
+    rt = radiative_transitions.reshape(radiative_transitions.size//2, 2)
 
-    f['a_voigt'] = out.damping_H.adamp
+    adamp = np.zeros((rt.shape[0], height_len), dtype=np.float64)
+
+    # for a_rt in rt:
+    #     j = a_rt[0]
+    #     i = a_rt[1]
+    #
+    #     adamp
 
     # this is [lower-upper] as RH stores upper->lower in the indice [lower, upper]
     transition_list = reverse_transitions(generate_radiative_transitions()) + reverse_transitions(collisional_transitions())
@@ -193,7 +199,9 @@ def do_work(x, y, read_path):
 
     f['cularr'] = cularr
 
-    wave_indices = [1221, 1244, 3576, 3798, 826, 833, 3529, 3609, 3504, 3717, 3743]
+    # wave_indices = [1221, 1244, 3576, 3798, 826, 833, 3529, 3609, 3504, 3717, 3743]
+
+    wave_indices = [1221, 1244, 3045, 3239, 826, 833, 3003, 3074, 2980, 3168, 3191]
 
     eta_c = np.zeros((11, 177), dtype=np.float64)
     for indice, wave_indice in enumerate(wave_indices):
@@ -220,7 +228,7 @@ def do_work(x, y, read_path):
 
 def make_ray_file():
 
-    os.chdir('/home/harsh/CourseworkRepo/rh/rhv2src/rhf1d/run_3')
+    os.chdir('/home/harsh/CourseworkRepo/rh/rhv2src/rhf1d/run')
 
     out = rh.readOutFiles()
 
