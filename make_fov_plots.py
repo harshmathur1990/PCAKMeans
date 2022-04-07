@@ -9,6 +9,7 @@ import matplotlib.gridspec as gridspec
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import matplotlib.animation as animation
+from skimage import exposure
 
 
 # mask_file_crisp = Path('/home/harsh/OsloAnalysis/crisp_chromis_mask_2019-06-06.fits')
@@ -404,11 +405,11 @@ def plot_fov_images():
     axs[0][0].imshow(whole_data[0, 29, :, :], cmap='gray', origin='lower', extent=extent)
     im = axs[0][1].imshow(b6173[7], cmap='gray', origin='lower', extent=extent, vmin=-300, vmax=300)
 
-    axs[1][0].imshow(whole_data[0, ca_k_indice[0], :, :], cmap='gray', origin='lower', extent=extent)
-    axs[1][1].imshow(whole_data[0, ca_k_indice[1], :, :], cmap='gray', origin='lower', extent=extent)
+    axs[1][0].imshow(exposure.adjust_gamma(whole_data[0, ca_k_indice[0], :, :], 0.7), cmap='gray', origin='lower', extent=extent)
+    axs[1][1].imshow(exposure.adjust_gamma(whole_data[0, ca_k_indice[1], :, :], 0.7), cmap='gray', origin='lower', extent=extent)
 
-    axs[2][0].imshow(whole_data[0, 30 + 14 + ca_8_indice[0], :, :], cmap='gray', origin='lower', extent=extent)
-    axs[2][1].imshow(whole_data[0, 30 + 14 + ca_8_indice[1], :, :], cmap='gray', origin='lower', extent=extent)
+    axs[2][0].imshow(exposure.adjust_gamma(whole_data[0, 30 + 14 + ca_8_indice[0], :, :], 0.7), cmap='gray', origin='lower', extent=extent)
+    axs[2][1].imshow(exposure.adjust_gamma(whole_data[0, 30 + 14 + ca_8_indice[1], :, :], 0.7), cmap='gray', origin='lower', extent=extent)
 
     axs[0][0].text(0.05, 0.91, r'(a) Continuum 4000 $\mathrm{\AA}$', transform=axs[0][0].transAxes, color='white')
     axs[0][1].text(
@@ -647,11 +648,11 @@ def make_fov_movie(animation_path, fps=1):
     im00 = axs[0][0].imshow(data[0, 0], cmap='gray', origin='lower', extent=extent)
     im01 = axs[0][1].imshow(data[0, 1], cmap='gray', origin='lower', extent=extent, vmin=-300, vmax=300)
 
-    im10 = axs[1][0].imshow(data[0, 2], cmap='gray', origin='lower', extent=extent)
-    im11 = axs[1][1].imshow(data[0, 3], cmap='gray', origin='lower', extent=extent)
+    im10 = axs[1][0].imshow(exposure.adjust_gamma(exposure.rescale_intensity(data[0, 2], out_range=(0, 1)), 0.7), cmap='gray', origin='lower', extent=extent)
+    im11 = axs[1][1].imshow(exposure.adjust_gamma(exposure.rescale_intensity(data[0, 3], out_range=(0, 1)), 0.7), cmap='gray', origin='lower', extent=extent)
 
-    im20 = axs[2][0].imshow(data[0, 4], cmap='gray', origin='lower', extent=extent)
-    im21 = axs[2][1].imshow(data[0, 5], cmap='gray', origin='lower', extent=extent)
+    im20 = axs[2][0].imshow(exposure.adjust_gamma(exposure.rescale_intensity(data[0, 4], out_range=(0, 1)), 0.7), cmap='gray', origin='lower', extent=extent)
+    im21 = axs[2][1].imshow(exposure.adjust_gamma(exposure.rescale_intensity(data[0, 5], out_range=(0, 1)), 0.7), cmap='gray', origin='lower', extent=extent)
 
     axs[0][0].text(0.05, 0.91, r'(a) Continuum 4000 $\mathrm{\AA}$', transform=axs[0][0].transAxes, color='white')
     axs[0][1].text(
@@ -778,13 +779,17 @@ def make_fov_movie(animation_path, fps=1):
 
     def updatefig(j):
         # set the data in the axesimage object
-        print (j)
+        print('{}'.format(j))
+        # print('data[{}][2]-> min: {}, max: {}'.format(j, data[j][2].min(), data[j][2].max()))
+        # print('data[{}][3]-> min: {}, max: {}'.format(j, data[j][3].min(), data[j][3].max()))
+        # print('data[{}][4]-> min: {}, max: {}'.format(j, data[j][4].min(), data[j][4].max()))
+        # print('data[{}][5]-> min: {}, max: {}'.format(j, data[j][5].min(), data[j][5].max()))
         im00.set_array(data[j, 0])
         im01.set_array(data[j, 1])
-        im10.set_array(data[j, 2])
-        im11.set_array(data[j, 3])
-        im20.set_array(data[j, 4])
-        im21.set_array(data[j, 5])
+        im10.set_array(exposure.adjust_gamma(exposure.rescale_intensity(data[j, 2], out_range=(0, 1)), 0.7))
+        im11.set_array(exposure.adjust_gamma(exposure.rescale_intensity(data[j, 3], out_range=(0, 1)), 0.7))
+        im20.set_array(exposure.adjust_gamma(exposure.rescale_intensity(data[j, 4], out_range=(0, 1)), 0.7))
+        im21.set_array(exposure.adjust_gamma(exposure.rescale_intensity(data[j, 5], out_range=(0, 1)), 0.7))
         # return the artists set
         return [im00, im01, im10, im11, im20, im21]
 

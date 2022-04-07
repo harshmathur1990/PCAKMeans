@@ -701,7 +701,7 @@ def make_time_evolution_plots(index_f, start_t, mark_x, mark_y, letter, index_al
                 axs.set_ylim(tmin, tmax)
                 axs.set_yticks(ticks)
                 axs.set_yticklabels(ticks, fontsize=fontsize)
-                axs.set_ylabel(r'$\delta$T [kK]', fontsize=fontsize)
+                axs.set_ylabel(r'$\Delta T$ [kK]', fontsize=fontsize)
                 axs.set_xticklabels([])
                 axs.yaxis.set_minor_locator(MultipleLocator(0.5))
             else:
@@ -858,6 +858,7 @@ def get_data_for_pre_shock_peak_shock_temp_scatter_plot(index_list, index_alt_li
     out_alt_file = Path('/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/FoVAtoJ_more_frames.h5')
     pre_temp = None
     peak_temp_delta_t = None
+    peak_temp = None
     vlos_shock = None
 
     f = h5py.File(out_file, 'r')
@@ -897,7 +898,7 @@ def get_data_for_pre_shock_peak_shock_temp_scatter_plot(index_list, index_alt_li
                     all_temp[1][a, b],
                     all_temp[0][a, b]
                 )
-                # peak_temp_delta_t = all_temp[1][a, b]
+                peak_temp = all_temp[1][a, b]
             else:
                 peak_temp_delta_t = np.vstack(
                     [
@@ -906,7 +907,13 @@ def get_data_for_pre_shock_peak_shock_temp_scatter_plot(index_list, index_alt_li
                             all_temp[1][a, b],
                             all_temp[0][a, b]
                         )
-                        # all_temp[1][a, b]
+                    ]
+                )
+
+                peak_temp = np.vstack(
+                    [
+                        peak_temp,
+                        all_temp[1][a, b]
                     ]
                 )
 
@@ -937,7 +944,7 @@ def get_data_for_pre_shock_peak_shock_temp_scatter_plot(index_list, index_alt_li
                     shock_temp[a, b],
                     shock_pre_temp[a, b]
                 )
-                # peak_temp_delta_t = shock_temp[a, b]
+                peak_temp = shock_temp[a, b]
             else:
                 peak_temp_delta_t = np.vstack(
                     [
@@ -946,7 +953,13 @@ def get_data_for_pre_shock_peak_shock_temp_scatter_plot(index_list, index_alt_li
                             shock_temp[a, b],
                             shock_pre_temp[a, b]
                         )
-                        # shock_temp[a, b]
+                    ]
+                )
+
+                peak_temp = np.vstack(
+                    [
+                        peak_temp,
+                        shock_temp[a, b]
                     ]
                 )
 
@@ -957,7 +970,7 @@ def get_data_for_pre_shock_peak_shock_temp_scatter_plot(index_list, index_alt_li
     f.close()
     falt.close()
 
-    return pre_temp, peak_temp_delta_t, vlos_shock
+    return pre_temp, peak_temp, peak_temp_delta_t, vlos_shock
 
 
 def get_data_for_pre_shock_peak_shock_temp_scatter_plot_average(index_list, mark_t_list):
@@ -1045,16 +1058,17 @@ def make_pre_shock_peak_shock_temp_vlos_scatter_plot():
 
     size = plt.rcParams['lines.markersize']
 
-    pre_temp, peak_temp_delta_t, vlos_shock = get_data_for_pre_shock_peak_shock_temp_scatter_plot(
+    pre_temp, peak_temp, peak_temp_delta_t, vlos_shock = get_data_for_pre_shock_peak_shock_temp_scatter_plot(
         [0, 2, 3, 4, 5, 7, 8, 9],
         [0, -1, 3, 7, -1, 11, 15, 20],
         [3, 3, 3, 3, 3, 4, 3, 3]
     )
 
     data = {
-        r'T [kK]': list(pre_temp[:, 0]) + list(pre_temp[:, 2]) + list(pre_temp[:, 2]),
-        r'$\Delta$T [kK]': list(peak_temp_delta_t[:, 0]) + list(peak_temp_delta_t[:, 1]) + list(peak_temp_delta_t[:, 2]),
-        r'$V_{\mathrm{LOS}}\;\mathrm{[km\;s^{-1}]}$': list(vlos_shock[:, 0]) + list(vlos_shock[:, 1]) + list(vlos_shock[:, 2]),
+        r'Quiescent $T$ [kK]': list(pre_temp[:, 0]) + list(pre_temp[:, 2]) + list(pre_temp[:, 2]),
+        r'CBG $T$ [kK]': list(peak_temp[:, 0]) + list(peak_temp[:, 1]) + list(peak_temp[:, 2]),
+        r'$\Delta T$ [kK]': list(peak_temp_delta_t[:, 0]) + list(peak_temp_delta_t[:, 1]) + list(peak_temp_delta_t[:, 2]),
+        r'$V_{\mathrm{LOS}}$ [km $\mathrm{s^{-1}}$]': list(vlos_shock[:, 0]) + list(vlos_shock[:, 1]) + list(vlos_shock[:, 2]),
         r'$\log \tau_{500}$': list(np.ones_like(pre_temp[:, 0]) * -4.2) + list(np.ones_like(pre_temp[:, 0]) * -3) + list(np.ones_like(pre_temp[:, 0]) * -1)
     }
 
@@ -1082,7 +1096,7 @@ def make_pre_shock_peak_shock_temp_vlos_scatter_plot():
         }
     )
 
-    g = sns.jointplot(data=df, x=r'T [kK]', y=r'$\Delta$T [kK]', hue=r'$\log \tau_{500}$', palette=['blue', 'green', 'orange'], s=1, legend=False)
+    g = sns.jointplot(data=df, x=r'Quiescent $T$ [kK]', y=r'CBG $T$ [kK]', hue=r'$\log \tau_{500}$', palette=['blue', 'green', 'orange'], s=1, legend=False)
 
     g.ax_joint.text(
         -0.2, 1.2,
@@ -1120,7 +1134,7 @@ def make_pre_shock_peak_shock_temp_vlos_scatter_plot():
         }
     )
 
-    g = sns.jointplot(data=df, x=r'$V_{\mathrm{LOS}}\;\mathrm{[km\;s^{-1}]}$', y=r'$\Delta$T [kK]', hue=r'$\log \tau_{500}$',
+    g = sns.jointplot(data=df, x=r'$V_{\mathrm{LOS}}$ [km $\mathrm{s^{-1}}$]', y=r'$\Delta T$ [kK]', hue=r'$\log \tau_{500}$',
                       palette=['blue', 'green', 'orange'], s=1, legend=False)
 
     g.ax_joint.text(
@@ -1173,14 +1187,14 @@ if __name__ == '__main__':
     #     ([535, 585], [715, 765], [8, 9]),  # H
     #     ([535, 585], [715, 765], [16, 18]),  # H
     # ]
-    plot_data_for_result_plots(0, 4, 6, 18, 'A', index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7, 8, 9, 12])
-    plot_data_for_result_plots(2, 17, 20, 27, 'C', -4, 4)
-    plot_data_for_result_plots(3, 32, 35, 21, 'B', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])
-    plot_data_for_result_plots(4, 12, 16, 20, 'D', index_alt=[7, 8, 9, 10], frame_alt=[11, 19, 20, 21], frame_res=[11, 14, 15, 16, 17, 18, 21])
-    plot_data_for_result_plots(5, 57, 60, 30, 'G')
-    plot_data_for_result_plots(7, 7, 11, 17, 'E', index_alt=[11, 12, 13, 14], frame_alt=[6, 14, 15, 16], frame_res=[6, 10, 11, 12, 13, 15, 16])
-    plot_data_for_result_plots(8, 8, 12, 21, 'H', index_alt=[15, 16, 17, 18, 19], frame_alt=[6, 7, 15, 16, 17], frame_res=[6, 10, 11, 12, 13, 14, 17])
-    plot_data_for_result_plots(9, 9, 13, 26, 'F', index_alt=[20, 21, 22], frame_alt=[8, 16, 17], frame_res=[8, 11, 12, 13, 14, 15, 17])
+    # plot_data_for_result_plots(0, 4, 6, 18, 'A', index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7, 8, 9, 12])
+    # plot_data_for_result_plots(2, 17, 20, 27, 'C', -4, 4)
+    # plot_data_for_result_plots(3, 32, 35, 21, 'B', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])
+    # plot_data_for_result_plots(4, 12, 16, 20, 'D', index_alt=[7, 8, 9, 10], frame_alt=[11, 19, 20, 21], frame_res=[11, 14, 15, 16, 17, 18, 21])
+    # plot_data_for_result_plots(5, 57, 60, 30, 'G')
+    # plot_data_for_result_plots(7, 7, 11, 17, 'E', index_alt=[11, 12, 13, 14], frame_alt=[6, 14, 15, 16], frame_res=[6, 10, 11, 12, 13, 15, 16])
+    # plot_data_for_result_plots(8, 8, 12, 21, 'H', index_alt=[15, 16, 17, 18, 19], frame_alt=[6, 7, 15, 16, 17], frame_res=[6, 10, 11, 12, 13, 14, 17])
+    # plot_data_for_result_plots(9, 9, 13, 26, 'F', index_alt=[20, 21, 22], frame_alt=[8, 16, 17], frame_res=[8, 11, 12, 13, 14, 15, 17])
     make_time_evolution_plots(0, 4, 25, 18, 'A', index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7, 8, 9, 12])
     make_time_evolution_plots(2, 17, 23, 27, 'C')
     make_time_evolution_plots(3, 32, 29, 21, 'B', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])

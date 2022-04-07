@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from helita.io.lp import *
 import matplotlib.gridspec as gridspec
 from pathlib import Path
+from matplotlib.ticker import MultipleLocator
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from calculate_calib_velocity_and_classify_rps import get_shocks_mask, \
     get_very_strong_shocks_mask, get_very_very_strong_shocks_mask
@@ -261,6 +262,220 @@ def get_data_for_rps_guess_map_plot():
     params[3, 2] = vturb_map02
 
     return params, labels[662:712, 708:758]
+
+
+def make_new_paper_rp_guess_map_plot():
+
+    write_path = Path('/home/harsh/Shocks Paper/KMeans/')
+
+    params, labels = get_data_for_rps_guess_map_plot()
+
+    X, Y = np.meshgrid(range(50), range(50))
+
+    fontsize = 8
+
+    lightblue = '#5089C6'
+    mediumdarkblue = '#035397'
+    darkblue = '#001E6C'
+    lwidth = 1
+
+    plt.close('all')
+
+    plt.clf()
+
+    plt.cla()
+
+    fig, axs = plt.subplots(4, 3, figsize=(3.5, 4.2))
+
+    for i in range(4):
+        for j in range(3):
+            this_axs = axs[i][j]
+            this_axs.set_xticks([50 / 1.87])
+            this_axs.set_yticks([50 / 1.87])
+            this_axs.set_xticklabels([])
+            this_axs.set_yticklabels([])
+            this_axs.xaxis.set_minor_locator(MultipleLocator(25 / 1.87))
+            this_axs.yaxis.set_minor_locator(MultipleLocator(25 / 1.87))
+            mask = get_shocks_mask(labels)
+            mask[np.where(mask >= 1)] = 1
+            this_axs.contour(
+                mask,
+                origin='lower',
+                colors=lightblue,
+                linewidths=lwidth,
+                alpha=1,
+                levels=0
+            )
+            mask = get_very_strong_shocks_mask(labels)
+            mask[np.where(mask >= 1)] = 1
+            this_axs.contour(
+                mask,
+                origin='lower',
+                colors=mediumdarkblue,
+                linewidths=lwidth,
+                alpha=1,
+                levels=0
+            )
+            mask = get_very_very_strong_shocks_mask(labels)
+            mask[np.where(mask >= 1)] = 1
+            this_axs.contour(
+                mask,
+                origin='lower',
+                colors=darkblue,
+                linewidths=lwidth,
+                alpha=1,
+                levels=0
+            )
+
+    axs[0][0].set_yticklabels([1])
+    axs[3][0].set_xticklabels([1])
+    axs[0][0].set_ylabel(r'$\Delta y$ [arcsec]', fontsize=fontsize)
+    axs[3][0].set_xlabel(r'$\Delta x$ [arcsec]', fontsize=fontsize)
+    axs[1][0].text(
+        -0.7, 0.4,
+        r'$T$ [kK]',
+        transform=axs[1][0].transAxes,
+        fontsize=fontsize,
+        rotation=90,
+        color='black'
+    )
+
+    axs[2][0].text(
+        -0.7, 0.15,
+        r'$V_{\mathrm{LOS}}$ [km $\mathrm{s^{-1}}$]',
+        transform=axs[2][0].transAxes,
+        fontsize=fontsize,
+        rotation=90,
+        color='black'
+    )
+
+    axs[3][0].text(
+        -0.7, 0.15,
+        r'$V_{\mathrm{turb}}$ [km $\mathrm{s^{-1}}$]',
+        transform=axs[3][0].transAxes,
+        fontsize=fontsize,
+        rotation=90,
+        color='black'
+    )
+
+    axs[0][0].text(
+        0.05, 0.85,
+        r'4000 $\AA$',
+        transform=axs[0][0].transAxes,
+        fontsize=fontsize,
+        color='white'
+    )
+
+    axs[0][1].text(
+        0.04, 0.85,
+        r'Ca II K $-0.6$ m$\AA$',
+        transform=axs[0][1].transAxes,
+        fontsize=fontsize,
+        color='black'
+    )
+
+    axs[0][2].text(
+        0.04, 0.85,
+        r'Ca II K $-0.1$ m$\AA$',
+        transform=axs[0][2].transAxes,
+        fontsize=fontsize,
+        color='white'
+    )
+
+    axs[1][0].text(
+        0.05, 0.85,
+        r'$\log \tau_{\mathrm{500}}=-1$',
+        transform=axs[1][0].transAxes,
+        fontsize=fontsize,
+        color='black'
+    )
+
+    axs[1][1].text(
+        0.05, 0.85,
+        r'$\log \tau_{\mathrm{500}}=-3$',
+        transform=axs[1][1].transAxes,
+        fontsize=fontsize,
+        color='black'
+    )
+
+    axs[1][2].text(
+        0.05, 0.85,
+        r'$\log \tau_{\mathrm{500}}=-4.2$',
+        transform=axs[1][2].transAxes,
+        fontsize=fontsize,
+        color='white'
+    )
+
+    axs[0][0].imshow(params[0][0], cmap='gray', origin='lower')
+    axs[0][1].imshow(params[0][1], cmap='gray', origin='lower')
+    axs[0][2].imshow(params[0][2], cmap='gray', origin='lower')
+    im10 = axs[1][0].imshow(params[1][0], cmap='hot', origin='lower', vmin=4,vmax=6)
+    axs[1][1].imshow(params[1][1], cmap='hot', origin='lower', vmin=4,vmax=6)
+    axs[1][2].imshow(params[1][2], cmap='hot', origin='lower', vmin=4,vmax=6)
+    im20 = axs[2][0].imshow(params[2][0], cmap='bwr', origin='lower', vmin=-6, vmax=6)
+    axs[2][1].imshow(params[2][1], cmap='bwr', origin='lower', vmin=-6, vmax=6)
+    axs[2][2].imshow(params[2][2], cmap='bwr', origin='lower', vmin=-6, vmax=6)
+    im30 = axs[3][0].imshow(params[3][0], cmap='copper', origin='lower', vmin=0, vmax=4)
+    axs[3][1].imshow(params[3][1], cmap='copper', origin='lower', vmin=0, vmax=4)
+    axs[3][2].imshow(params[3][2], cmap='copper', origin='lower', vmin=0, vmax=4)
+
+    cbaxes = inset_axes(
+        axs[1][0],
+        width="5%",
+        height="80%",
+        loc='center left',
+        borderpad=-3
+    )
+    cbar = fig.colorbar(
+        im10,
+        cax=cbaxes,
+        ticks=[4, 5, 6],
+        orientation='vertical'
+    )
+    # cbar.ax.xaxis.set_ticks_position('top')
+    cbar.ax.tick_params(labelsize=fontsize, colors='black')
+
+    cbaxes = inset_axes(
+        axs[2][0],
+        width="5%",
+        height="80%",
+        loc='center left',
+        borderpad=-3
+    )
+    cbar = fig.colorbar(
+        im20,
+        cax=cbaxes,
+        ticks=[-6, 0, 6],
+        orientation='vertical'
+    )
+    # cbar.ax.xaxis.set_ticks_position('top')
+    cbar.ax.tick_params(labelsize=fontsize, colors='black')
+
+    cbaxes = inset_axes(
+        axs[3][0],
+        width="5%",
+        height="80%",
+        loc='center left',
+        borderpad=-3
+    )
+    cbar = fig.colorbar(
+        im30,
+        cax=cbaxes,
+        ticks=[0, 2, 4],
+        orientation='vertical'
+    )
+    # cbar.ax.xaxis.set_ticks_position('top')
+    cbar.ax.tick_params(labelsize=fontsize, colors='black')
+
+    plt.subplots_adjust(left=0.2, bottom=0.11, right=1, top=1, wspace=0.0, hspace=0.0)
+
+    fig.savefig(write_path / 'InversionGuessRPs.pdf', format='pdf', dpi=300)
+
+    plt.close('all')
+
+    plt.clf()
+
+    plt.cla()
 
 
 def plot_paper_rp_guess_map_plot():
@@ -942,7 +1157,7 @@ def plot_paper_rp_guess_map_plot():
     # cbar.ax.xaxis.set_ticks_position('top')
     cbar.ax.tick_params(labelsize=fontsize, colors='black')
 
-    fig.suptitle('FoV A', fontsize=fontsize)
+    fig.suptitle('FOV A', fontsize=fontsize)
 
     fig.savefig(write_path / 'InversionGuessRPs.pdf', format='pdf', dpi=300)
 
@@ -954,4 +1169,5 @@ def plot_paper_rp_guess_map_plot():
 
 
 if __name__ == '__main__':
-    plot_paper_rp_guess_map_plot()
+    # plot_paper_rp_guess_map_plot()
+    make_new_paper_rp_guess_map_plot()
