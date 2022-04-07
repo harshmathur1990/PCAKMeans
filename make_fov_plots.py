@@ -405,11 +405,11 @@ def plot_fov_images():
     axs[0][0].imshow(whole_data[0, 29, :, :], cmap='gray', origin='lower', extent=extent)
     im = axs[0][1].imshow(b6173[7], cmap='gray', origin='lower', extent=extent, vmin=-300, vmax=300)
 
-    axs[1][0].imshow(exposure.adjust_gamma(whole_data[0, ca_k_indice[0], :, :], 0.7), cmap='gray', origin='lower', extent=extent)
-    axs[1][1].imshow(exposure.adjust_gamma(whole_data[0, ca_k_indice[1], :, :], 0.7), cmap='gray', origin='lower', extent=extent)
+    axs[1][0].imshow(exposure.adjust_gamma(whole_data[0, ca_k_indice[0], :, :], 0.5), cmap='gray', origin='lower', extent=extent)
+    axs[1][1].imshow(exposure.adjust_gamma(whole_data[0, ca_k_indice[1], :, :], 0.5), cmap='gray', origin='lower', extent=extent)
 
-    axs[2][0].imshow(exposure.adjust_gamma(whole_data[0, 30 + 14 + ca_8_indice[0], :, :], 0.7), cmap='gray', origin='lower', extent=extent)
-    axs[2][1].imshow(exposure.adjust_gamma(whole_data[0, 30 + 14 + ca_8_indice[1], :, :], 0.7), cmap='gray', origin='lower', extent=extent)
+    axs[2][0].imshow(exposure.adjust_gamma(whole_data[0, 30 + 14 + ca_8_indice[0], :, :], 0.5), cmap='gray', origin='lower', extent=extent)
+    axs[2][1].imshow(exposure.adjust_gamma(whole_data[0, 30 + 14 + ca_8_indice[1], :, :], 0.5), cmap='gray', origin='lower', extent=extent)
 
     axs[0][0].text(0.05, 0.91, r'(a) Continuum 4000 $\mathrm{\AA}$', transform=axs[0][0].transAxes, color='white')
     axs[0][1].text(
@@ -648,11 +648,11 @@ def make_fov_movie(animation_path, fps=1):
     im00 = axs[0][0].imshow(data[0, 0], cmap='gray', origin='lower', extent=extent)
     im01 = axs[0][1].imshow(data[0, 1], cmap='gray', origin='lower', extent=extent, vmin=-300, vmax=300)
 
-    im10 = axs[1][0].imshow(exposure.adjust_gamma(exposure.rescale_intensity(data[0, 2], out_range=(0, 1)), 0.7), cmap='gray', origin='lower', extent=extent)
-    im11 = axs[1][1].imshow(exposure.adjust_gamma(exposure.rescale_intensity(data[0, 3], out_range=(0, 1)), 0.7), cmap='gray', origin='lower', extent=extent)
+    im10 = axs[1][0].imshow(exposure.adjust_gamma(exposure.rescale_intensity(data[0, 2], out_range=(0, 1)), 0.5), cmap='gray', origin='lower', extent=extent)
+    im11 = axs[1][1].imshow(exposure.adjust_gamma(exposure.rescale_intensity(data[0, 3], out_range=(0, 1)), 0.5), cmap='gray', origin='lower', extent=extent)
 
-    im20 = axs[2][0].imshow(exposure.adjust_gamma(exposure.rescale_intensity(data[0, 4], out_range=(0, 1)), 0.7), cmap='gray', origin='lower', extent=extent)
-    im21 = axs[2][1].imshow(exposure.adjust_gamma(exposure.rescale_intensity(data[0, 5], out_range=(0, 1)), 0.7), cmap='gray', origin='lower', extent=extent)
+    im20 = axs[2][0].imshow(exposure.adjust_gamma(exposure.rescale_intensity(data[0, 4], out_range=(0, 1)), 0.5), cmap='gray', origin='lower', extent=extent)
+    im21 = axs[2][1].imshow(exposure.adjust_gamma(exposure.rescale_intensity(data[0, 5], out_range=(0, 1)), 0.5), cmap='gray', origin='lower', extent=extent)
 
     axs[0][0].text(0.05, 0.91, r'(a) Continuum 4000 $\mathrm{\AA}$', transform=axs[0][0].transAxes, color='white')
     axs[0][1].text(
@@ -786,10 +786,10 @@ def make_fov_movie(animation_path, fps=1):
         # print('data[{}][5]-> min: {}, max: {}'.format(j, data[j][5].min(), data[j][5].max()))
         im00.set_array(data[j, 0])
         im01.set_array(data[j, 1])
-        im10.set_array(exposure.adjust_gamma(exposure.rescale_intensity(data[j, 2], out_range=(0, 1)), 0.7))
-        im11.set_array(exposure.adjust_gamma(exposure.rescale_intensity(data[j, 3], out_range=(0, 1)), 0.7))
-        im20.set_array(exposure.adjust_gamma(exposure.rescale_intensity(data[j, 4], out_range=(0, 1)), 0.7))
-        im21.set_array(exposure.adjust_gamma(exposure.rescale_intensity(data[j, 5], out_range=(0, 1)), 0.7))
+        im10.set_array(exposure.adjust_gamma(exposure.rescale_intensity(data[j, 2], out_range=(0, 1)), 0.5))
+        im11.set_array(exposure.adjust_gamma(exposure.rescale_intensity(data[j, 3], out_range=(0, 1)), 0.5))
+        im20.set_array(exposure.adjust_gamma(exposure.rescale_intensity(data[j, 4], out_range=(0, 1)), 0.5))
+        im21.set_array(exposure.adjust_gamma(exposure.rescale_intensity(data[j, 5], out_range=(0, 1)), 0.5))
         # return the artists set
         return [im00, im01, im10, im11, im20, im21]
 
@@ -817,6 +817,6 @@ if __name__ == '__main__':
     plot_fov_images()
     # plot_one_image()
     #
-    # write_path = Path('/home/harsh/Shocks Paper/')
-    # animation_path = write_path / 'FoV_animation.mp4'
-    # make_fov_movie(animation_path, fps=18)
+    write_path = Path('/home/harsh/Shocks Paper/')
+    animation_path = write_path / 'FoV_animation.mp4'
+    make_fov_movie(animation_path, fps=18)
