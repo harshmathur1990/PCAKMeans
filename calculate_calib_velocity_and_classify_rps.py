@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from skimage.measure import regionprops
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
+from skimage.exposure import adjust_gamma
 
 
 base_path = Path('/home/harsh/OsloAnalysis')
@@ -693,7 +694,7 @@ def get_input_profiles(ref_x, ref_y, get_6173=False, get_8542=False, get_6173_bl
     return whole_data
 
 
-def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mark_x, mark_y, letter, blos_lim=30):
+def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mark_x, mark_y, letter, blos_lim=30, gamma=1):
 
     write_path = Path(
         '/home/harsh/Shocks Paper/Shocks Evolution Plots/'
@@ -803,6 +804,8 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
                     vmax=blos_vmax
                 )
 
+                print('{}-{}-{}'.format(letter, blos_6173[i, :, :].min(), blos_6173[i, :, :].max()))
+
                 if i == 0:
                     axs[i][j].set_title(
                         r'$B_{\mathrm{LOS}}$',
@@ -828,7 +831,7 @@ def plot_new_evolution_diagram(ref_x, ref_y, time_step, wave_indice, mark_t, mar
 
             else:
                 axs[i][j].imshow(
-                    whole_data[i, :, :, wave_indice[j - 2]],
+                    adjust_gamma(whole_data[i, :, :, wave_indice[j - 2]], gamma=gamma),
                     cmap='gray',
                     origin='lower',
                     vmin=im_vmin,
@@ -962,7 +965,7 @@ def make_nb_image(ref_x, ref_y, time_step, wave_indice, mark_x, mark_y, letter):
 
     axs.text(
         0.4, 1.08,
-        r'FoV {}'.format(
+        r'ROI {}'.format(
             letter
         ),
         transform=axs.transAxes,
@@ -1512,7 +1515,8 @@ def make_evolution_single_pixel_plot(ref_x, ref_y, x, y, time_indice_1, time_ind
     plt.cla()
 
 
-def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t_1, mark_t_2, color_list_1, color_list_2, letter, appendix=False, wave_indice=12):
+def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t_1, mark_t_2, color_list_1, color_list_2, letter, appendix=False, wave_indice=12, gamma=1):
+    print(gamma)
     write_path = Path(
         '/home/harsh/Shocks Paper/Shocks Evolution Plots/'
     )
@@ -1534,8 +1538,11 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t_1, mark_t_2, color
         plt.subplots_adjust(left=0.28, right=0.99, bottom=0.05, top=0.86)
     else:
         plt.subplots_adjust(left=0.28, right=0.99, bottom=0.13, top=0.9)
+    image = adjust_gamma(whole_data[time_step, x, y, 0:29], gamma=gamma)
+    print(image.min())
+    print(image.max())
     axs.imshow(
-        whole_data[time_step, x, y, 0:29],
+        image,
         extent=[dv[0], dv[-2], time[time_step[0]], time[time_step[-1]]],
         cmap='gray',
         origin='lower',
@@ -1622,8 +1629,11 @@ def make_lambda_t_curve(ref_x, ref_y, x, y, time_step, mark_t_1, mark_t_2, color
         plt.subplots_adjust(left=0.28, right=0.99, bottom=0.05, top=0.86)
     else:
         plt.subplots_adjust(left=0.28, right=0.99, bottom=0.13, top=0.9)
+    image = adjust_gamma(whole_data[time_step, x, y, 30 + 14:30 + 14 + 20], gamma=gamma)
+    print(image.min())
+    print(image.max())
     axs.imshow(
-        whole_data[time_step, x, y, 30 + 14:30 + 14 + 20],
+        image,
         extent=[dv8542[0], dv8542[-1], time[time_step[0]], time[time_step[-1]]],
         cmap='gray',
         origin='lower',
@@ -1748,52 +1758,53 @@ def make_shock_evolution_plots():
 
     wave_indice = np.array([12, 14, 16])
 
-    blos_lim = 100
+    blos_lim = 30
 
     color_list_2 = ['blue', 'orange', 'red']
 
     color_list_1 = ['blue', 'green', 'orange', 'brown', 'red']
 
     for i in range(8):
-        plot_new_evolution_diagram(
-            ref_x_list[i],
-            ref_y_list[i],
-            time_step_adhoc_list[i],
-            wave_indice,
-            mark_list[i][0],
-            mark_list[i][1],
-            mark_list[i][2],
-            FoV_letter_list[i],
-            blos_lim
-        )
-
-        make_evolution_single_pixel_plot(
-            ref_x_list[i],
-            ref_y_list[i],
-            mark_list[i][1],
-            mark_list[i][2],
-            np.array(
-                [
-                    mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
-                    mark_list[i][0] - 2 if (mark_list[i][0] - 4) >= 0 else 0,
-                    mark_list[i][0],
-                    mark_list[i][0] + 2 if (mark_list[i][0] + 4) < 100 else 99,
-                    mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
-                ]
-            ),
-            np.array(
-                [
-                    mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
-                    mark_list[i][0],
-                    mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
-                ]
-            ),
-            FoV_letter_list[i],
-            wave_indice,
-            color_list_1,
-            color_list_2
-        )
+        # plot_new_evolution_diagram(
+        #     ref_x_list[i],
+        #     ref_y_list[i],
+        #     time_step_adhoc_list[i],
+        #     wave_indice,
+        #     mark_list[i][0],
+        #     mark_list[i][1],
+        #     mark_list[i][2],
+        #     FoV_letter_list[i],
+        #     blos_lim=blos_lim,
+        #     gamma=0.85
+        # )
         #
+        # make_evolution_single_pixel_plot(
+        #     ref_x_list[i],
+        #     ref_y_list[i],
+        #     mark_list[i][1],
+        #     mark_list[i][2],
+        #     np.array(
+        #         [
+        #             mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
+        #             mark_list[i][0] - 2 if (mark_list[i][0] - 4) >= 0 else 0,
+        #             mark_list[i][0],
+        #             mark_list[i][0] + 2 if (mark_list[i][0] + 4) < 100 else 99,
+        #             mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
+        #         ]
+        #     ),
+        #     np.array(
+        #         [
+        #             mark_list[i][0] - 4 if (mark_list[i][0] - 4) >= 0 else 0,
+        #             mark_list[i][0],
+        #             mark_list[i][0] + 4 if (mark_list[i][0] + 4) < 100 else 99
+        #         ]
+        #     ),
+        #     FoV_letter_list[i],
+        #     wave_indice,
+        #     color_list_1,
+        #     color_list_2
+        # )
+        # #
         start_t = time_step_list[i][0]
         end_t = time_step_list[i][-1]
 
@@ -1825,18 +1836,19 @@ def make_shock_evolution_plots():
             ),
             color_list_1,
             color_list_2,
-            FoV_letter_list[i]
+            FoV_letter_list[i],
+            gamma=0.1
         )
         #
-        make_nb_image(
-            ref_x_list[i],
-            ref_y_list[i],
-            np.array([mark_list[i][0]]),
-            wave_indice[0],
-            mark_list[i][1],
-            mark_list[i][2],
-            FoV_letter_list[i]
-        )
+        # make_nb_image(
+        #     ref_x_list[i],
+        #     ref_y_list[i],
+        #     np.array([mark_list[i][0]]),
+        #     wave_indice[0],
+        #     mark_list[i][1],
+        #     mark_list[i][2],
+        #     FoV_letter_list[i]
+        # )
         #
         make_lambda_t_curve(
             ref_x_list[i],
@@ -1857,7 +1869,8 @@ def make_shock_evolution_plots():
             [color_list_2[0]],
             [color_list_2[0]],
             FoV_letter_list[i],
-            appendix=True
+            appendix=True,
+            gamma=0.1
         )
 
 

@@ -403,7 +403,7 @@ def plot_fov_images():
     ca_k_indice = np.array([14, 12])
     ca_8_indice = np.array([10, 9])
     axs[0][0].imshow(whole_data[0, 29, :, :], cmap='gray', origin='lower', extent=extent)
-    im = axs[0][1].imshow(b6173[7], cmap='gray', origin='lower', extent=extent, vmin=-300, vmax=300)
+    im = axs[0][1].imshow(b6173[7], cmap='gray', origin='lower', extent=extent, vmin=-100, vmax=100)
 
     axs[1][0].imshow(exposure.adjust_gamma(whole_data[0, ca_k_indice[0], :, :], 0.7), cmap='gray', origin='lower', extent=extent)
     axs[1][1].imshow(exposure.adjust_gamma(whole_data[0, ca_k_indice[1], :, :], 0.7), cmap='gray', origin='lower', extent=extent)
@@ -481,7 +481,7 @@ def plot_fov_images():
     cbar = fig.colorbar(
         im,
         cax=cbaxes,
-        ticks=[-300, 0, 300],
+        ticks=[-100, 0, 100],
         orientation='horizontal'
     )
 
@@ -646,7 +646,7 @@ def make_fov_movie(animation_path, fps=1):
     ca_8_indice = np.array([10, 9])
 
     im00 = axs[0][0].imshow(data[0, 0], cmap='gray', origin='lower', extent=extent)
-    im01 = axs[0][1].imshow(data[0, 1], cmap='gray', origin='lower', extent=extent, vmin=-300, vmax=300)
+    im01 = axs[0][1].imshow(data[0, 1], cmap='gray', origin='lower', extent=extent, vmin=-100, vmax=100)
 
     im10 = axs[1][0].imshow(exposure.adjust_gamma(exposure.rescale_intensity(data[0, 2], out_range=(0, 1)), 0.7), cmap='gray', origin='lower', extent=extent)
     im11 = axs[1][1].imshow(exposure.adjust_gamma(exposure.rescale_intensity(data[0, 3], out_range=(0, 1)), 0.7), cmap='gray', origin='lower', extent=extent)
@@ -724,7 +724,7 @@ def make_fov_movie(animation_path, fps=1):
     cbar = fig.colorbar(
         im01,
         cax=cbaxes,
-        ticks=[-300, 0, 300],
+        ticks=[-100, 0, 100],
         orientation='horizontal'
     )
 
