@@ -1,19 +1,27 @@
 import sys
-sys.path.insert(1, '/home/harsh/stic/example')
+# sys.path.insert(1, '/home/harsh/stic/example')
+sys.path.insert(1, '/home/harsh/CourseworkRepo/stic/example')
 from prepare_data import *
 from pathlib import Path
 import numpy as np
 import h5py
 import sunpy.io
 from helita.io.lp import *
+from make_profile_files_and_initial_atmos_files_wholedata_multiple_fovs import get_atmos_values_for_lables as gavfl
 
 
 selected_frames = np.array([0, 11, 25, 36, 60, 78, 87])
-old_kmeans_file = '/data/harsh/out_100_0.5_0.5_n_iter_10000_tol_1en5.h5'
-mask_file_crisp = '/data/harsh/crisp_chromis_mask_2019-06-06.fits'
-input_file_3950 = '/data/harsh/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits'
-input_file_8542 = '/data/harsh/nb_8542_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
-input_file_6173 = '/data/harsh/nb_6173_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
+# old_kmeans_file = '/data/harsh/out_100_0.5_0.5_n_iter_10000_tol_1en5.h5'
+# mask_file_crisp = '/data/harsh/crisp_chromis_mask_2019-06-06.fits'
+# input_file_3950 = '/data/harsh/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits'
+# input_file_8542 = '/data/harsh/nb_8542_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
+# input_file_6173 = '/data/harsh/nb_6173_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
+
+old_kmeans_file = '/home/harsh/OsloAnalysis/new_kmeans/out_100_0.5_0.5_n_iter_10000_tol_1en5.h5'
+mask_file_crisp = '/home/harsh/OsloAnalysis/crisp_chromis_mask_2019-06-06.fits'
+input_file_3950 = '/home/harsh/OsloAnalysis/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits'
+input_file_8542 = '/home/harsh/OsloAnalysis/nb_8542_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
+input_file_6173 = '/home/harsh/OsloAnalysis/nb_6173_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
 
 mask, _  = sunpy.io.fits.read(mask_file_crisp, memmap=True)[0]
 
@@ -435,6 +443,150 @@ def make_files():
         )
 
 
-if __name__ == '__main__':
-    make_files()
+def make_files_alternate(sel_profiles, write_path):
+    whole_data, n, o, p = get_data()
 
+    f = h5py.File(old_kmeans_file, 'r')
+    labels = f['new_final_labels'][selected_frames][n, o, p]
+    rps = np.zeros((100, 64, 4))
+    for i in range(100):
+        ind = np.where(labels == i)[0]
+        rps[i] = np.mean(whole_data[ind], 0)
+
+    wck, ick = findgrid(wave_3933[:-1], (wave_3933[1] - wave_3933[0]), extra=8)
+    wfe, ife = findgrid(wave_6173, (wave_6173[10] - wave_6173[9])*0.25, extra=8)
+    wc8, ic8 = findgrid(wave_8542, (wave_8542[10] - wave_8542[9])*0.5, extra=8)
+
+    wfe += 0.01
+
+    get_temp, get_vlos, get_vturb = gavfl()
+
+    flag = 0
+
+    for profiles in sel_profiles:
+
+        if isinstance(profiles, list):
+            profiles = np.array(profiles)
+        else:
+            profiles = np.array([profiles])
+
+        fe_1 = sp.profile(nx=profiles.size, ny=1, ns=4, nw=wfe.size)
+        ca_8 = sp.profile(nx=profiles.size, ny=1, ns=4, nw=wc8.size)
+        ca_k = sp.profile(nx=profiles.size, ny=1, ns=4, nw=wck.size+1)
+
+        fe_1.wav[:] = wfe[:]
+        ca_8.wav[:] = wc8[:]
+        ca_k.wav[0:-1] = wck[:]
+        ca_k.wav[-1]    = wave_3933[-1]
+
+        fe_1.dat[0,0,:,ife,:] = np.transpose(
+            rps[profiles, 30:30 + 14, :] * 1e3 / cont[1],
+            axes=(1, 0, 2)
+        )
+
+        fe_1.dat[0, 0, :, ife, 0] *= correction_factor[1]
+
+        ca_8.dat[0,0,:,ic8,:] = np.transpose(
+            rps[profiles, 30 + 14:30 + 14 + 20, :] * 1e3 / cont[2],
+            axes=(1, 0, 2)
+        )
+
+        ca_8.dat[0, 0, :, ic8, 0] *= correction_factor[0]
+
+        ca_k.dat[0,0,:,ick,:] = np.transpose(
+            rps[profiles, 0:29, :] / cont[0],
+            axes=(1, 0, 2)
+        )
+
+        ca_k.dat[0,0,:, -1,:] = rps[profiles, 29, :] / cont[0]
+
+        fe_1.weights[:,:] = 1.e16
+        fe_1.weights[ife, 0] = 0.002
+
+        ca_8.weights[:,:] = 1.e16
+        ca_8.weights[ic8,0] = 0.004
+
+        ca_k.weights[:,:] = 1.e16
+        ca_k.weights[ick,0] = 0.001
+        ca_k.weights[ick[9:19],0] = 0.0005
+        ca_k.weights[-1,0] = 0.001
+
+        sp_all = ca_k + ca_8 + fe_1
+        sp_all.write(
+            write_path / 'wholedata_rps_{}.nc'.format(
+                '_'.join(str(prof) for prof in list(profiles))
+            )
+        )
+
+        if flag == 0:
+            lab = "region = {0:10.5f}, {1:8.5f}, {2:3d}, {3:e}, {4}"
+            print(" ")
+            print("Regions information for the input file:" )
+            print(lab.format(ca_k.wav[0], ca_k.wav[1]-ca_k.wav[0], ca_k.wav.size-1, cont[0], 'fpi, 3934.nc'))
+            print(lab.format(ca_k.wav[-1], ca_k.wav[1]-ca_k.wav[0], 1, cont[0], 'none, none'))
+            print(lab.format(ca_8.wav[0], ca_8.wav[1]-ca_8.wav[0], ca_8.wav.size, cont[2], 'fpi, 8542.nc'))
+            print(lab.format(wfe[0], wfe[1]-wfe[0], wfe.size, cont[1], 'fpi, 6173.nc'))
+            print("(w0, dw, nw, normalization, degradation_type, instrumental_profile file)")
+            print(" ")
+
+            dw =  ca_k.wav[1]-ca_k.wav[0]
+            ntw= 25 # Always an odd number < ca_k.wav.size
+            tw1 = (np.arange(ntw)-ntw//2)*dw + 3934.0
+            tr1 = cr.dual_fpi(tw1)
+            tr1 /= tr1.sum()
+            # Stores the FPI profile and the parameters of the prefilter
+            writeInstProf(write_path / '3934.nc', tr1, [ca_k.wav[ick[29//2]], 4.5, 3.0])
+
+            # Ca II 8542
+            dw =  ca_8.wav[1]-ca_8.wav[0]
+            ntw= 25
+            f=fpi.crisp(8542.0)
+            tw = (np.arange(ntw)-ntw//2)*dw
+            tr = f.dual_fpi(tw, erh = -0.025)
+            tr /= tr.sum()
+            writeInstProf(write_path / '8542.nc', tr,  [8542.091, 9.0, 2.0])
+
+            # 6301/6302, we will use the same profile, so it should not have more points than any
+            # of the 2 regions
+            dw =  fe_1.wav[1]-fe_1.wav[0]
+            ntw = 45
+            f = fpi.crisp(6173)
+            tw = (np.arange(ntw)-ntw//2)*dw
+            tr = f.dual_fpi(tw, erh=-0.015)
+            tr /= tr.sum()
+            writeInstProf(write_path / '6173.nc', tr,  [6173.334, 4.4, 2.0])
+
+            flag = 1
+
+        m = sp.model(nx=profiles.size, ny=1, nt=1, ndep=150)
+
+        m.ltau[:, :, :] = ltau
+
+        m.pgas[:, :, :] = 0.3
+
+        m.temp[0, 0] = get_temp[profiles]
+
+        m.vlos[0, 0] = get_vlos[profiles]
+
+        m.vturb[0, 0] = get_vturb[profiles]
+
+        # m.Bln[0,0] = 100.
+
+        # m.Bho[0,0] = 100.
+
+        # m.azi[0,0] = 100. * 3.14159 / 180.
+
+        m.write(
+            write_path / 'wholedata_rps_initial_atmos_{}.nc'.format(
+                '_'.join(str(prof) for prof in list(profiles))
+            )
+        )
+
+
+if __name__ == '__main__':
+    # make_files()
+    final_quiet_profiles = [0, 11, 14, 15, 20, 21, 24, 28, 31, 34, 40, 42, 43, 47, 48, 51, 60, 62, 69, 70, 73, 74, 75, 86, 89, 90, 84, 8, 44, 63]
+    final_shock_reverse_other_profiles = [2, 4, 10, 19, 26, 30, 37, 52, 79, 85, 94, 1, 22, 23, 53, 55, 56, 66, 67, 72, 77, 80, 81, 92, 87, 99, 36, 6, 49, 17, 96, 98, 3, 13, 16, 25, 32, 33, 35, 41, 45, 46, 58, 61, 64, 68, 82, 95, 97, 5, 7, 9, 12, 27, 29, 38, 39, 50, 54, 57, 59, 65, 71, 76, 83, 88, 91, 93]
+    final_shocks_78_18 = [78, 18]
+    write_path = Path('/home/harsh/OsloAnalysis/new_kmeans/all_data_inversion_rps_nlte_ne/')
+    make_files_alternate([final_quiet_profiles, final_shock_reverse_other_profiles, final_shocks_78_18], write_path)

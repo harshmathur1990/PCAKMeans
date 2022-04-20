@@ -7,6 +7,8 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from pathlib import Path
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 import matplotlib as mpl
+from skimage.exposure import adjust_gamma
+
 
 base_path = Path('/home/harsh/OsloAnalysis')
 new_kmeans = base_path / 'new_kmeans'
@@ -305,7 +307,7 @@ def get_data_for_inversion_fit_plot_alternate(index, ref_x, ref_y, wave_indice, 
     return data, obs_profiles, syn_profiles
 
 
-def make_inversion_fit_plot_alternate(fovName, index, ref_x, ref_y, wave_indice, time_steps, index_alt=None, frame_alt=None, frame_res=None):
+def make_inversion_fit_plot_alternate(fovName, index, ref_x, ref_y, wave_indice, time_steps, index_alt=None, frame_alt=None, frame_res=None, gamma=1):
 
     data, obs_profiles, syn_profiles = get_data_for_inversion_fit_plot_alternate(
         index, ref_x, ref_y, wave_indice,
@@ -379,8 +381,10 @@ def make_inversion_fit_plot_alternate(fovName, index, ref_x, ref_y, wave_indice,
             for j in range(2):
                 axs = fig.add_subplot(gs[k])
                 print ('{}-{}'.format(i, j + (l * 2)))
+                if l == 2:
+                    gamma = 2
                 axs.imshow(
-                    data[i, j + (l * 2)],
+                    adjust_gamma(data[i, j + (l * 2)], gamma=gamma),
                     cmap='gray',
                     origin='lower',
                     vmin=vmin,  # [l][j],
@@ -414,17 +418,28 @@ def make_inversion_fit_plot_alternate(fovName, index, ref_x, ref_y, wave_indice,
 
                 k += 1
 
-        fig.suptitle(
-            r'Ca II K ${0:+.1f}$ m$\mathrm{{\AA}}$'.format(
-                np.round(
-                    get_relative_velocity(
-                        wave_3933[wave_indice[l]]
-                    ) * 1000,
-                    1
-                )
-            ),
-            fontsize=fontsize
-        )
+        if l in [0, 1]:
+            fig.suptitle(
+                r'Ca II K ${0:+.1f}$ m$\mathrm{{\AA}}$'.format(
+                    np.round(
+                        get_relative_velocity(
+                            wave_3933[wave_indice[l]]
+                        ) * 1000,
+                        1
+                    )
+                ),
+                fontsize=fontsize
+            )
+        else:
+            fig.suptitle(
+                r'Fe I ${0:+.1f}$ m$\mathrm{{\AA}}$'.format(
+                    np.round(
+                        (wave_6173[wave_indice[l] - 50] - 6173.3352) * 1000,
+                        1
+                    )
+                ),
+                fontsize=fontsize
+            )
         fig.savefig(write_path / 'ROI_{}_CaIIk_fit_{}.pdf'.format(fovName, l), format='pdf', dpi=300)
 
     plt.cla()
@@ -488,5 +503,5 @@ def make_inversion_fit_plot_alternate(fovName, index, ref_x, ref_y, wave_indice,
 
 if __name__ == '__main__':
     # make_inversion_fit_plot(662, 708, np.array([12, 14, 16]), np.array([4, 5, 6, 7]), 25, 18, 'A')
-    make_inversion_fit_plot_alternate('A', 0, 25, 18, np.array([12, 14, 16]), np.array([3, 5, 6, 7]), index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7])
-    make_inversion_fit_plot_alternate('B', 3, 29, 21, np.array([12, 14, 16]), np.array([30, 33, 34, 35]), index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35])
+    make_inversion_fit_plot_alternate('A', 0, 25, 18, np.array([12, 14, 30 + 20 + 6]), np.array([3, 5, 6, 7]), index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7], gamma=0.7)
+    make_inversion_fit_plot_alternate('B', 3, 29, 21, np.array([12, 14, 30 + 20 + 6]), np.array([30, 33, 34, 35]), index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35], gamma=0.7)
