@@ -243,7 +243,7 @@ def make_line_cut_plots(all_params, time_array, mask, fovName, vlos_min_lc=None,
 
 def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_lc=None, vlos_max_lc=None, index_alt=None, frame_alt=None, frame_res=None):
 
-    time = np.round(np.arange(0, 826, 8.26), 2)
+    time = np.round(np.arange(0, 826, 8.26), 1)
 
     f = h5py.File(inversion_out_file, 'r')
     falt = None
@@ -882,7 +882,7 @@ def get_data_for_pre_shock_peak_shock_temp_scatter_plot(index_list, index_alt_li
 
             mask_shock = np.zeros((50, 50), dtype=np.int64)
 
-            for profile in list([78, 18]):
+            for profile in list([85]):
                 mask_shock[np.where(labels == profile)] = 1
 
             a, b = np.where(mask_shock == 1)
@@ -969,6 +969,7 @@ def get_data_for_pre_shock_peak_shock_temp_scatter_plot(index_list, index_alt_li
     f.close()
     falt.close()
 
+    print(np.mean(peak_temp_delta_t[:, 0]))
     return pre_temp, peak_temp, peak_temp_delta_t, vlos_shock
 
 
@@ -1197,7 +1198,7 @@ if __name__ == '__main__':
     # ]
     # plot_data_for_result_plots(0, 4, 6, 18, 'A', index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7, 8, 9, 12])
     # plot_data_for_result_plots(2, 17, 20, 27, 'C', -4, 4)
-    plot_data_for_result_plots(3, 32, 35, 21, 'B', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])
+    # plot_data_for_result_plots(3, 32, 35, 21, 'B', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])
     # plot_data_for_result_plots(4, 12, 16, 20, 'D', index_alt=[7, 8, 9, 10], frame_alt=[11, 19, 20, 21], frame_res=[11, 14, 15, 16, 17, 18, 21])
     # plot_data_for_result_plots(5, 57, 60, 30, 'G')
     # plot_data_for_result_plots(7, 7, 11, 17, 'E', index_alt=[11, 12, 13, 14], frame_alt=[6, 14, 15, 16], frame_res=[6, 10, 11, 12, 13, 15, 16])
@@ -1213,7 +1214,7 @@ if __name__ == '__main__':
     # make_time_evolution_plots(9, 9, 25, 26, 'F', index_alt=[20, 21, 22], frame_alt=[8, 16, 17], frame_res=[8, 11, 12, 13, 14, 15, 16, 17])
     # make_legend()
     # make_legend_average()
-    # make_pre_shock_peak_shock_temp_vlos_scatter_plot()
+    make_pre_shock_peak_shock_temp_vlos_scatter_plot()
 
     '''
     ## OLD NOT USED

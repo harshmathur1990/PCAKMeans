@@ -16,7 +16,7 @@ selected_frames = np.array([0, 11, 25, 36, 60, 78, 87])
 # input_file_8542 = '/data/harsh/nb_8542_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
 # input_file_6173 = '/data/harsh/nb_6173_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
 
-old_kmeans_file = '/home/harsh/OsloAnalysis/out_100_0.5_0.5_n_iter_10000_tol_1en5.h5'
+old_kmeans_file = '/home/harsh/OsloAnalysis/new_kmeans/out_100_0.5_0.5_n_iter_10000_tol_1en5.h5'
 mask_file_crisp = '/home/harsh/OsloAnalysis/crisp_chromis_mask_2019-06-06.fits'
 input_file_3950 = '/home/harsh/OsloAnalysis/nb_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fits'
 input_file_8542 = '/home/harsh/OsloAnalysis/nb_8542_aligned_3950_2019-06-06T10:26:20_scans=0-99_corrected_im.fcube'
@@ -177,11 +177,11 @@ def actual_plotting(labels, rps, name='guess'):
 
     plt.cla()
 
-    fig = plt.figure(figsize=(3.5, 3.5))
+    fig = plt.figure(figsize=(3.5, 3.7))
 
     gs = gridspec.GridSpec(4, 3)
 
-    gs.update(left=0.15, right=0.99, top=0.98, bottom=0.11, wspace=0.5, hspace=0.35)
+    gs.update(left=0.15, right=0.99, top=0.94, bottom=0.11, wspace=0.5, hspace=0.35)
 
     for i in range(4):
 
@@ -209,6 +209,13 @@ def actual_plotting(labels, rps, name='guess'):
             min_3950 = 0  # min_3950 * 0.9
             max_3950 = 0.7  # max_3950 * 1.1
 
+            if i == 0:
+                if j == 0:
+                    ax1.set_title('Ca II K', fontsize=fontsize)
+                elif j == 1:
+                    ax1.set_title('Ca II 8542 $\AA$', fontsize=fontsize)
+                elif j == 2:
+                    ax1.set_title('Fe I 6173 $\AA$', fontsize=fontsize)
             if j == 0:
 
                 in_bins_3950 = np.linspace(min_3950, max_3950, 1000)

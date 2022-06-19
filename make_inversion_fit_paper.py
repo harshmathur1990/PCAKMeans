@@ -318,7 +318,7 @@ def make_inversion_fit_plot_alternate(fovName, index, ref_x, ref_y, wave_indice,
 
     time = np.round(
         np.arange(0, 8.26 * 100, 8.26),
-        2
+        1
     )
 
     size = plt.rcParams['lines.markersize']
@@ -382,7 +382,9 @@ def make_inversion_fit_plot_alternate(fovName, index, ref_x, ref_y, wave_indice,
                 axs = fig.add_subplot(gs[k])
                 print ('{}-{}'.format(i, j + (l * 2)))
                 if l == 2:
-                    gamma = 2
+                    gamma = 1
+                    vmin = data[:, 4:].min()
+                    vmax = data[:, 4:].max()
                 axs.imshow(
                     adjust_gamma(data[i, j + (l * 2)], gamma=gamma),
                     cmap='gray',

@@ -269,6 +269,8 @@ def plot_fov_images():
     plt.clf()
     plt.cla()
 
+    fontsize = 10
+
     fig = plt.figure(figsize=(7, 6.77))
 
     gs = gridspec.GridSpec(3, 2)
@@ -405,25 +407,25 @@ def plot_fov_images():
     axs[0][0].imshow(whole_data[0, 29, :, :], cmap='gray', origin='lower', extent=extent)
     im = axs[0][1].imshow(b6173[7], cmap='gray', origin='lower', extent=extent, vmin=-100, vmax=100)
 
-    axs[1][0].imshow(exposure.adjust_gamma(whole_data[0, ca_k_indice[0], :, :], 0.5), cmap='gray', origin='lower', extent=extent)
-    axs[1][1].imshow(exposure.adjust_gamma(whole_data[0, ca_k_indice[1], :, :], 0.5), cmap='gray', origin='lower', extent=extent)
+    axs[1][0].imshow(exposure.adjust_gamma(whole_data[0, ca_k_indice[1], :, :], 0.5), cmap='gray', origin='lower', extent=extent)
+    axs[1][1].imshow(exposure.adjust_gamma(whole_data[0, ca_k_indice[0], :, :], 0.5), cmap='gray', origin='lower', extent=extent)
 
-    axs[2][0].imshow(exposure.adjust_gamma(whole_data[0, 30 + 14 + ca_8_indice[0], :, :], 0.5), cmap='gray', origin='lower', extent=extent)
-    axs[2][1].imshow(exposure.adjust_gamma(whole_data[0, 30 + 14 + ca_8_indice[1], :, :], 0.5), cmap='gray', origin='lower', extent=extent)
+    axs[2][0].imshow(exposure.adjust_gamma(whole_data[0, 30 + 14 + ca_8_indice[1], :, :], 0.5), cmap='gray', origin='lower', extent=extent)
+    axs[2][1].imshow(exposure.adjust_gamma(whole_data[0, 30 + 14 + ca_8_indice[0], :, :], 0.5), cmap='gray', origin='lower', extent=extent)
 
-    axs[0][0].text(0.05, 0.91, r'(a) Continuum 4000 $\mathrm{\AA}$', transform=axs[0][0].transAxes, color='white')
+    axs[0][0].text(0.05, 0.91, r'(c) Continuum 4000 $\mathrm{\AA}$', transform=axs[0][0].transAxes, color='white')
     axs[0][1].text(
         0.05, 0.91,
-        r'(b) $B_{{\mathrm{LOS}}}$ [G]',
+        r'(d) $B_{{\mathrm{LOS}}}$ [G]',
         transform=axs[0][1].transAxes,
         color='white'
     )
     axs[1][0].text(
         0.05, 0.91,
-        r'(c) $\mathrm{{Ca\;II\;K\;}}+{}\mathrm{{\;m\AA}}$'.format(
+        r'(e) $\mathrm{{Ca\;II\;K\;}}{}\mathrm{{\;m\AA}}$'.format(
             np.round(
                 get_relative_velocity(
-                    wave_3933[ca_k_indice[0]]
+                    wave_3933[ca_k_indice[1]]
                 ) * 1000,
                 1
             )
@@ -433,10 +435,10 @@ def plot_fov_images():
     )
     axs[1][1].text(
         0.05, 0.91,
-        r'(d) $\mathrm{{Ca\;II\;K\;}}{}\mathrm{{\;m\AA}}$'.format(
+        r'(f) $\mathrm{{Ca\;II\;K\;}}+{}\mathrm{{\;m\AA}}$'.format(
             np.round(
                 get_relative_velocity(
-                    wave_3933[ca_k_indice[1]]
+                    wave_3933[ca_k_indice[0]]
                 ) * 1000,
                 1
             )
@@ -446,10 +448,10 @@ def plot_fov_images():
     )
     axs[2][0].text(
         0.05, 0.91,
-        r'(e) $\mathrm{{Ca\;II\;8542\;\AA\;}}+{}\mathrm{{\;m\AA}}$'.format(
+        r'(g) $\mathrm{{Ca\;II\;8542\;\AA\;}}{}\mathrm{{\;m\AA}}$'.format(
             np.round(
                 get_relative_velocity_Ca_8542(
-                    wave_8542[ca_8_indice[0]]
+                    wave_8542[ca_8_indice[1]]
                 ) * 1000,
                 1
             )
@@ -459,10 +461,10 @@ def plot_fov_images():
     )
     axs[2][1].text(
         0.05, 0.91,
-        r'(f) $\mathrm{{Ca\;II\;8542\;\AA\;}}{}\mathrm{{\;m\AA}}$'.format(
+        r'(h) $\mathrm{{Ca\;II\;8542\;\AA\;}}+{}\mathrm{{\;m\AA}}$'.format(
             np.round(
                 get_relative_velocity_Ca_8542(
-                    wave_8542[ca_8_indice[1]]
+                    wave_8542[ca_8_indice[0]]
                 ) * 1000,
                 1
             )
@@ -813,10 +815,139 @@ def make_fov_movie(animation_path, fps=1):
 
     ani.save(animation_path, writer=writer)
 
+
+def make_iris_fov_context_plot():
+
+    base_path = Path('/home/harsh/OsloAnalysis/IRIS and HMI/')
+    hmi_file = 'new_submap.fits'
+    iris_file = 'IRIS_2796_20190606_10:26:09.01.fits'
+    hmi_data, _ = sunpy.io.fits.read(base_path / hmi_file)[0]
+    iris_data, _ = sunpy.io.fits.read(base_path / iris_file)[0]
+
+    resolution = 0.3327
+    Cx = 186
+    SolarX = 614.541
+    X = np.arange(iris_data.shape[1]) * resolution - Cx * resolution + SolarX
+    X += 5.6559
+    Cy = 196
+    SolarY = 4.251
+    Y = np.arange(iris_data.shape[0]) * resolution - Cy * resolution + SolarY
+    Y += 0.6654
+
+    cxxc = np.array([574.186, 622.063, 655.634, 607.794, 574.186]) + 5.6559
+    cyyc = np.array([-5.47050, -55.6759, -23.7577, 26.5603, -5.47050]) + 0.6654
+
+    fontsize = 10
+
+    fig, axs = plt.subplots(1, 2, figsize=(7, 2.7))
+
+    axs[0].imshow(exposure.adjust_gamma(exposure.rescale_intensity(iris_data, out_range=(0, 1)), 1.5), cmap='gray', origin='lower', extent=[X[0], X[-1], Y[0], Y[-1]])
+
+    im1 = axs[1].imshow(hmi_data, cmap='gray', origin='lower', vmin=-100, vmax=100, extent=[X[0], X[-1], Y[0], Y[-1]])
+
+    cbaxes = inset_axes(
+        axs[1],
+        width="5%",
+        height="100%",
+        loc='right',
+        borderpad=-2
+    )
+    cbar = fig.colorbar(
+        im1,
+        cax=cbaxes,
+        ticks=[-100, -50, 0, 50, 100],
+        orientation='vertical'
+    )
+
+    # cbar.ax.xaxis.set_ticks_position('top')
+    cbar.ax.tick_params(labelsize=fontsize, colors='black')
+
+    axs[0].plot(cxxc, cyyc, color='white')
+
+    axs[1].plot(cxxc, cyyc, color='white')
+
+    axs[0].set_xlabel('Solar X [arcsec]', fontsize=fontsize)
+    axs[1].set_xlabel('Solar X [arcsec]', fontsize=fontsize)
+
+    axs[0].set_ylabel('Solar Y [arcsec]', fontsize=fontsize)
+
+    xticks = [575, 600, 625, 650, 675]
+    yticks = [-60, -40, -20, 0, 20, 40, 60]
+
+    axs[0].set_xticks(xticks)
+    axs[0].set_xticklabels(xticks, fontsize=fontsize)
+    axs[0].set_yticks(yticks)
+    axs[0].set_yticklabels(yticks, fontsize=fontsize)
+
+    axs[1].set_xticks(xticks)
+    axs[1].set_xticklabels(xticks, fontsize=fontsize)
+    axs[1].set_yticks(yticks)
+    axs[1].set_yticklabels(yticks, fontsize=fontsize)
+
+    axs[0].text(
+        0.1, 0.9,
+        '(a) IRIS SJI 2796 $\mathrm{\AA}$',
+        transform=axs[0].transAxes,
+        color='white',
+        fontsize=fontsize
+    )
+
+    axs[1].text(
+        0.1, 0.9,
+        '(b) HMI $B_{\mathrm{LOS}}$ [G]',
+        transform=axs[1].transAxes,
+        color='white',
+        fontsize=fontsize
+    )
+
+    axs[0].text(
+        595, -40,
+        'x',
+        color='white',
+        fontsize=fontsize+2,
+        rotation=-45
+    )
+
+    axs[0].text(
+        585, 15,
+        'y',
+        color='white',
+        fontsize=fontsize + 2,
+        rotation=-45
+    )
+
+    axs[1].text(
+        595, -40,
+        'x',
+        color='white',
+        fontsize=fontsize + 2,
+        rotation=-45
+    )
+
+    axs[1].text(
+        585, 15,
+        'y',
+        color='white',
+        fontsize=fontsize + 2,
+        rotation=-45
+    )
+
+    plt.subplots_adjust(left=0.15, bottom=0.17, right=0.9, top=0.97, wspace=0.15, hspace=0.1)
+
+    write_path = Path(
+        '/home/harsh/Shocks Paper'
+    )
+    fig.savefig(write_path / 'FOV_IRIS.pdf', format='pdf', dpi=300)
+    fig.savefig(write_path / 'FOV_IRIS.png', format='png', dpi=300)
+
+    # plt.show()
+
+
 if __name__ == '__main__':
     plot_fov_images()
     # plot_one_image()
     #
-    write_path = Path('/home/harsh/Shocks Paper/')
-    animation_path = write_path / 'FoV_animation.mp4'
-    make_fov_movie(animation_path, fps=18)
+    # write_path = Path('/home/harsh/Shocks Paper/')
+    # animation_path = write_path / 'FoV_animation.mp4'
+    # make_fov_movie(animation_path, fps=18)
+    # make_iris_fov_context_plot()
