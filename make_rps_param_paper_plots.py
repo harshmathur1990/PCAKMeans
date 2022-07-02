@@ -406,6 +406,54 @@ def make_new_paper_rp_guess_map_plot():
         color='white'
     )
 
+    axs[2][0].text(
+        0.05, 0.85,
+        r'$\log \tau_{\mathrm{500}}=-1$',
+        transform=axs[2][0].transAxes,
+        fontsize=fontsize,
+        color='black'
+    )
+
+    axs[2][1].text(
+        0.05, 0.85,
+        r'$\log \tau_{\mathrm{500}}=-3$',
+        transform=axs[2][1].transAxes,
+        fontsize=fontsize,
+        color='black'
+    )
+
+    axs[2][2].text(
+        0.05, 0.85,
+        r'$\log \tau_{\mathrm{500}}=-4.2$',
+        transform=axs[2][2].transAxes,
+        fontsize=fontsize,
+        color='black'
+    )
+
+    axs[3][0].text(
+        0.05, 0.85,
+        r'$\log \tau_{\mathrm{500}}=-1$',
+        transform=axs[3][0].transAxes,
+        fontsize=fontsize,
+        color='black'
+    )
+
+    axs[3][1].text(
+        0.05, 0.85,
+        r'$\log \tau_{\mathrm{500}}=-3$',
+        transform=axs[3][1].transAxes,
+        fontsize=fontsize,
+        color='mintcream'
+    )
+
+    axs[3][2].text(
+        0.05, 0.85,
+        r'$\log \tau_{\mathrm{500}}=-4.2$',
+        transform=axs[3][2].transAxes,
+        fontsize=fontsize,
+        color='black'
+    )
+
     axs[0][0].imshow(params[0][0], cmap='gray', origin='lower')
     axs[0][1].imshow(params[0][1], cmap='gray', origin='lower')
     axs[0][2].imshow(params[0][2], cmap='gray', origin='lower')

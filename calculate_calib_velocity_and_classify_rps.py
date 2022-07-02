@@ -2324,5 +2324,5 @@ def get_all_profile_enhancement_data():
 
 
 if __name__ == '__main__':
-    # make_shock_evolution_plots()
-    plot_response_functions()
+    make_shock_evolution_plots()
+    # plot_response_functions()
