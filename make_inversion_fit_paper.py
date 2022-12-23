@@ -505,5 +505,5 @@ def make_inversion_fit_plot_alternate(fovName, index, ref_x, ref_y, wave_indice,
 
 if __name__ == '__main__':
     # make_inversion_fit_plot(662, 708, np.array([12, 14, 16]), np.array([4, 5, 6, 7]), 25, 18, 'A')
-    make_inversion_fit_plot_alternate('A', 0, 25, 18, np.array([12, 14, 30 + 20 + 6]), np.array([3, 5, 6, 7]), index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7], gamma=0.7)
-    make_inversion_fit_plot_alternate('B', 3, 29, 21, np.array([12, 14, 30 + 20 + 6]), np.array([30, 33, 34, 35]), index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35], gamma=0.7)
+    make_inversion_fit_plot_alternate('A', 0, 25, 18, np.array([12, 14, 30 + 20]), np.array([3, 5, 6, 7]), index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7], gamma=0.7)
+    make_inversion_fit_plot_alternate('B', 3, 29, 21, np.array([12, 14, 30 + 20]), np.array([30, 33, 34, 35]), index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35], gamma=0.7)

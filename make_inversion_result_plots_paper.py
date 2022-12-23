@@ -7,7 +7,7 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from matplotlib.ticker import MultipleLocator
 from matplotlib.patches import Patch
 from calculate_calib_velocity_and_classify_rps import get_shocks_mask, \
-    get_very_strong_shocks_mask, get_very_very_strong_shocks_mask
+    get_very_strong_shocks_mask, get_very_very_strong_shocks_mask, get_input_profiles
 import seaborn as sns
 import pandas as pd
 from matplotlib.ticker import MultipleLocator
@@ -247,6 +247,9 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_
 
     f = h5py.File(inversion_out_file, 'r')
     falt = None
+
+
+
     if index_alt is not None:
         falt = h5py.File(inversion_out_file_alt, 'r')
 
@@ -254,7 +257,7 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_
 
     fontsize = 6
 
-    for ltau_val, ltt in zip([-4.2, -3, -1], ['a', 'b', 'c']):
+    for ltau_val, ltt in zip([-4.2, -3, -0.1], ['a', 'b', 'c']):
 
         ltau_index = np.argmin(np.abs(ltau - ltau_val))
 
@@ -366,15 +369,16 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_
                             fontsize=fontsize
                         )
                     if j == 0:
-                        axs.text(
-                            -1.2, 1.75,
-                            r'({}) $\log\tau_{{\mathrm{{500}}}}={}$'.format(
-                                 ltt, ltau_val
-                            ),
-                            transform=axs.transAxes,
-                            color='black',
-                            fontsize=fontsize + 3,
-                        )
+                        # axs.text(
+                        #     -1.2, 1.75,
+                        #     r'({}) $\log\tau_{{\mathrm{{500}}}}={}$'.format(
+                        #          ltt, ltau_val
+                        #     ),
+                        #     transform=axs.transAxes,
+                        #     color='black',
+                        #     fontsize=fontsize + 3,
+                        # )
+                        pass
                     if j == 3:
                         axs.text(
                             0.3, 1.3,
@@ -594,10 +598,110 @@ def plot_data_for_result_plots(index, start_t, mark_t, mark_y, letter, vlos_min_
     make_line_cut_plots(all_params, time_array, labels_mask, fovName, vlos_min_lc, vlos_max_lc)
 
 
+def plot_referee_granulation_plots(r_index, index, start_t, mark_t, mark_y, letter, vlos_min_lc=None, vlos_max_lc=None, index_alt=None, frame_alt=None, frame_res=None):
+    ref_x_list = [662, 582, 486, 810, 455, 315, 600, 535]
+
+    ref_y_list = [708, 627, 974, 335, 940, 855, 1280, 715]
+
+    time = np.round(np.arange(0, 826, 8.26), 1)
+
+    f = h5py.File(inversion_out_file, 'r')
+    falt = None
+
+    if index_alt is not None:
+        falt = h5py.File(inversion_out_file_alt, 'r')
+
+    fontsize = 6
+
+    ltau_val = -0.1
+
+    ltau_index = np.argmin(np.abs(ltau - ltau_val))
+
+    if falt is None:
+        temp = f['all_temp'][index * 7:index * 7 + 7, :, :, ltau_index] / 1e3
+        frame_res = np.arange(index * 7, index * 7 + 7)
+    else:
+        temp = np.zeros((7, 50, 50), dtype=np.float64)
+
+        for inddd, tindex in enumerate(frame_res):
+            if tindex in frame_alt:
+                indalt = index_alt[frame_alt.index(tindex)]
+                temp[inddd] = falt['all_temp'][indalt, :, :, ltau_index] / 1e3
+            else:
+                temp[inddd] = f['all_temp'][index * 7 + tindex - start_t, :, :, ltau_index] / 1e3
+
+    whole_data = get_input_profiles(
+        ref_x=ref_x_list[r_index],
+        ref_y=ref_y_list[r_index],
+        get_6173=False,
+        get_8542=False,
+        get_6173_blos=False,
+        time_step=np.array(frame_res)
+    )
+
+    plt.close('all')
+
+    plt.clf()
+
+    plt.cla()
+
+    fig, axs = plt.subplots(2, 7, figsize=(3.5, 1))
+
+    for i in range(2):
+        for j in range(7):
+
+            if i == 0:
+                im = axs[i][j].imshow(temp[j], cmap='hot', origin='lower')
+                if j == 3:
+                    axs[i][j].text(
+                        0.1, 0.7,
+                        'ROI {}'.format(letter),
+                        transform=axs[i][j].transAxes,
+                        fontsize=fontsize
+                    )
+            else:
+                im = axs[i][j].imshow(whole_data[frame_res[j], :, :, 29], cmap='gray', origin='lower')
+                axs[i][j].text(
+                    0.1, 0.1,
+                    '{} s'.format(time[frame_res[j]]),
+                    transform=axs[i][j].transAxes,
+                    fontsize=fontsize
+                )
+
+            axs[i][j].set_xticks([])
+            axs[i][j].set_yticks([])
+            axs[i][j].set_xticklabels([])
+            axs[i][j].set_yticklabels([])
+
+            if j == 0:
+                axs[i][j].set_yticks([50 / 1.85])
+                axs[i][j].yaxis.set_minor_locator(MultipleLocator(25 / 1.85))
+            if i == 1:
+                axs[i][j].set_xticks([50 / 1.85])
+                axs[i][j].xaxis.set_minor_locator(MultipleLocator(25 / 1.85))
+
+    plt.subplots_adjust(left=0.0, right=1, top=1, bottom=0.0, wspace=0.0, hspace=0.0)
+
+    fig.savefig(
+        write_path / 'Refree_granulation_{}_lt_{}.pdf'.format(
+            letter,
+            ltau_val
+        ),
+        dpi=300,
+        format='pdf'
+    )
+
+    plt.close('all')
+
+    plt.clf()
+
+    plt.cla()
+
+
 def make_time_evolution_plots(index_f, start_t, mark_x, mark_y, letter, index_alt=None, frame_alt=None, frame_res=None, ylabel=False):
     time = np.round(np.arange(0, 826, 8.26), 2)
 
-    log_t_values = np.array([-4.2, -3, -1])
+    log_t_values = np.array([-4.2, -3, -0.1])
 
     ind_lt = list()
 
@@ -769,7 +873,7 @@ def make_legend(fontsize=10):
     # write_path_2 = Path(
     #     '/home/harsh/Shocks Paper/InversionStats/'
     # )
-    log_t_values = np.array([-4.2, -3, -1])
+    log_t_values = np.array([-4.2, -3, -0.1])
     color = ['blue', 'green', 'orange']
     label_list = list()
 
@@ -849,7 +953,7 @@ def make_legend_average():
 
 
 def get_data_for_pre_shock_peak_shock_temp_scatter_plot(index_list, index_alt_list, mark_t_list):
-    interesting_tau = [-4.2, -3, -1]
+    interesting_tau = [-4.2, -3, -0.1]
 
     interesting_tau_indice = np.zeros(3, dtype=np.int64)
 
@@ -1199,14 +1303,22 @@ if __name__ == '__main__':
     #     ([535, 585], [715, 765], [8, 9]),  # H
     #     ([535, 585], [715, 765], [16, 18]),  # H
     # ]
+    # plot_referee_granulation_plots(0, 0, 4, 6, 18, 'A', index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7, 8, 9, 12])
+    # plot_referee_granulation_plots(2, 2, 17, 20, 27, 'C', -4, 4)
+    # plot_referee_granulation_plots(1, 3, 32, 35, 21, 'B', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])
+    # plot_referee_granulation_plots(3, 4, 12, 16, 20, 'D', index_alt=[7, 8, 9, 10], frame_alt=[11, 19, 20, 21], frame_res=[11, 14, 15, 16, 17, 18, 21])
+    # plot_referee_granulation_plots(4, 5, 57, 60, 30, 'G')
+    # plot_referee_granulation_plots(5, 7, 7, 11, 17, 'E', index_alt=[11, 12, 13, 14], frame_alt=[6, 14, 15, 16], frame_res=[6, 10, 11, 12, 13, 15, 16])
+    # plot_referee_granulation_plots(6, 8, 8, 12, 21, 'H', index_alt=[15, 16, 17, 18, 19], frame_alt=[6, 7, 15, 16, 17], frame_res=[6, 10, 11, 12, 13, 14, 17])
+    # plot_referee_granulation_plots(7, 9, 9, 13, 26, 'F', index_alt=[20, 21, 22], frame_alt=[8, 16, 17], frame_res=[8, 11, 12, 13, 14, 15, 17])
     plot_data_for_result_plots(0, 4, 6, 18, 'A', index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7, 8, 9, 12])
-    plot_data_for_result_plots(2, 17, 20, 27, 'C', -4, 4)
-    plot_data_for_result_plots(3, 32, 35, 21, 'B', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])
-    plot_data_for_result_plots(4, 12, 16, 20, 'D', index_alt=[7, 8, 9, 10], frame_alt=[11, 19, 20, 21], frame_res=[11, 14, 15, 16, 17, 18, 21])
-    plot_data_for_result_plots(5, 57, 60, 30, 'G')
-    plot_data_for_result_plots(7, 7, 11, 17, 'E', index_alt=[11, 12, 13, 14], frame_alt=[6, 14, 15, 16], frame_res=[6, 10, 11, 12, 13, 15, 16])
-    plot_data_for_result_plots(8, 8, 12, 21, 'H', index_alt=[15, 16, 17, 18, 19], frame_alt=[6, 7, 15, 16, 17], frame_res=[6, 10, 11, 12, 13, 14, 17])
-    plot_data_for_result_plots(9, 9, 13, 26, 'F', index_alt=[20, 21, 22], frame_alt=[8, 16, 17], frame_res=[8, 11, 12, 13, 14, 15, 17])
+    # plot_data_for_result_plots(2, 17, 20, 27, 'C', -4, 4)
+    # plot_data_for_result_plots(3, 32, 35, 21, 'B', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])
+    # plot_data_for_result_plots(4, 12, 16, 20, 'D', index_alt=[7, 8, 9, 10], frame_alt=[11, 19, 20, 21], frame_res=[11, 14, 15, 16, 17, 18, 21])
+    # plot_data_for_result_plots(5, 57, 60, 30, 'G')
+    # plot_data_for_result_plots(7, 7, 11, 17, 'E', index_alt=[11, 12, 13, 14], frame_alt=[6, 14, 15, 16], frame_res=[6, 10, 11, 12, 13, 15, 16])
+    # plot_data_for_result_plots(8, 8, 12, 21, 'H', index_alt=[15, 16, 17, 18, 19], frame_alt=[6, 7, 15, 16, 17], frame_res=[6, 10, 11, 12, 13, 14, 17])
+    # plot_data_for_result_plots(9, 9, 13, 26, 'F', index_alt=[20, 21, 22], frame_alt=[8, 16, 17], frame_res=[8, 11, 12, 13, 14, 15, 17])
     # make_time_evolution_plots(0, 4, 25, 18, 'A', index_alt=[0, 1, 2], frame_alt=[3, 11, 12], frame_res=[3, 5, 6, 7, 8, 9, 12], ylabel=True)
     # make_time_evolution_plots(2, 17, 23, 27, 'C')
     # make_time_evolution_plots(3, 32, 29, 21, 'B', index_alt=[3, 4, 5, 6], frame_alt=[30, 31, 39, 40], frame_res=[30, 33, 34, 35, 36, 37, 40])

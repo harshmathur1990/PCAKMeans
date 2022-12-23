@@ -1,10 +1,14 @@
 import sys
+
+import numpy as np
+
 sys.path.insert(1, '/home/harsh/CourseworkRepo/stic/example')
 from prepare_data import *
 from pathlib import Path
 import sunpy.io
 import h5py
 from helita.io.lp import *
+import matplotlib.pyplot as plt
 
 base_path = Path('/home/harsh/OsloAnalysis')
 
@@ -444,6 +448,279 @@ def make_files(fov_list, frs, total_frames=23):
             m.write(str(write_filename))
 
 
+def make_files_for_turbulence_test():
+    data_3950, data_8542, data_6173 = get_data()
+
+    input_profiles = np.zeros(
+        64,
+        dtype=np.float64
+    )
+
+    ref_x = 582
+    ref_y = 627
+    x = 29
+    y = 21
+    t = 35
+    start_t = 32
+    index = 3
+    input_profiles[0:30] = data_3950[t, 0, :, ref_x + x, ref_y + y]
+    input_profiles[30:30+14] = data_6173[t, 0, :, ref_x + x, ref_y + y]
+    input_profiles[30 + 14:30+14+20] = data_8542[t, 0, :, ref_x + x, ref_y + y]
+
+    wck, ick = findgrid(wave_3933[:-1], (wave_3933[1] - wave_3933[0]), extra=8)
+    wfe, ife = findgrid(wave_6173, (wave_6173[10] - wave_6173[9]) * 0.25, extra=8)
+    wc8, ic8 = findgrid(wave_8542, (wave_8542[10] - wave_8542[9]) * 0.5, extra=8)
+
+    ca_k = sp.profile(nx=10, ny=1, ns=4, nt=1, nw=wck.size + 1)
+    fe_1 = sp.profile(nx=10, ny=1, ns=4, nw=wfe.size)
+    ca_8 = sp.profile(nx=10, ny=1, ns=4, nw=wc8.size)
+
+    fe_1.wav[:] = wfe[:]
+    ca_8.wav[:] = wc8[:]
+    ca_k.wav[0:-1] = wck[:]
+    ca_k.wav[-1] = wave_3933[-1]
+
+    ca_k.dat[0, 0, :, ick, 0] = input_profiles[0:29, np.newaxis] / cont[0]
+
+    ca_k.dat[0, 0, :, -1, 0] = input_profiles[29] / cont[0]
+
+    fe_1.dat[0, 0, :, ife, 0] = input_profiles[30:30+14, np.newaxis] * 1e3 / cont[
+        1]
+
+    fe_1.dat[0, 0, :, ife, 0] *= correction_factor[1]
+
+    ca_8.dat[0, 0, :, ic8, 0] = input_profiles[30 + 14:30 + 14 + 20, np.newaxis] * 1e3 / cont[2]
+
+    ca_8.dat[0, 0, :, ic8, 0] *= correction_factor[0]
+
+    fe_1.weights[:, :] = 1.e16
+    fe_1.weights[ife, 0] = 0.002
+
+    ca_8.weights[:, :] = 1.e16
+    ca_8.weights[ic8, 0] = 0.004
+
+    ca_k.weights[:, :] = 1.e16
+    ca_k.weights[ick, 0] = 0.001
+    ca_k.weights[ick[9:19], 0] = 0.0005
+    ca_k.weights[-1, 0] = 0.001
+
+    write_path = Path('/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/vturb_experiment/')
+
+    write_filename = write_path / 'wholedata_{}_{}_{}_{}_{}_total_1.nc'.format(ref_x, ref_y, t, x, y)
+
+    sp_all = ca_k + ca_8 + fe_1
+
+    sp_all.write(str(write_filename))
+
+    m = sp.model(nx=10, ny=1, nt=1, ndep=150)
+
+    out_file = Path('/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/FoVAtoJ.nc')
+
+    f = h5py.File(out_file, 'r')
+
+    m.ltau[:, :, :] = ltau
+
+    m.pgas[:, :, :] = 0.3
+
+    m.temp[0, 0] = f['all_temp'][index * 7 + t - start_t, x, y][np.newaxis, :]
+
+    m.vlos[0, 0] = f['all_vlos'][index * 7 + t - start_t, x, y][np.newaxis, :] * 1e5 + 94841.87483891034
+
+    f.close()
+
+    m.vturb[0, 0] = np.arange(10)[:, np.newaxis] * 1e5
+
+    write_filename = write_path / 'wholedata_{}_{}_{}_{}_{}_total_1_initial_atmos.nc'.format(ref_x, ref_y, t, x, y)
+
+    m.write(str(write_filename))
+
+
+def make_vturb_experiment_plots():
+
+    rps_atmos_result = Path(
+        '/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/vturb_experiment/wholedata_582_627_35_29_21_total_1_cycle_1_t_5_vl_5_vt_0_atmos.nc'
+    )
+
+    rps_profs_result = Path(
+        '/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/vturb_experiment/wholedata_582_627_35_29_21_total_1_cycle_1_t_5_vl_5_vt_0_profs.nc'
+    )
+
+    rps_input_profs = Path(
+        '/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/vturb_experiment/wholedata_582_627_35_29_21_total_1.nc'
+    )
+
+    rps_plot_write_dir = Path(
+        '/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/vturb_experiment/'
+    )
+
+    finputprofs = h5py.File(rps_input_profs, 'r')
+
+    fatmosresult = h5py.File(rps_atmos_result, 'r')
+
+    fprofsresult = h5py.File(rps_profs_result, 'r')
+
+    ind = np.where(finputprofs['profiles'][0, 0, 0, :, 0] != 0)[0]
+
+    temp_list = list()
+    for i, k in enumerate(range(10)):
+        print(i)
+        plt.close('all')
+
+        plt.clf()
+
+        plt.cla()
+
+        fig, axs = plt.subplots(3, 2, figsize=(7, 9))
+
+        color = 'midnightblue'
+        axs[0][0].plot(finputprofs['wav'][ind[0:29]] - 3933.682, finputprofs['profiles'][0, 0, i, ind[0:29], 0], linestyle='dotted', linewidth=0.5, color=color)
+        axs[0][0].plot(fprofsresult['wav'][ind[0:29]] - 3933.682, fprofsresult['profiles'][0, 0, i, ind[0:29], 0], linestyle='-', linewidth=0.5, color=color)
+
+        axs[1][0].plot(finputprofs['wav'][ind[30:30+20]] - 8542.09, finputprofs['profiles'][0, 0, i, ind[30:30+20], 0], linestyle='dotted', linewidth=0.5, color=color)
+        axs[1][0].plot(fprofsresult['wav'][ind[30:30+20]] - 8542.09, fprofsresult['profiles'][0, 0, i, ind[30:30+20], 0], linestyle='-', linewidth=0.5, color=color)
+
+        axs[2][0].plot(finputprofs['wav'][ind[30+20:30+20+14]] - 6173.3352, finputprofs['profiles'][0, 0, i, ind[30+20:30+20+14], 0], linestyle='dotted', linewidth=0.5, color=color)
+        axs[2][0].plot(fprofsresult['wav'][ind[30+20:30+20+14]] - 6173.3352, fprofsresult['profiles'][0, 0, i, ind[30+20:30+20+14], 0], linestyle='-', linewidth=0.5, color=color)
+
+        axs[0][1].plot(fatmosresult['ltau500'][0, 0, 0], fatmosresult['temp'][0, 0, i] / 1e3, color='brown')
+
+        axs[0][1].axvline(x=-4.2)
+
+        indi = np.argmin(np.abs(fatmosresult['ltau500'][0, 0, 0] + 4.2))
+
+        axs[0][1].plot(fatmosresult['ltau500'][0, 0, 0], np.ones(150) * fatmosresult['temp'][0, 0, i, indi] / 1e3)
+
+        temp_list.append(fatmosresult['temp'][0, 0, i, indi] / 1e3)
+
+        axs[1][1].plot(fatmosresult['ltau500'][0, 0, 0], fatmosresult['vlos'][0, 0, i] / 1e5, color='brown')
+
+        axs[2][1].plot(fatmosresult['ltau500'][0, 0, 0], fatmosresult['vturb'][0, 0, i] / 1e5, color='brown')
+
+        axs[0][0].set_ylabel(r'$I/I_{\mathrm{c}}$')
+        axs[1][0].set_ylabel(r'$I/I_{\mathrm{c}}$')
+        axs[2][0].set_ylabel(r'$I/I_{\mathrm{c}}$')
+
+        axs[0][0].set_xlabel(r'$\Delta \lambda\;(\lambda - 3933.682)\;[\AA]$')
+        axs[1][0].set_xlabel(r'$\Delta \lambda\;(\lambda - 8542.09)\;[\AA]$')
+        axs[2][0].set_xlabel(r'$\Delta \lambda\;(\lambda - 6173.3352)\;[\AA]$')
+
+        axs[0][1].set_xlabel(r'$\log\tau_{500}$')
+        axs[1][1].set_xlabel(r'$\log\tau_{500}$')
+        axs[2][1].set_xlabel(r'$\log\tau_{500}$')
+
+        axs[0][1].set_ylabel('T [kK]')
+        axs[1][1].set_ylabel(r'$V_{\mathrm{LOS}}$ $\mathrm{[km\;s^{-1}]}$')
+        axs[2][1].set_ylabel(r'$V_{\mathrm{turb}}$ $\mathrm{[km\;s^{-1}]}$')
+
+        fig.tight_layout()
+
+        fig.savefig(rps_plot_write_dir / 'Experiment_{}'.format(k), format='pdf', dpi=300)
+
+        plt.close('all')
+
+        plt.clf()
+
+        plt.cla()
+
+    plt.close('all')
+
+    plt.clf()
+
+    plt.cla()
+
+    fontsize = 8
+
+    fig, axs = plt.subplots(1, 1, figsize=(3.5, 3.5))
+
+    axs.plot(np.arange(10), temp_list)
+
+    axs.set_xlabel(r'$V_{\mathrm{turb}}$ $\mathrm{[km\;s^{-1}]}$', fontsize=fontsize)
+
+    axs.set_ylabel(r'T [kK] at $\log \tau_{500}$ = $-$4.2', fontsize=fontsize)
+
+    axs.tick_params(axis='both', which='major', labelsize=fontsize)
+
+    plt.subplots_adjust(left=0.15, bottom=0.13, right=0.99, top=0.99, wspace=0.3, hspace=0.3)
+
+    fig.savefig(rps_plot_write_dir / 'Summary.pdf', format='pdf', dpi=300)
+
+    a, b = np.polyfit(range(6), temp_list[0:6], 1)
+
+    print(a, b)
+
+    plt.close('all')
+
+    plt.clf()
+
+    plt.cla()
+
+    ref_x = 582
+    ref_y = 627
+    x = 29
+    y = 21
+    t = 35
+    start_t = 32
+    index = 3
+    out_file = Path('/home/harsh/OsloAnalysis/new_kmeans/wholedata_inversions/FoVAtoJ.nc')
+
+    fontsize = 8
+
+    fig, axs = plt.subplots(2, 2, figsize=(3.5, 3.5))
+    color = 'black'
+    axs[0][0].plot(finputprofs['wav'][ind[0:29]] - 3933.682, finputprofs['profiles'][0, 0, i, ind[0:29], 0], linestyle='dotted', linewidth=0.5, color=color)
+    f = h5py.File(out_file, 'r')
+    axs[0][0].plot(finputprofs['wav'][ind[0:29]] - 3933.682, f['syn_profiles'][index * 7 + t - start_t, x, y, 0:29], linestyle='-', linewidth=0.5, color=color)
+    axs[0][1].plot(fatmosresult['ltau500'][0, 0, 0],  f['all_temp'][index * 7 + t - start_t, x, y] / 1e3, linestyle='-', linewidth=0.5, color=color)
+    axs[1][0].plot(fatmosresult['ltau500'][0, 0, 0], f['all_vlos'][index * 7 + t - start_t, x, y] + 0.9484187483891034, linestyle='-', linewidth=0.5, color=color)
+    axs[1][1].plot(fatmosresult['ltau500'][0, 0, 0], f['all_vturb'][index * 7 + t - start_t, x, y], linestyle='-', linewidth=0.5, color=color)
+    f.close()
+
+    colors = ['#F7D716', '#EC9B3B', '#F24C4C', '#293462']
+    for i, k in enumerate([0, 3, 6, 9]):
+        axs[0][0].plot(fprofsresult['wav'][ind[0:29]] - 3933.682, fprofsresult['profiles'][0, 0, k, ind[0:29], 0], linestyle='-', linewidth=0.5, color=colors[i])
+        axs[0][1].plot(fatmosresult['ltau500'][0, 0, 0], fatmosresult['temp'][0, 0, k] / 1e3, linestyle='-', linewidth=0.5, color=colors[i])
+        axs[1][0].plot(fatmosresult['ltau500'][0, 0, 0], fatmosresult['vlos'][0, 0, k] / 1e5, linestyle='-', linewidth=0.5, color=colors[i])
+        axs[1][1].plot(fatmosresult['ltau500'][0, 0, 0], fatmosresult['vturb'][0, 0, k] / 1e5, linestyle='-', linewidth=0.5, color=colors[i])
+
+    axs[0][0].set_xlabel(r'$\Delta \lambda\;[\AA]$', fontsize=fontsize)
+    axs[0][1].set_xlabel(r'$\log\tau_{500}$', fontsize=fontsize)
+    axs[1][0].set_xlabel(r'$\log\tau_{500}$', fontsize=fontsize)
+    axs[1][1].set_xlabel(r'$\log\tau_{500}$', fontsize=fontsize)
+
+    axs[0][0].set_ylabel(r'$I/I_{\mathrm{c}}$', fontsize=fontsize)
+    axs[0][1].set_ylabel('T [kK]', fontsize=fontsize)
+    axs[1][0].set_ylabel(r'$V_{\mathrm{LOS}}$ $\mathrm{[km\;s^{-1}]}$', fontsize=fontsize)
+    axs[1][1].set_ylabel(r'$V_{\mathrm{turb}}$ $\mathrm{[km\;s^{-1}]}$', fontsize=fontsize)
+
+    axs[0][0].tick_params(axis='both', which='major', labelsize=fontsize)
+    axs[0][1].tick_params(axis='both', which='major', labelsize=fontsize)
+    axs[1][0].tick_params(axis='both', which='major', labelsize=fontsize)
+    axs[1][1].tick_params(axis='both', which='major', labelsize=fontsize)
+
+    axs[0][0].set_xticks([-0.5, 0, 0.5])
+    axs[0][0].set_xticklabels([-0.5, 0, 0.5], fontsize=fontsize)
+
+    xticks = [-8, -6, -4, -2, 0]
+    axs[0][1].set_xticks(xticks)
+    axs[0][1].set_xticklabels(xticks, fontsize=fontsize)
+
+    axs[1][0].set_xticks(xticks)
+    axs[1][0].set_xticklabels(xticks, fontsize=fontsize)
+
+    axs[1][1].set_xticks(xticks)
+    axs[1][1].set_xticklabels(xticks, fontsize=fontsize)
+
+    plt.subplots_adjust(left=0.13, bottom=0.13, right=0.99, top=0.99, wspace=0.45, hspace=0.4)
+
+    fig.savefig(rps_plot_write_dir / 'Summary_Paper.pdf', format='pdf', dpi=300)
+
+    fprofsresult.close()
+
+    fatmosresult.close()
+
+    finputprofs.close()
+
+
 if __name__ == '__main__':
 
     # fov_list = [
@@ -465,31 +742,34 @@ if __name__ == '__main__':
     #     ([810, 860], [335, 385], [10, 12])
     # ]
 
-    fov_list = [
-        ([662, 712], [708, 758], [3, 4]),  # A
-        ([662, 712], [708, 758], [11, 13]),  # A
-        ([582, 632], [627, 677], [30, 32]),  # C
-        ([582, 632], [627, 677], [39, 41]),  # C
-        ([810, 860], [335, 385], [11, 12]),  # D
-        ([810, 860], [335, 385], [19, 22]),  # D
-        ([315, 365], [855, 905], [6, 7]),  # F
-        ([315, 365], [855, 905], [14, 17]),  # F
-        ([600, 650], [1280, 1330], [6, 8]),  # G
-        ([600, 650], [1280, 1330], [15, 18]),  # G
-        ([535, 585], [715, 765], [8, 9]),  # H
-        ([535, 585], [715, 765], [16, 18]),  # H
-    ]
-    write_path = base_path / 'new_kmeans/wholedata_inversions/fov_more/'
+    # fov_list = [
+    #     ([662, 712], [708, 758], [3, 4]),  # A
+    #     ([662, 712], [708, 758], [11, 13]),  # A
+    #     ([582, 632], [627, 677], [30, 32]),  # C
+    #     ([582, 632], [627, 677], [39, 41]),  # C
+    #     ([810, 860], [335, 385], [11, 12]),  # D
+    #     ([810, 860], [335, 385], [19, 22]),  # D
+    #     ([315, 365], [855, 905], [6, 7]),  # F
+    #     ([315, 365], [855, 905], [14, 17]),  # F
+    #     ([600, 650], [1280, 1330], [6, 8]),  # G
+    #     ([600, 650], [1280, 1330], [15, 18]),  # G
+    #     ([535, 585], [715, 765], [8, 9]),  # H
+    #     ([535, 585], [715, 765], [16, 18]),  # H
+    # ]
+    # write_path = base_path / 'new_kmeans/wholedata_inversions/fov_more/'
+    #
+    # quiet_frames_list = [[0, 23]]
+    # shock_reverse_other_frames_list = [[0, 23]]
+    # shocks_78_18_frames_list = [[0, 23]]
+    # make_files(
+    #     fov_list,
+    #     frs=(
+    #         quiet_frames_list,
+    #         shock_reverse_other_frames_list,
+    #         shocks_78_18_frames_list
+    #     ),
+    #     total_frames=23
+    # )
 
-    quiet_frames_list = [[0, 23]]
-    shock_reverse_other_frames_list = [[0, 23]]
-    shocks_78_18_frames_list = [[0, 23]]
-    make_files(
-        fov_list,
-        frs=(
-            quiet_frames_list,
-            shock_reverse_other_frames_list,
-            shocks_78_18_frames_list
-        ),
-        total_frames=23
-    )
+    # make_files_for_turbulence_test()
+    make_vturb_experiment_plots()

@@ -39,7 +39,7 @@ def plot_inertia():
 
     axs.set_ylabel(r'$\sigma_{k}\;*\;1e5$')
 
-    axs.grid()
+    # axs.grid()
 
     axs.axvline(x=100, linestyle='--')
 
@@ -59,4 +59,8 @@ def plot_inertia():
 
     fig.tight_layout()
 
-    fig.savefig('KMeansInertia.pdf', format='pdf', dpi=300)
+    fig.savefig('/home/harsh/Shocks Paper/KMeansInertia.pdf', format='pdf', dpi=300)
+
+
+if __name__ == '__main__':
+    plot_inertia()

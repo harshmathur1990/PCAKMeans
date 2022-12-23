@@ -5,13 +5,14 @@ from pathlib import Path
 import numpy as np
 import h5py
 import sunpy.io
+import sunpy.io.fits
 from helita.io.lp import *
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from skimage.measure import regionprops
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
-from skimage.exposure import adjust_gamma
+from skimage.exposure import adjust_gamma, rescale_intensity
 
 
 base_path = Path('/home/harsh/OsloAnalysis')
@@ -2096,14 +2097,26 @@ def plot_response_functions():
             else:
                 tind = 6
 
-            im = axs.pcolormesh(
-                X,
-                Y,
-                response[i + 1, j], cmap=cmap,
-                shading='nearest',
-                vmin=vmin,
-                vmax=vmax
-            )
+            if j == 2:
+                gamma = 0.5
+                im = axs.pcolormesh(
+                    X,
+                    Y,
+                    adjust_gamma(rescale_intensity(response[i + 1, j], out_range=(0, 1)), gamma=gamma), cmap=cmap,
+                    shading='nearest',
+                    vmin=vmin,
+                    vmax=vmax
+                )
+
+            else:
+                im = axs.pcolormesh(
+                    X,
+                    Y,
+                    response[i + 1, j], cmap=cmap,
+                    shading='nearest',
+                    vmin=vmin,
+                    vmax=vmax
+                )
 
             axs.invert_yaxis()
 

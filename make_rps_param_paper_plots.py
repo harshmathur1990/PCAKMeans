@@ -368,7 +368,7 @@ def make_new_paper_rp_guess_map_plot():
 
     axs[0][1].text(
         0.04, 0.85,
-        r'Ca II K $-0.6$ m$\AA$',
+        r'Ca II K $-0.6$ $\AA$',
         transform=axs[0][1].transAxes,
         fontsize=fontsize,
         color='black'
@@ -376,7 +376,7 @@ def make_new_paper_rp_guess_map_plot():
 
     axs[0][2].text(
         0.04, 0.85,
-        r'Ca II K $-0.1$ m$\AA$',
+        r'Ca II K $-0.1$ $\AA$',
         transform=axs[0][2].transAxes,
         fontsize=fontsize,
         color='white'
